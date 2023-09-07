@@ -42,53 +42,56 @@ void requestPermission() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  // WidgetsFlutterBinding.ensureInitialized();
   // Status bar configuration
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light));
+  // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+  //     statusBarColor: Colors.transparent,
+  //     statusBarIconBrightness: Brightness.dark,
+  //     statusBarBrightness: Brightness.light));
 
   // Initialize Firebase to App
   // firebaseApp = await Firebase.initializeApp(
   //   name: AppStrings.appNameInFirebase,
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
-  const firebaseConfig = {
-    "apiKey": "AIzaSyALDdPTyjaE6qad-Uc-hslCrR2PfknvhWE",
-    "authDomain": "cpscom-aea2f.firebaseapp.com",
-    "projectId": "cpscom-aea2f",
-    "storageBucket": "cpscom-aea2f.appspot.com",
-    "messagingSenderId": "985033228014",
-    "appId": "1:985033228014:web:b48e1ab07d656c29b93dff"
-  };
+  // const firebaseConfig = {
+  //   "apiKey": "AIzaSyALDdPTyjaE6qad-Uc-hslCrR2PfknvhWE",
+  //   "authDomain": "cpscom-aea2f.firebaseapp.com",
+  //   "projectId": "cpscom-aea2f",
+  //   "storageBucket": "cpscom-aea2f.appspot.com",
+  //   "messagingSenderId": "985033228014",
+  //   "appId": "1:985033228014:web:b48e1ab07d656c29b93dff"
+  // };
 
-  if (Platform.isIOS || Platform.isAndroid) {
-    firebaseApp = await Firebase.initializeApp(
-        name: AppStrings.appNameInFirebase,
-        options: DefaultFirebaseOptions.currentPlatform);
-  } else {
-    var app = await Firebase.initializeApp(
-        name: firebaseConfig.toString(),
-        options: DefaultFirebaseOptions.currentPlatform);
-  }
-  if (Platform.isIOS || Platform.isAndroid) {
-    // Request Permission for Push Notification
-    requestPermission();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    await FirebaseMessaging.instance.setAutoInitEnabled(true);
-    LocalNotificationService.initialize();
-  }
+  // if (Platform.isIOS || Platform.isAndroid) {
+  //   firebaseApp = await Firebase.initializeApp(
+  //       name: AppStrings.appNameInFirebase,
+  //       options: DefaultFirebaseOptions.currentPlatform);
+  // } else {
+  //   var app = await Firebase.initializeApp(
+  //       name: firebaseConfig.toString(),
+  //       options: DefaultFirebaseOptions.currentPlatform);
+  // }
+  // if (Platform.isIOS || Platform.isAndroid) {
+  //   // Request Permission for Push Notification
+  //   requestPermission();
+  //   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  //   await FirebaseMessaging.instance.setAutoInitEnabled(true);
+  //   LocalNotificationService.initialize();
+  // }
 
   // Main Function to run the application
   runApp(const MyApp());
 
   // To Prevent Screenshot in app
-  WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-    if (Platform.isAndroid) {
-      await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    }
-  });
+  // WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+  //   if (Platform.isAndroid) {
+  //     await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  //   }
+  // });
 }
 
 class MyApp extends StatefulWidget {
