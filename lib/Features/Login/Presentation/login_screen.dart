@@ -1,10 +1,12 @@
 import 'package:cpscom_admin/Commons/app_icons.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Home/Presentation/build_desktop_view.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/home_screen.dart';
 import 'package:cpscom_admin/Features/Login/Bloc/login_bloc.dart';
 import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_text_field.dart';
 import 'package:cpscom_admin/Widgets/responsive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -457,9 +459,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 create: (context) => LoginBloc(),
                                 child: BlocConsumer<LoginBloc, LoginState>(
                                   listener: (context, state) {
+                                    if (kIsWeb) print("desktopview login");
                                     if (state is LoginStateLoaded) {
-                                      context.pushAndRemoveUntil(
-                                          const HomeScreen());
+                                      if (Responsive.isDesktop(context)) {
+                                        context.pushAndRemoveUntil(
+                                            const BuildDesktopView());
+                                      } else {
+                                        context.pushAndRemoveUntil(
+                                            const HomeScreen());
+                                      }
                                     }
                                     if (state is LoginStateFailed) {
                                       customSnackBar(
@@ -479,6 +487,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       return FullButton(
                                           label: 'Login',
                                           onPressed: () {
+                                            if (kIsWeb)
+                                              print("desktopview login");
                                             if (_formKey.currentState!
                                                 .validate()) {
                                               BlocProvider.of<LoginBloc>(

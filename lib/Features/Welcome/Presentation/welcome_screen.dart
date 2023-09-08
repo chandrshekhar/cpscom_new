@@ -32,6 +32,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 }
 
 Widget _buildDesktopView(BuildContext context, GetStartedStateLoaded state) {
+  print("desktop mode");
   return Scaffold(
     backgroundColor: AppColors.lightGrey,
     body: Stack(
