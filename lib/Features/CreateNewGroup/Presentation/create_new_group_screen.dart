@@ -5,11 +5,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Home/Presentation/build_desktop_view.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/home_screen.dart';
 import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_card.dart';
 import 'package:cpscom_admin/Widgets/custom_text_field.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -501,7 +503,7 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                     finalMembersList.toSet().toList(),
                   );
                   customSnackBar(context, 'Group Created Successfully');
-                  context.pushAndRemoveUntil(const HomeScreen());
+                  context.pushAndRemoveUntil(Responsive.isDesktop(context)?const BuildDesktopView() :HomeScreen());
                 } catch (e) {
                   return;
                 }

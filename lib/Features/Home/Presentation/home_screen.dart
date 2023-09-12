@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Home/Presentation/build_desktop_view.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_chat_card.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_header.dart';
@@ -69,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const BuildMobileView();
+    return Responsive.isDesktop(context)?BuildDesktopView() :const BuildMobileView();
   }
 }
 
@@ -163,6 +164,7 @@ class _BuildChatListState extends State<BuildChatList> {
             ],
           ),
         ),
+        Responsive.isDesktop(context)?SizedBox(height: 10):SizedBox(),
         Responsive.isMobile(context) ? const SizedBox() : const CustomDivider(),
         Expanded(
           child: GestureDetector(

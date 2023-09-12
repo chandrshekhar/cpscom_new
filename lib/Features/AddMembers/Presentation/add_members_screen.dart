@@ -2,18 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
-import 'package:cpscom_admin/Features/AddMembers/Widgets/member_card_widget.dart';
 import 'package:cpscom_admin/Features/CreateNewGroup/Presentation/create_new_group_screen.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Models/user.dart' as Users;
-import 'package:cpscom_admin/Utils/app_helper.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:cpscom_admin/Widgets/custom_floating_action_button.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../../../Utils/custom_snack_bar.dart';
 import '../../../Widgets/custom_text_field.dart';
 
@@ -32,7 +29,6 @@ class AddMembersScreen extends StatefulWidget {
   @override
   State<AddMembersScreen> createState() => _AddMembersScreenState();
 }
-
 class _AddMembersScreenState extends State<AddMembersScreen> {
   var selectedIndex = [];
   List<Map<String, dynamic>> selectedMembers = [];
@@ -42,7 +38,6 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
   var membersName = '';
   var membersEmail = '';
   Map<String, dynamic> data = {};
-
   var indx;
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -69,7 +64,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder(
+      body:  StreamBuilder(
           stream: FirebaseProvider.getAllUsers(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             switch (snapshot.connectionState) {

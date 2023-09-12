@@ -145,8 +145,8 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
                                 switch (value) {
                                   case 1:
                                     context.push(const AddMembersScreen(
-                                isCameFromHomeScreen: true,
-                              ));
+                                      isCameFromHomeScreen: true,
+                                    ));
                                     break;
                                 }
                               },
@@ -154,6 +154,7 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
                       Expanded(child: BuildChatList(isAdmin: isAdmin ?? false))
                     ],
                   ),
@@ -166,11 +167,12 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
                 Expanded(
                   flex: 6,
                   child: Container(
-                    color: AppColors.bg,
-                    child: ChatScreen(
-                      groupId: '',
-                    ),
-                  ),
+                      // color: AppColors.bg,
+                      color: Colors.green,
+                      child: ChatScreen(
+                        groupId: "",
+                        isAdmin: true
+                      )),
                 ),
               ],
             ),
