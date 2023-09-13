@@ -1,3 +1,4 @@
+import 'package:cpscom_admin/Features/Home/Bloc/chat_screen_bloc.dart';
 import 'package:cpscom_admin/Features/ReportScreen/Bloc/user_report_bloc.dart';
 import 'package:cpscom_admin/Features/Splash/Bloc/get_started_bloc.dart';
 import 'package:cpscom_admin/Utils/cubit/user_mention_cubit.dart';
@@ -17,6 +18,7 @@ class GlobalBloc extends StatelessWidget {
           BlocProvider(create: (_) => GetStartedBloc()),
           BlocProvider(create: (_) => UserReportBloc()),
           BlocProvider(create: (_) => UserMentionCubit()),
+          BlocProvider(create: (_)=>ChatScreenBloc())
         ],
         child: child);
   }

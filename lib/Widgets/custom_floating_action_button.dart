@@ -1,8 +1,6 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
-
 import '../Commons/app_colors.dart';
-
 class CustomFloatingActionButton extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData? iconData;

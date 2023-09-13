@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Home/Bloc/chat_screen_bloc.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_desktop_view.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_chat_card.dart';
@@ -16,6 +17,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/responsive.dart';
@@ -70,7 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Responsive.isDesktop(context)?BuildDesktopView() :const BuildMobileView();
+    return Responsive.isDesktop(context)
+        ? BuildDesktopView()
+        : const BuildMobileView();
   }
 }
 
@@ -164,7 +168,9 @@ class _BuildChatListState extends State<BuildChatList> {
             ],
           ),
         ),
-        Responsive.isDesktop(context)?SizedBox(height: 10):SizedBox(),
+        Responsive.isDesktop(context)
+            ? const SizedBox(height: 10)
+            : const SizedBox(),
         Responsive.isMobile(context) ? const SizedBox() : const CustomDivider(),
         Expanded(
           child: GestureDetector(
@@ -226,13 +232,29 @@ class _BuildChatListState extends State<BuildChatList> {
                                         if (groupName.isEmpty &&
                                             groupDesc.isEmpty) {
                                           return HomeChatCard(
-                                              groupId: finalGroupList[index].id,
+                                              groupId:
+                                                  finalGroupList[index].id,
                                               onPressed: () {
-                                                context.push(ChatScreen(
-                                                  groupId:
-                                                      finalGroupList[index].id,
-                                                  isAdmin: widget.isAdmin,
-                                                ));
+                                                if (Responsive.isDesktop(
+                                                    context)) {
+                                                  BlocProvider.of<
+                                                              ChatScreenBloc>(
+                                                          context)
+                                                      .add(ChatScreenEvent(
+                                                          groupId:
+                                                              finalGroupList[
+                                                                      index]
+                                                                  .id,
+                                                          isAdmin: widget
+                                                              .isAdmin));
+                                                } else {
+                                                  context.push(ChatScreen(
+                                                    groupId:
+                                                        finalGroupList[index]
+                                                            .id,
+                                                    isAdmin: widget.isAdmin,
+                                                  ));
+                                                }
                                               },
                                               groupName: finalGroupList[index]
                                                   ['name'],

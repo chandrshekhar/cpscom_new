@@ -2,14 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Presentation/add_members_screen.dart';
+import 'package:cpscom_admin/Features/Home/Bloc/chat_screen_bloc.dart';
+import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
+import 'package:cpscom_admin/Utils/app_preference.dart';
+import 'package:cpscom_admin/Widgets/custom_confirmation_dialog.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Api/firebase_provider.dart';
 import '../../Chat/Presentation/chat_screen.dart';
 import '../../MyProfile/Presentation/my_profile_screen.dart';
 import 'home_screen.dart';
-
 class BuildDesktopView extends StatefulWidget {
   const BuildDesktopView({Key? key}) : super(key: key);
 
@@ -27,10 +31,19 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
   int? selectedIndex;
 
   final FirebaseProvider firebaseProvider = FirebaseProvider();
+  final AppPreference preference = AppPreference();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    BlocProvider.of<ChatScreenBloc>(context)
+        .add(const ChatScreenEvent(groupId: '', isAdmin: true));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return !Responsive.isDesktop(context)?const HomeScreen() :Scaffold(
       backgroundColor: AppColors.lightGrey,
       body: Stack(
         children: [
@@ -73,10 +86,32 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
                                           .adaptive();
                                     default:
                                       if (snapshot.hasData) {
-                                        // bool isAdmin = snapshot.data?['isAdmin'];
+                                        bool isAdmin = snapshot.data?['isAdmin'];
                                         return GestureDetector(
-                                          onTap: () => context
-                                              .push(const MyProfileScreen()),
+                                          onTap: () {
+                                            if (Responsive.isDesktop(context)) {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AlertDialog(content:
+                                                          StatefulBuilder(builder:
+                                                              (BuildContext
+                                                                      context,
+                                                                  StateSetter
+                                                                      setState) {
+                                                        return const SizedBox(
+                                                          width: 600,
+                                                          child:
+                                                              MyProfileScreen(),
+                                                        );
+                                                      }));
+                                                    });
+                                            
+                                            } else {
+                                              context.push(
+                                                  const MyProfileScreen());
+                                            }
+                                          },
                                           child: ClipRRect(
                                             borderRadius: BorderRadius.circular(
                                                 AppSizes.cardCornerRadius * 10),
@@ -134,7 +169,7 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
                                           Theme.of(context).textTheme.bodyText2,
                                     )),
                                 PopupMenuItem(
-                                    value: 1,
+                                    value: 2,
                                     child: Text(
                                       'Logout',
                                       style:
@@ -144,9 +179,49 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
                               onSelected: (value) {
                                 switch (value) {
                                   case 1:
-                                    context.push(const AddMembersScreen(
-                                      isCameFromHomeScreen: true,
-                                    ));
+                                    Responsive.isDesktop(context)
+                                        ? showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(content:
+                                                  StatefulBuilder(builder:
+                                                      (BuildContext context,
+                                                          StateSetter
+                                                              setState) {
+                                                return Container(
+                                                  width: 500,
+                                                  child: const AddMembersScreen(
+                                                      isCameFromHomeScreen:
+                                                          true),
+                                                );
+                                              }));
+                                            })
+                                        : context.push(const AddMembersScreen(
+                                            isCameFromHomeScreen: true,
+                                          ));
+                                    break;
+                                  case 2:
+                                    showDialog(
+                                        context: context,
+                                        barrierDismissible: true,
+                                        builder: (BuildContext dialogContext) {
+                                          return ConfirmationDialog(
+                                              title: 'Logout?',
+                                              body:
+                                                  'Are you sure you want to logout?',
+                                              positiveButtonLabel: 'Logout',
+                                              negativeButtonLabel: 'Cancel',
+                                              onPressedPositiveButton:
+                                                  () async {
+                                                await FirebaseProvider.logout();
+                                                await preference
+                                                    .setIsLoggedIn(false);
+                                                await preference
+                                                    .clearPreference();
+                                                context.pushAndRemoveUntil(
+                                                    const LoginScreen());
+                                              });
+                                        });
                                     break;
                                 }
                               },
@@ -164,15 +239,41 @@ class _BuildDesktopViewState extends State<BuildDesktopView> {
                   height: MediaQuery.of(context).size.height,
                   decoration: const BoxDecoration(color: AppColors.lightGrey),
                 ),
-                Expanded(
-                  flex: 6,
-                  child: Container(
-                      // color: AppColors.bg,
-                      color: Colors.green,
-                      child: ChatScreen(
-                        groupId: "",
-                        isAdmin: true
-                      )),
+                BlocBuilder<ChatScreenBloc, ChatScreenState>(
+                  builder: (context, state) {
+                    print("state--> $state");
+                    if (state is ChatScreenClickedState) {
+                     return Expanded(
+                        flex: 6,
+                        child:
+                            ChatScreen(groupId: state.groupId, isAdmin: state.isAdmin),
+                      );
+                    }
+                    return Expanded(
+                      flex: 6,
+                      child: Container(
+                          color: AppColors.bg,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/no-group-image.png',
+                            height: 200,
+                          ),
+                          const SizedBox(height: 20),
+                          const Text("CPSCOM WEB",style:TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 10),
+                          const SizedBox(
+                            width: 500,
+                            child: Text(
+                                'Lorem ipsum dolor sit amet consectetur. Volutpat justo magna at ante tristique at lacus ultricies auctor. Nullam diam sapien habitasse sed. Suspendisse quam purus vulputate semper nunc lacus magna.'),
+                          )
+                        ],
+                      )
+                          // child: ChatScreen(groupId: "", isAdmin: true)
+                          ),
+                    );
+                  },
                 ),
               ],
             ),

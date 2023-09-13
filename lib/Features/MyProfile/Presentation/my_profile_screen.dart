@@ -12,11 +12,13 @@ import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_
 import 'package:cpscom_admin/Utils/app_preference.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../Commons/app_images.dart';
@@ -245,10 +247,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                     child: ListView.builder(
                                                         shrinkWrap: true,
                                                         padding: const EdgeInsets
-                                                                .all(
-                                                            AppSizes
+                                                            .all(AppSizes
                                                                 .kDefaultPadding),
-                                                        itemCount:
+                                                        itemCount:Responsive.isDesktop(context)?imagePickerList.length-1 : 
                                                             imagePickerList
                                                                 .length,
                                                         scrollDirection:
@@ -270,7 +271,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                             },
                                                             child: Padding(
                                                               padding: const EdgeInsets
-                                                                      .only(
+                                                                  .only(
                                                                   left: AppSizes
                                                                           .kDefaultPadding *
                                                                       2),
@@ -280,7 +281,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                                     width: 60,
                                                                     height: 60,
                                                                     padding: const EdgeInsets
-                                                                            .all(
+                                                                        .all(
                                                                         AppSizes
                                                                             .kDefaultPadding),
                                                                     decoration: BoxDecoration(

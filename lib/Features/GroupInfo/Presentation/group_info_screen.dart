@@ -14,6 +14,7 @@ import 'package:cpscom_admin/Widgets/custom_card.dart';
 import 'package:cpscom_admin/Widgets/custom_confirmation_dialog.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:cpscom_admin/Widgets/participants_card.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -157,16 +158,34 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                               .textTheme
                                               .bodyText2,
                                         )),
-
                                   ],
                                   onSelected: (value) {
                                     switch (value) {
                                       case 1:
-                                        context.push(ChangeGroupTitle(
-                                          groupId: widget.groupId,
-                                        ));
-                                        break;
+                                        if (Responsive.isDesktop(context)) {
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(content:
+                                                    StatefulBuilder(builder:
+                                                        (BuildContext context,
+                                                            StateSetter
+                                                                setState) {
+                                                  return SizedBox(
+                                                    width: 600,
+                                                    child: ChangeGroupTitle(
+                                                      groupId: widget.groupId,
+                                                    ),
+                                                  );
+                                                }));
+                                              });
+                                        } else {
+                                          context.push(ChangeGroupTitle(
+                                            groupId: widget.groupId,
+                                          ));
+                                        }
 
+                                        break;
                                     }
                                   },
                                 )
@@ -283,10 +302,11 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                             shrinkWrap: true,
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .all(
+                                                                    .all(
                                                                     AppSizes
                                                                         .kDefaultPadding),
-                                                            itemCount:
+                                                            itemCount: Responsive.isDesktop(context)?imagePickerList
+                                                                    .length-1:
                                                                 imagePickerList
                                                                     .length,
                                                             scrollDirection:
@@ -310,7 +330,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                                 },
                                                                 child: Padding(
                                                                   padding: const EdgeInsets
-                                                                          .only(
+                                                                      .only(
                                                                       left: AppSizes
                                                                               .kDefaultPadding *
                                                                           2),
@@ -321,8 +341,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                                             60,
                                                                         height:
                                                                             60,
-                                                                        padding:
-                                                                            const EdgeInsets.all(AppSizes.kDefaultPadding),
+                                                                        padding: const EdgeInsets
+                                                                            .all(
+                                                                            AppSizes.kDefaultPadding),
                                                                         decoration: BoxDecoration(
                                                                             border:
                                                                                 Border.all(width: 1, color: AppColors.lightGrey),
@@ -526,12 +547,39 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                           ? InkWell(
                                               onTap: () {
                                                 // context.push(const AddParticipantsScreen());
-                                                context.push(AddMembersScreen(
-                                                  groupId: widget.groupId,
-                                                  isCameFromHomeScreen: false,
-                                                  existingMembersList:
-                                                      membersList,
-                                                ));
+                                                if (Responsive.isDesktop(
+                                                    context)) {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return AlertDialog(content:
+                                                            StatefulBuilder(builder:
+                                                                (BuildContext
+                                                                        context,
+                                                                    StateSetter
+                                                                        setState) {
+                                                          return SizedBox(
+                                                            width: 600,
+                                                            child:
+                                                                AddMembersScreen(
+                                                              groupId: widget
+                                                                  .groupId,
+                                                              isCameFromHomeScreen:
+                                                                  false,
+                                                              existingMembersList:
+                                                                  membersList,
+                                                            ),
+                                                          );
+                                                        }));
+                                                      });
+                                                } else {
+                                                  context.push(AddMembersScreen(
+                                                    groupId: widget.groupId,
+                                                    isCameFromHomeScreen: false,
+                                                    existingMembersList:
+                                                        membersList,
+                                                  ));
+                                                }
                                               },
                                               child: Container(
                                                 width: 30,

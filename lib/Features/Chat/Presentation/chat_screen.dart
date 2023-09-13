@@ -17,6 +17,7 @@ import 'package:cpscom_admin/Utils/custom_bottom_modal_sheet.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:cpscom_admin/Widgets/custom_text_field.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -474,7 +475,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   return SafeArea(
                     child: Scaffold(
                       appBar: CustomAppBar(
-                        title: snapshot.data!['name'],
+                        title: Responsive.isDesktop(context)
+                            ? ''
+                            : snapshot.data!['name'],
+                        autoImplyLeading:
+                            Responsive.isDesktop(context) ? false : true,
                         actions: [
                           PopupMenuButton(
                             icon: ClipRRect(
@@ -549,18 +554,60 @@ class _ChatScreenState extends State<ChatScreen> {
                             onSelected: (value) {
                               switch (value) {
                                 case 1:
-                                  context.push(GroupInfoScreen(
-                                      groupId: widget.groupId,
-                                      isAdmin: widget.isAdmin));
+                                  if (Responsive.isDesktop(context)) {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(content:
+                                              StatefulBuilder(builder:
+                                                  (BuildContext context,
+                                                      StateSetter setState) {
+                                            return SizedBox(
+                                              width: 600,
+                                              child: GroupInfoScreen(
+                                                  groupId: widget.groupId,
+                                                  isAdmin: widget.isAdmin),
+                                            );
+                                          }));
+                                        });
+                                  } else {
+                                    context.push(GroupInfoScreen(
+                                        groupId: widget.groupId,
+                                        isAdmin: widget.isAdmin));
+                                  }
+
                                   break;
                                 case 2:
-                                  context.push(ReportScreen(
-                                    chatMap: chatMap,
-                                    groupId: widget.groupId,
-                                    groupName: groupName,
-                                    message: '',
-                                    isGroupReport: true,
-                                  ));
+                                  if (Responsive.isDesktop(context)) {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(content:
+                                              StatefulBuilder(builder:
+                                                  (BuildContext context,
+                                                      StateSetter setState) {
+                                            return SizedBox(
+                                              width: 600,
+                                              child: ReportScreen(
+                                                chatMap: chatMap,
+                                                groupId: widget.groupId,
+                                                groupName: groupName,
+                                                message: '',
+                                                isGroupReport: true,
+                                              ),
+                                            );
+                                          }));
+                                        });
+                                  } else {
+                                    context.push(ReportScreen(
+                                      chatMap: chatMap,
+                                      groupId: widget.groupId,
+                                      groupName: groupName,
+                                      message: '',
+                                      isGroupReport: true,
+                                    ));
+                                  }
+                                  
                                   break;
                                 // case 2:
                                 //   context.push(const GroupMediaScreen());
@@ -651,7 +698,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         shrinkWrap: true,
                                                         reverse: true,
                                                         padding: const EdgeInsets
-                                                                .only(
+                                                            .only(
                                                             bottom: AppSizes
                                                                     .kDefaultPadding *
                                                                 2),
@@ -886,58 +933,53 @@ class _ChatScreenState extends State<ChatScreen> {
                                     }),
                               ),
                             ),
-                            BlocBuilder<UserMentionCubit,
-                                    UserMentionState>(
-                                    builder: (context, state) {
-                                      if(state is UserMentionLoadedState) {
-                                        return Container(
-                                          margin: const EdgeInsets.only(
-                                              left: 5, right: 40),
-                                          decoration: const BoxDecoration(
-                                              color: AppColors.bg,
-                                              borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(
-                                                      AppSizes.cardCornerRadius),
-                                                  bottomRight: Radius.circular(
-                                                      AppSizes
-                                                          .cardCornerRadius))),
-                                          padding: const EdgeInsets.only(left: 20),
-                                          height: 250,
-                                          child: ListView.builder(
-                                              itemCount: _suggestions.length,
-                                              shrinkWrap: true,
-                                              itemBuilder: (context, index) {
-                                                return ListTile(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      context
-                                                          .read<
-                                                          UserMentionCubit>()
-                                                          .mentionCubit(
-                                                          "test");
-                                                      msgController.text =
-                                                          msgController.text +
-                                                              membersList[index]
-                                                              ['name'];
-                                                      msgController.selection =
-                                                          TextSelection.fromPosition(
-                                                              TextPosition(
-                                                                  offset:
-                                                                  msgController
-                                                                      .text
-                                                                      .length));
-                                                    });
-                                                  },
-                                                  contentPadding: EdgeInsets.zero,
-                                                  title:
-                                                  Text(_suggestions[index]),
-                                                );
-                                              }),
-                                        );
-                                      }
-                                      return const SizedBox.shrink();
-                                    },
-                                  ),
+                            BlocBuilder<UserMentionCubit, UserMentionState>(
+                              builder: (context, state) {
+                                if (state is UserMentionLoadedState) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 5, right: 40),
+                                    decoration: const BoxDecoration(
+                                        color: AppColors.bg,
+                                        borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(
+                                                AppSizes.cardCornerRadius),
+                                            bottomRight: Radius.circular(
+                                                AppSizes.cardCornerRadius))),
+                                    padding: const EdgeInsets.only(left: 20),
+                                    height: 250,
+                                    child: ListView.builder(
+                                        itemCount: _suggestions.length,
+                                        shrinkWrap: true,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            onTap: () {
+                                              setState(() {
+                                                context
+                                                    .read<UserMentionCubit>()
+                                                    .mentionCubit("test");
+                                                msgController.text =
+                                                    msgController.text +
+                                                        membersList[index]
+                                                            ['name'];
+                                                msgController.selection =
+                                                    TextSelection.fromPosition(
+                                                        TextPosition(
+                                                            offset:
+                                                                msgController
+                                                                    .text
+                                                                    .length));
+                                              });
+                                            },
+                                            contentPadding: EdgeInsets.zero,
+                                            title: Text(_suggestions[index]),
+                                          );
+                                        }),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
                             Stack(
                               children: [
                                 const CustomDivider(),
@@ -1004,7 +1046,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                   child:
                                                                       Padding(
                                                                     padding:
-                                                                        const EdgeInsets.all(
+                                                                        const EdgeInsets
+                                                                            .all(
                                                                             8.0),
                                                                     child:
                                                                         Column(
@@ -1013,7 +1056,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                               .start,
                                                                       children: [
                                                                         Flexible(
-                                                                          flex: 1,
+                                                                          flex:
+                                                                              1,
                                                                           child:
                                                                               Text(
                                                                             replyWhom,
@@ -1030,17 +1074,17 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                               AppSizes.kDefaultPadding / 8,
                                                                         ),
                                                                         Flexible(
-                                                                          flex: 1,
-                                                                          child: Text(
+                                                                          flex:
+                                                                              1,
+                                                                          child:
+                                                                              Text(
                                                                             replyText,
                                                                             maxLines:
                                                                                 1,
                                                                             overflow:
                                                                                 TextOverflow.ellipsis,
-                                                                            style: Theme.of(context)
-                                                                                .textTheme
-                                                                                .bodyMedium!
-                                                                                .copyWith(color: AppColors.darkGrey),
+                                                                            style:
+                                                                                Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.darkGrey),
                                                                           ),
                                                                         ),
                                                                       ],
@@ -1129,10 +1173,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                                             shrinkWrap: true,
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .all(
+                                                                    .all(
                                                                     AppSizes
                                                                         .kDefaultPadding),
-                                                            itemCount:
+                                                            itemCount: Responsive.isDesktop(context)?chatPickerList
+                                                                    .length-1  :
                                                                 chatPickerList
                                                                     .length,
                                                             scrollDirection:
@@ -1159,7 +1204,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                 },
                                                                 child: Padding(
                                                                   padding: const EdgeInsets
-                                                                          .only(
+                                                                      .only(
                                                                       left: AppSizes
                                                                               .kDefaultPadding *
                                                                           2),
@@ -1170,8 +1215,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                             60,
                                                                         height:
                                                                             60,
-                                                                        padding:
-                                                                            const EdgeInsets.all(AppSizes.kDefaultPadding),
+                                                                        padding: const EdgeInsets
+                                                                            .all(
+                                                                            AppSizes.kDefaultPadding),
                                                                         decoration: BoxDecoration(
                                                                             border:
                                                                                 Border.all(width: 1, color: AppColors.lightGrey),

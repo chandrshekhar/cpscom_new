@@ -8,6 +8,7 @@ import 'package:cpscom_admin/Models/user.dart' as Users;
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:cpscom_admin/Widgets/custom_floating_action_button.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class AddMembersScreen extends StatefulWidget {
   @override
   State<AddMembersScreen> createState() => _AddMembersScreenState();
 }
+
 class _AddMembersScreenState extends State<AddMembersScreen> {
   var selectedIndex = [];
   List<Map<String, dynamic>> selectedMembers = [];
@@ -42,7 +44,6 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
-
   Future<void> addMemberToGroup(
     String groupId,
   ) async {
@@ -64,7 +65,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:  StreamBuilder(
+      body: StreamBuilder(
           stream: FirebaseProvider.getAllUsers(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             switch (snapshot.connectionState) {
@@ -222,9 +223,25 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
           ? CustomFloatingActionButton(
               onPressed: () {
                 if (widget.isCameFromHomeScreen == true) {
-                  context.push(CreateNewGroupScreen(
-                    membersList: selectedMembers.unique((x) => x['uid']),
-                  ));
+                  if (Responsive.isDesktop(context)) {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(content: StatefulBuilder(builder:
+                              (BuildContext context, StateSetter setState) {
+                            return SizedBox(
+                              width: 600,
+                              child: CreateNewGroupScreen(
+                                  membersList:
+                                      selectedMembers.unique((x) => x['uid'])),
+                            );
+                          }));
+                        });
+                  } else {
+                    context.push(CreateNewGroupScreen(
+                      membersList: selectedMembers.unique((x) => x['uid']),
+                    ));
+                  }
                 } else {
                   addMemberToGroup(widget.groupId!);
                   Future.delayed(

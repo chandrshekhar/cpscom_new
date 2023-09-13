@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
@@ -19,7 +18,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../../../Utils/custom_bottom_modal_sheet.dart';
 import '../../../Widgets/custom_floating_action_button.dart';
 import '../../GroupInfo/Model/image_picker_model.dart';
@@ -170,23 +168,10 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                                 '',
                                 SizedBox(
                                   height: 150,
-                                  child: ListView.builder(
-                                      shrinkWrap: true,
-                                      padding: const EdgeInsets.all(
-                                          AppSizes.kDefaultPadding),
-                                      itemCount: imagePickerList.length,
-                                      scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, index) {
-                                        return GestureDetector(
+                                  child: Responsive.isDesktop(context)
+                                      ? GestureDetector(
                                           onTap: () {
-                                            switch (index) {
-                                              case 0:
-                                                pickImageFromGallery();
-                                                break;
-                                              case 1:
-                                                pickImageFromCamera();
-                                                break;
-                                            }
+                                           pickImageFromGallery();
                                             Navigator.pop(context);
                                           },
                                           child: Padding(
@@ -207,7 +192,7 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                                                               .lightGrey),
                                                       color: AppColors.white,
                                                       shape: BoxShape.circle),
-                                                  child: imagePickerList[index]
+                                                  child: imagePickerList[0]
                                                       .icon,
                                                 ),
                                                 const SizedBox(
@@ -216,7 +201,7 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                                                           2,
                                                 ),
                                                 Text(
-                                                  '${imagePickerList[index].title}',
+                                                  '${imagePickerList[0].title}',
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodyMedium,
@@ -224,8 +209,68 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                                               ],
                                             ),
                                           ),
-                                        );
-                                      }),
+                                        )
+                                      : ListView.builder(
+                                          shrinkWrap: true,
+                                          padding: const EdgeInsets.all(
+                                              AppSizes.kDefaultPadding),
+                                          itemCount: imagePickerList.length,
+                                          scrollDirection: Axis.horizontal,
+                                          itemBuilder: (context, index) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                switch (index) {
+                                                  case 0:
+                                                    pickImageFromGallery();
+                                                    break;
+                                                  case 1:
+                                                    pickImageFromCamera();
+                                                    break;
+                                                }
+                                                Navigator.pop(context);
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: AppSizes
+                                                            .kDefaultPadding *
+                                                        2),
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      width: 60,
+                                                      height: 60,
+                                                      padding: const EdgeInsets
+                                                          .all(AppSizes
+                                                              .kDefaultPadding),
+                                                      decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                              width: 1,
+                                                              color: AppColors
+                                                                  .lightGrey),
+                                                          color:
+                                                              AppColors.white,
+                                                          shape:
+                                                              BoxShape.circle),
+                                                      child:
+                                                          imagePickerList[index]
+                                                              .icon,
+                                                    ),
+                                                    const SizedBox(
+                                                      height: AppSizes
+                                                              .kDefaultPadding /
+                                                          2,
+                                                    ),
+                                                    Text(
+                                                      '${imagePickerList[index].title}',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }),
                                 ));
                           },
                           child: Container(
@@ -368,7 +413,9 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                                             // Add super admin to the group
                                             // if admin create the group.
                                             if (data[i]['isSuperAdmin'] ==
-                                                true && data[i]['uid'] != auth.currentUser!.uid) {
+                                                    true &&
+                                                data[i]['uid'] !=
+                                                    auth.currentUser!.uid) {
                                               finalMembersList.add({
                                                 "email": data[i]['email'],
                                                 "isAdmin": data[i]['isAdmin'],
@@ -503,7 +550,9 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                     finalMembersList.toSet().toList(),
                   );
                   customSnackBar(context, 'Group Created Successfully');
-                  context.pushAndRemoveUntil(Responsive.isDesktop(context)?const BuildDesktopView() :HomeScreen());
+                  context.pushAndRemoveUntil(Responsive.isDesktop(context)
+                      ? const BuildDesktopView()
+                      : const HomeScreen());
                 } catch (e) {
                   return;
                 }
