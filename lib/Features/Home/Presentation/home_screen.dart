@@ -91,7 +91,7 @@ class _BuildChatListState extends State<BuildChatList> {
   List<QueryDocumentSnapshot> groupList = [];
   List<QueryDocumentSnapshot> finalGroupList = [];
   Map<String, dynamic> data = {};
-  List<dynamic> groupMembers = [];
+  // List<dynamic> groupMembers = [];
   String groupName = '';
   String groupDesc = '';
   String sentTime = '';
@@ -238,7 +238,10 @@ class _BuildChatListState extends State<BuildChatList> {
                                                   ['group_description'],
                                               sentTime: sentTime,
                                               imageUrl:
-                                                  '${finalGroupList[index]['profile_picture']}');
+                                                  '${finalGroupList[index]['profile_picture']}',
+                                              child: memberWidget(
+                                                  finalGroupList[index]
+                                                      ['members']));
                                         } else if (finalGroupList[index]['name']
                                                 .toLowerCase()
                                                 .trim()
@@ -257,12 +260,14 @@ class _BuildChatListState extends State<BuildChatList> {
                                                     .trim()
                                                     .toString())) {
                                           return HomeChatCard(
+                                              
                                               groupId: finalGroupList[index].id,
                                               onPressed: () {
                                                 context.push(ChatScreen(
                                                   groupId:
                                                       finalGroupList[index].id,
                                                   isAdmin: widget.isAdmin,
+                                                  
                                                 ));
                                               },
                                               groupName: finalGroupList[index]
@@ -271,7 +276,10 @@ class _BuildChatListState extends State<BuildChatList> {
                                                   ['group_description'],
                                               sentTime: sentTime,
                                               imageUrl:
-                                                  '${finalGroupList[index]['profile_picture']}');
+                                                  '${finalGroupList[index]['profile_picture']}',
+                                              child: memberWidget(
+                                                  finalGroupList[index]
+                                                      ['members']));
                                         }
                                         return const SizedBox();
                                       }),
@@ -293,6 +301,84 @@ class _BuildChatListState extends State<BuildChatList> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget memberWidget(List membersList) {
+    return SizedBox(
+      height: 30,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ListView.builder(
+              itemCount: membersList.length < 3 ? membersList.length : 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return Row(
+                  children: [
+                    Align(
+                      widthFactor: 0.3,
+                      child: CircleAvatar(
+                        radius: 32,
+                        backgroundColor: AppColors.white,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                              AppSizes.cardCornerRadius * 10),
+                          child: CachedNetworkImage(
+                            width: 26,
+                            height: 26,
+                            fit: BoxFit.cover,
+                            imageUrl:
+                                '${membersList[index]['profile_picture']}',
+                            placeholder: (context, url) => const CircleAvatar(
+                              radius: 26,
+                              backgroundColor: AppColors.shimmer,
+                            ),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                              radius: 26,
+                              backgroundColor: AppColors.shimmer,
+                              child: Text(
+                                membersList[index]['name'].substring(0, 1),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyText1!
+                                    .copyWith(fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+          membersList.length > 3
+              ? Align(
+                  widthFactor: 0.6,
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: AppColors.lightGrey,
+                    child: CircleAvatar(
+                      radius: 12,
+                      backgroundColor: AppColors.white,
+                      child: FittedBox(
+                        child: Text(
+                          '+${membersList.length - 3}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .caption!
+                              .copyWith(color: AppColors.black),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox()
+        ],
+      ),
     );
   }
 }

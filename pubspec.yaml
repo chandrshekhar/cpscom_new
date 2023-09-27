@@ -118,6 +118,7 @@ dependencies:
 #   auto complete
   easy_autocomplete: ^1.6.0
   autocomplete_textfield: ^2.0.1
+  get:
 
 flutter_launcher_icons:
   android: true

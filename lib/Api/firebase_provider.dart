@@ -216,11 +216,11 @@ class FirebaseProvider {
     }
   }
 
-  //get all users from firebase firestore collection
-  static Future<QuerySnapshot<Map<String, dynamic>>> getAllUsersList() async {
-    var allUsersList = firestore.collection('users').get();
-    return allUsersList;
-  }
+  // //get all users from firebase firestore collection
+  // static Future<QuerySnapshot<Map<String, dynamic>>> getAllUsersList() async {
+  //   var allUsersList = firestore.collection('users').get();
+  //   return allUsersList;
+  // }
 
   //get current user details from firebase firestore
   Stream<DocumentSnapshot<Map<String, dynamic>>>

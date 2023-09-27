@@ -5,12 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:linkable/linkable.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
-import '../../../Models/message.dart';
+
 
 class ReceiverTile extends StatelessWidget {
   final String message;
@@ -63,6 +60,7 @@ class ReceiverTile extends StatelessWidget {
                 top: AppSizes.kDefaultPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
                   padding: const EdgeInsets.only(

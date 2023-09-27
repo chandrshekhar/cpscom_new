@@ -7,6 +7,7 @@ import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/app_colors.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Commons/route.dart';
+import 'package:cpscom_admin/Features/Home/Controller/home_controller.dart';
 import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
 import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_status_screen.dart';
 import 'package:cpscom_admin/Utils/app_preference.dart';
@@ -17,6 +18,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/instance_manager.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../Commons/app_images.dart';
@@ -36,6 +38,7 @@ class MyProfileScreen extends StatefulWidget {
 class _MyProfileScreenState extends State<MyProfileScreen> {
   final AppPreference preference = AppPreference();
   final FirebaseProvider firebaseProvider = FirebaseProvider();
+  final homeController = Get.put(HomeController());
 
   File? image;
   String imageUrl = "";
@@ -93,6 +96,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           .collection('users')
           .doc(FirebaseProvider.auth.currentUser!.uid)
           .update({'profile_picture': imageUrl});
+         await homeController.getUSerData();
+
 
       // Update user profile picture to firestore, i.e. group-> groupID -> members
       // if (widget.groupsList!.isNotEmpty) {
@@ -116,6 +121,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       //     });
       //   }
       // }
+
+      
     } on FirebaseException catch (e) {
       if (kDebugMode) {
         print(e.message.toString());
@@ -265,6 +272,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                                   pickImageFromCamera();
                                                                   break;
                                                               }
+                                                             
                                                               Navigator.pop(
                                                                   context);
                                                             },

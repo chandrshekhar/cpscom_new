@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:cpscom_admin/Commons/app_strings.dart';
+import 'package:cpscom_admin/Utils/dismis_keyboard.dart';
 import 'package:cpscom_admin/global_bloc.dart';
 import 'package:cpscom_admin/local_notification_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,7 +43,6 @@ void requestPermission() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   // Status bar configuration
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -97,7 +97,6 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
-
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
@@ -143,16 +142,17 @@ class _MyAppState extends State<MyApp> {
       }
     });
   }
-
   @override
   Widget build(BuildContext context) {
-    return GlobalBloc(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: AppStrings.appName,
-        theme: AppTheme.lightTheme,
-        themeMode: ThemeMode.light,
-        home: const SplashScreen(),
+    return DismissKeyBoard(
+      child: GlobalBloc(
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: AppStrings.appName,
+          theme: AppTheme.lightTheme,
+          themeMode: ThemeMode.light,
+          home: const SplashScreen(),
+        ),
       ),
     );
   }

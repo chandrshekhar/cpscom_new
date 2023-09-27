@@ -20,11 +20,13 @@ class HomeChatCard extends StatelessWidget {
   final String? imageUrl;
   final VoidCallback onPressed;
   final String groupId;
+  final Widget child;
 
   HomeChatCard({
     Key? key,
     required this.groupId,
     required this.groupName,
+    required this.child,
     this.sentTime,
     required this.onPressed,
     this.groupDesc = '',
@@ -42,6 +44,7 @@ class HomeChatCard extends StatelessWidget {
       child: StreamBuilder(
           stream: FirebaseProvider.getLastMessage(groupId),
           builder: (context, AsyncSnapshot snapshot) {
+            print("Azharuddin -- > ${snapshot.data}");
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.waiting:
@@ -50,6 +53,7 @@ class HomeChatCard extends StatelessWidget {
                   if (snapshot.data != null &&
                       snapshot.data.docs != null &&
                       snapshot.data.docs.length >= 1) {
+                        
                     lastMsgSenderName = snapshot.data.docs[0]['sendBy'] ==
                             auth.currentUser!.displayName
                         ? 'You'
@@ -64,13 +68,16 @@ class HomeChatCard extends StatelessWidget {
                       chatMembersList =
                           snapshot.data.docs[0]['members'] as List<dynamic>;
 
-                      for (var i = 0; i < chatMembersList.length; i++) {
-                        if (chatMembersList[i]['uid'] ==
-                            auth.currentUser!.uid) {
-                          isSeenByUser = chatMembersList[i]['isSeen'];
-                        }
-                      }
+                  print("chat member--->>>>$chatMembersList");
                     }
+
+                      // for (var i = 0; i < chatMembersList.length; i++) {
+                      //   if (chatMembersList[i]['uid'] ==
+                      //       auth.currentUser!.uid) {
+                      //     isSeenByUser = chatMembersList[i]['isSeen'];
+                      //   }
+                      // }
+                    // }
                   }
                   return InkWell(
                     onTap: () => onPressed.call(),
@@ -249,49 +256,8 @@ class HomeChatCard extends StatelessWidget {
                                       const SizedBox(
                                         height: AppSizes.kDefaultPadding / 2,
                                       ),
-                                      SizedBox(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            MembersStackOnGroup(
-                                              groupId: groupId,
-                                            ),
-                                            (snapshot.data != null &&
-                                                    snapshot.data.docs != null &&
-                                                    snapshot.data.docs.length >=
-                                                        1)
-                                                ? snapshot.data.docs[0]
-                                                            ['sendBy'] !=
-                                                        FirebaseProvider
-                                                            .auth
-                                                            .currentUser!
-                                                            .displayName
-                                                    ? snapshot.data.docs[0]
-                                                                ['type'] !=
-                                                            'notify'
-                                                        ? isSeenByUser == false
-                                                            ? Container(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                width: 10,
-                                                                height: 10,
-                                                                decoration: BoxDecoration(
-                                                                    shape: BoxShape
-                                                                        .circle,
-                                                                    color: AppColors
-                                                                        .primary
-                                                                        .withOpacity(
-                                                                            0.9)),
-                                                              )
-                                                            : const SizedBox()
-                                                        : const SizedBox()
-                                                    : const SizedBox()
-                                                : const SizedBox()
-                                          ],
-                                        ),
-                                      )
+                                      child
+                                     
                                     ],
                                   ),
                                 ),
@@ -315,126 +281,128 @@ class HomeChatCard extends StatelessWidget {
 }
 
 ///-----Members Stack Widget on home chat card widget-----///
-class MembersStackOnGroup extends StatelessWidget {
-  final String groupId;
+// class MembersStackOnGroup extends StatelessWidget {
+//   final String groupId;
 
-  const MembersStackOnGroup({Key? key, required this.groupId})
-      : super(key: key);
+//   const MembersStackOnGroup({Key? key, required this.groupId})
+//       : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    var stream = FirebaseFirestore.instance
-        .collection('groups')
-        .doc(groupId)
-        .snapshots();
+//   @override
+//   Widget build(BuildContext context) {
+//     var stream = FirebaseFirestore.instance
+//         .collection('groups')
+//         .doc(groupId)
+//         .snapshots();
 
-    List<dynamic> membersList = [];
+//     List<dynamic> membersList = [];
 
-    return SizedBox(
-      height: 30,
-      child: StreamBuilder(
-          stream: stream,
-          builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.none:
-              case ConnectionState.waiting:
-                return const CircularProgressIndicator.adaptive();
-              case ConnectionState.active:
-              case ConnectionState.done:
-                if (snapshot.hasData) {
-                  membersList = snapshot.data?['members'];
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          ListView.builder(
-                              itemCount: membersList.length < 3
-                                  ? membersList.length
-                                  : 3,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                return Row(
-                                  children: [
-                                    Align(
-                                      widthFactor: 0.3,
-                                      child: CircleAvatar(
-                                        radius: 32,
-                                        backgroundColor: AppColors.white,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                              AppSizes.cardCornerRadius * 10),
-                                          child: CachedNetworkImage(
-                                            width: 26,
-                                            height: 26,
-                                            fit: BoxFit.cover,
-                                            imageUrl:
-                                                '${membersList[index]['profile_picture']}',
-                                            placeholder: (context, url) =>
-                                                const CircleAvatar(
-                                              radius: 26,
-                                              backgroundColor:
-                                                  AppColors.shimmer,
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    CircleAvatar(
-                                              radius: 26,
-                                              backgroundColor:
-                                                  AppColors.shimmer,
-                                              child: Text(
-                                                membersList[index]['name']
-                                                    .substring(0, 1),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyText1!
-                                                    .copyWith(
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }),
-                          membersList.length > 3
-                              ? Align(
-                                  widthFactor: 0.6,
-                                  child: CircleAvatar(
-                                    radius: 14,
-                                    backgroundColor: AppColors.lightGrey,
-                                    child: CircleAvatar(
-                                      radius: 12,
-                                      backgroundColor: AppColors.white,
-                                      child: FittedBox(
-                                        child: Text(
-                                          '+${membersList.length - 3}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .caption!
-                                              .copyWith(color: AppColors.black),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox()
-                        ],
-                      ),
-                    ],
-                  );
-                }
-            }
-            return const SizedBox();
-          }),
-    );
-  }
-}
+//     return SizedBox(
+//       height: 30,
+//       child: StreamBuilder(
+//           stream: stream,
+//           builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+//             switch (snapshot.connectionState) {
+//               case ConnectionState.none:
+//               case ConnectionState.waiting:
+//                 return const CircularProgressIndicator.adaptive();
+//               case ConnectionState.active:
+//               case ConnectionState.done:
+//                 if (snapshot.hasData) {
+//                   membersList = snapshot.data?['members'];
+//                   return Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     crossAxisAlignment: CrossAxisAlignment.center,
+//                     children: [
+//                       Row(
+//                         mainAxisAlignment: MainAxisAlignment.start,
+//                         crossAxisAlignment: CrossAxisAlignment.center,
+//                         children: [
+//                           ListView.builder(
+//                               itemCount: membersList.length < 3
+//                                   ? membersList.length
+//                                   : 3,
+//                               shrinkWrap: true,
+//                               physics: const NeverScrollableScrollPhysics(),
+//                               scrollDirection: Axis.horizontal,
+//                               itemBuilder: (context, index) {
+//                                 return Row(
+//                                   children: [
+//                                     Align(
+//                                       widthFactor: 0.3,
+//                                       child: CircleAvatar(
+//                                         radius: 32,
+//                                         backgroundColor: AppColors.white,
+//                                         child: ClipRRect(
+//                                           borderRadius: BorderRadius.circular(
+//                                               AppSizes.cardCornerRadius * 10),
+//                                           child: CachedNetworkImage(
+//                                             width: 26,
+//                                             height: 26,
+//                                             fit: BoxFit.cover,
+//                                             imageUrl:
+//                                                 '${membersList[index]['profile_picture']}',
+//                                             placeholder: (context, url) =>
+//                                                 const CircleAvatar(
+//                                               radius: 26,
+//                                               backgroundColor:
+//                                                   AppColors.shimmer,
+//                                             ),
+//                                             errorWidget:
+//                                                 (context, url, error) =>
+//                                                     CircleAvatar(
+//                                               radius: 26,
+//                                               backgroundColor:
+//                                                   AppColors.shimmer,
+//                                               child: Text(
+//                                                 membersList[index]['name']
+//                                                     .substring(0, 1),
+//                                                 style: Theme.of(context)
+//                                                     .textTheme
+//                                                     .bodyText1!
+//                                                     .copyWith(
+//                                                         fontWeight:
+//                                                             FontWeight.w600),
+//                                               ),
+//                                             ),
+//                                           ),
+//                                         ),
+//                                       ),
+//                                     ),
+//                                   ],
+//                                 );
+                            
+                             
+//                               }),
+//                           membersList.length > 3
+//                               ? Align(
+//                                   widthFactor: 0.6,
+//                                   child: CircleAvatar(
+//                                     radius: 14,
+//                                     backgroundColor: AppColors.lightGrey,
+//                                     child: CircleAvatar(
+//                                       radius: 12,
+//                                       backgroundColor: AppColors.white,
+//                                       child: FittedBox(
+//                                         child: Text(
+//                                           '+${membersList.length - 3}',
+//                                           style: Theme.of(context)
+//                                               .textTheme
+//                                               .caption!
+//                                               .copyWith(color: AppColors.black),
+//                                         ),
+//                                       ),
+//                                     ),
+//                                   ),
+//                                 )
+//                               : const SizedBox()
+//                         ],
+//                       ),
+//                     ],
+//                   );
+//                 }
+//             }
+//             return const SizedBox();
+//           }),
+//     );
+//   }
+// }
