@@ -28,7 +28,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void requestPermission() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
     announcement: false,
@@ -79,10 +78,8 @@ Future<void> main() async {
     await FirebaseMessaging.instance.setAutoInitEnabled(true);
     LocalNotificationService.initialize();
   }
-
   // Main Function to run the application
   runApp(const MyApp());
-
   // To Prevent Screenshot in app
   WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
     if (Platform.isAndroid) {
