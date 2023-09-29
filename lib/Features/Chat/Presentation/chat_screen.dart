@@ -437,7 +437,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("pandey---@");
     return Scaffold(
         appBar: AppBar(
           elevation: 1,
@@ -446,9 +445,7 @@ class _ChatScreenState extends State<ChatScreen> {
               builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                 if (snapshot.hasData) {
                   membersList.clear();
-                  membersList.addAll(snapshot.data?['members']);
-                  //print(membersList);
-                  print("GG-> ${membersList}");
+                  membersList.addAll(snapshot.data?['members']); 
                   return Text('${snapshot.data!['name']}');
                 } else {
                   return const SizedBox();

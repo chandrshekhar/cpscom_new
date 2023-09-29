@@ -2,11 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
-import 'package:cpscom_admin/Features/AddMembers/Widgets/member_card_widget.dart';
 import 'package:cpscom_admin/Features/CreateNewGroup/Presentation/create_new_group_screen.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
-import 'package:cpscom_admin/Models/user.dart' as Users;
-import 'package:cpscom_admin/Utils/app_helper.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:cpscom_admin/Widgets/custom_floating_action_button.dart';
@@ -90,7 +87,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                       ),
                     );
                   } else {
-                    for (var i = 0; i < members.length - 1; i++) {
+                    for (var i = 0; i < members.length - 1; i++) {  
                       if (members[i]['isSuperAdmin'] == true) {
                         members.remove(members[i]);
                       }
