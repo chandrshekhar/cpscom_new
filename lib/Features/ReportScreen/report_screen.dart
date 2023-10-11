@@ -126,7 +126,6 @@ class _ReportScreenState extends State<ReportScreen> {
                                       widget.message,
                                       'user-report'));
                             }
-
                             // log('group name - ${widget.groupName} \n group id - ${widget.groupId} \n Report By ID - $reportById  \n report to name -  ${widget.chatMap['sendBy']} \n report to id  -  ${widget.chatMap['sendById']} \n Reason - ${_reasonController.text} \n message - ${widget.message}');
                           }
                         })

@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:ffi';
@@ -31,6 +33,7 @@ import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:focused_menu_custom/focused_menu.dart';
 import 'package:focused_menu_custom/modals.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/instance_manager.dart';
 import 'package:http/http.dart';
@@ -411,18 +414,73 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void updateIsSeenField(String groupId, bool isSeen) async {
-    await FirebaseProvider.firestore
-        .collection('groups')
-        .doc(groupId)
-        .update({"time": DateTime.now().millisecondsSinceEpoch});
-  }
+  // void updateIsSeenField(String groupId, bool isSeen) async {
+  //   await FirebaseProvider.firestore
+  //       .collection('groups')
+  //       .doc(groupId)
+  //       .update({"time": DateTime.now().millisecondsSinceEpoch});
+  // }
 
   @override
   void initState() {
     super.initState();
     //updateIsSeenField(widget.groupId, true);
     msgController = TextEditingController();
+  }
+
+  final queue = Queue<int>();
+  Timer? timer;
+  LinkedHashSet<String> orderedSet = LinkedHashSet<String>();
+  void messageQueue(String messageId, List<dynamic> members) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    // Create a batch
+    WriteBatch batch = firestore.batch();
+    if (members.isEmpty || messageId.length == 0) return;
+    timer?.cancel();
+    orderedSet.add(messageId);
+    timer = Timer(const Duration(seconds: 1), () async {
+      // Loop through the document IDs and update each document in the batch
+      for (String documentId in orderedSet.toList()) {
+        print("seen123 $members");
+        members.forEach((element) {
+          if (element["uid"] == auth.currentUser!.uid) {
+            element["isSeen"] = true;
+          }
+        });
+        DocumentReference documentReference = _firestore
+            .collection('groups')
+            .doc(widget.groupId)
+            .collection('chats')
+            .doc(documentId);
+        // Update the document with the new data
+        batch.update(documentReference, {"members": members});
+      }
+
+      // Commit the batch
+      int seen = 0;
+      batch.commit().then((_) {
+        members.forEach((element) {
+          if (element["isSeen"] == true) {
+            seen++;
+          }
+        });
+        WriteBatch batch2 = firestore.batch();
+        if (seen == members.length) {
+          print("seenIs-> $seen \n $members");
+          for (String documentId in orderedSet.toList()) {
+            DocumentReference documentReference = _firestore
+                .collection('groups')
+                .doc(widget.groupId)
+                .collection('chats')
+                .doc(documentId);
+            // Update the document with the new data
+            batch2.update(documentReference, {"isSeen": true});
+          }
+          batch2.commit().then((value) => 'null');
+        }
+      }).catchError((error) {});
+    });
   }
 
   String groupName = '';
@@ -445,7 +503,7 @@ class _ChatScreenState extends State<ChatScreen> {
               builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                 if (snapshot.hasData) {
                   membersList.clear();
-                  membersList.addAll(snapshot.data?['members']); 
+                  membersList.addAll(snapshot.data?['members']);
                   return Text('${snapshot.data!['name']}');
                 } else {
                   return const SizedBox();
@@ -561,12 +619,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             chatList[0].data() as Map<String, dynamic>;
                         log("lastmsg---> $lastChatMsg['i']['isSeen']");
                         if (chatList.length > 1) {
-                         chatMembersList = lastChatMsg['members'];
+                          chatMembersList = lastChatMsg['members'];
                         }
-
                         for (var i = 0; i < chatList.length; i++) {
-                          chatMap =
-                              chatList[i].data() as Map<String, dynamic>;
+                          chatMap = chatList[i].data() as Map<String, dynamic>;
                           if (chatMap['type'] == 'text' ||
                               chatMap['type'] == 'img' ||
                               chatMap['type'] == 'pdf' ||
@@ -581,24 +637,6 @@ class _ChatScreenState extends State<ChatScreen> {
                             }
                             log('mem ------------ ${mem}');
                             log('chat members ------------ ${chatMembers}');
-                            isSeenCount = 0;
-                            for (var j = 0; j < mem.length; j++) {
-                              updateMessageSeenStatus(
-                                  '${widget.groupId}',
-                                  chatList[0].id,
-                                  mem[j]['uid'],
-                                  mem[j]['profile_picture'],
-                                  j);
-
-                              // check lst msg seen count
-                              if (mem[j]['isSeen'] == true) {
-                                isSeenCount += 1;
-                              }
-
-                            }
-                            if (isSeenCount == mem.length) {
-                             // updateIsSeenStatus(widget.groupId, chatList[i].id);
-                            }
                           }
                         }
                         return Column(
@@ -614,6 +652,30 @@ class _ChatScreenState extends State<ChatScreen> {
                                   padding: const EdgeInsets.only(
                                       bottom: AppSizes.kDefaultPadding * 2),
                                   itemBuilder: (context, index) {
+                                    if (chatList[index]['type'] == 'notify') {
+                                      return ReceiverTile(
+                                          onSwipedMessage: (chatMap) {
+                                            replyToMessage(chatMap);
+                                          },
+                                          message: chatList[index]['message'],
+                                          messageType: chatList[index]['type'],
+                                          sentTime: sentTime,
+                                          sentByName: chatList[index]['sendBy'],
+                                          sentByImageUrl: chatList[index]
+                                              ['profile_picture'],
+                                          groupCreatedBy: FirebaseProvider
+                                                      .auth.currentUser!.uid ==
+                                                  chatList[index]['sendById']
+                                              ? 'You'
+                                              : chatList[index]['sendBy']);
+                                    }
+                                    if (chatList[index]["isSeen"] == false) {
+                                      print('PANDEY-> $index');
+                                      messageQueue(
+                                        chatList[index].id,
+                                        membersList,
+                                      );
+                                    }
                                     var chatMap = chatList[index].data()
                                         as Map<String, dynamic>;
                                     replyMessage = chatList[index].data()
@@ -1706,20 +1768,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         const SizedBox(
                           width: AppSizes.kDefaultPadding / 2,
                         ),
-                        // isDelivered == true
-                        //?
-                        Icon(
-                          Icons.done_all_rounded,
-                          size: 16,
-                          color: isSeen == true
-                              ? AppColors.primary
-                              : AppColors.grey,
-                        )
-                        // : const Icon(
-                        //     Icons.check,
-                        //     size: 16,
-                        //     color: AppColors.grey,
-                        //   )
+                        isDelivered == true
+                            ? Icon(
+                                Icons.done_all_rounded,
+                                size: 16,
+                                color: isSeen == true
+                                    ? AppColors.primary
+                                    : AppColors.grey,
+                              )
+                            : const Icon(
+                                Icons.check,
+                                size: 16,
+                                color: AppColors.grey,
+                              )
                       ],
                     ),
                   ),

@@ -44,7 +44,6 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
-
   Future<void> addMemberToGroup(
     String groupId,
   ) async {
@@ -57,7 +56,6 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
         .update({
       'members': widget.existingMembersList //memberList
     }).then((value) => 'Member Added Successfully');
-
     await firestore.collection('groups').doc(groupId).update({
       'members': widget.existingMembersList //memberList
     }).then((value) => 'Member Added Successfully');
@@ -87,7 +85,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                       ),
                     );
                   } else {
-                    for (var i = 0; i < members.length - 1; i++) {  
+                    for (var i = 0; i < members.length - 1; i++) {
                       if (members[i]['isSuperAdmin'] == true) {
                         members.remove(members[i]);
                       }

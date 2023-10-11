@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -493,6 +494,7 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
           floatingActionButton: CustomFloatingActionButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
+                print("pandey" + finalMembersList.toString());
                 try {
                   FirebaseProvider.createGroup(
                     grpNameController.text,

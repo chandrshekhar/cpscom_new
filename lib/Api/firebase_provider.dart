@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/urls.dart';
 import 'package:cpscom_admin/Models/group.dart';
@@ -60,7 +59,10 @@ class FirebaseProvider {
   ) async {
     try {
       var groupId = const Uuid().v1();
+      print("create group call");
+
       String uid = '';
+      print(auth.currentUser!.uid);
       await firestore
           .collection('users')
           .doc(auth.currentUser!.uid)
@@ -69,8 +71,8 @@ class FirebaseProvider {
           .set({
         "id": groupId,
         "name": groupName,
-        "group_description": groupDescription,
-        "profile_picture": profilePicture,
+        "group_description": groupDescription ?? "",
+        "profile_picture": profilePicture ?? "",
         "group_creator_uid": auth.currentUser!.uid,
         "group_creator_name": auth.currentUser!.displayName,
         "created_at": DateTime.now().millisecondsSinceEpoch,
@@ -81,8 +83,8 @@ class FirebaseProvider {
       await firestore.collection('groups').doc(groupId).set({
         "id": groupId,
         "name": groupName,
-        "group_description": groupDescription,
-        "profile_picture": profilePicture,
+        "group_description": groupDescription ?? "",
+        "profile_picture": profilePicture ?? "",
         "group_creator_uid": auth.currentUser!.uid,
         "group_creator_name": auth.currentUser!.displayName,
         "created_at": DateTime.now().millisecondsSinceEpoch,
@@ -93,7 +95,6 @@ class FirebaseProvider {
       //add groups to all the members belongs to this group
       for (int i = 0; i < members.length; i++) {
         uid = members[i]['uid'];
-
         await firestore
             .collection('users')
             .doc(uid)
@@ -136,7 +137,9 @@ class FirebaseProvider {
         "profile_picture": profilePicture,
         'time': DateTime.now().millisecondsSinceEpoch
       });
+      print("pandey group created");
     } catch (e) {
+      print("ffff"+e.toString());
       if (kDebugMode) {
         log(e.toString());
       }
