@@ -9,7 +9,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'Commons/theme.dart';
 import 'Features/Splash/Presentation/splash_screen.dart';
 import 'firebase_options.dart';
@@ -37,6 +36,7 @@ void requestPermission() async {
     criticalAlert: false,
     provisional: false,
     sound: true,
+    
   );
   log('User granted permission: ${settings.authorizationStatus}');
 }
@@ -82,11 +82,11 @@ Future<void> main() async {
   // Main Function to run the application
   runApp(const MyApp());
   // To Prevent Screenshot in app
-  WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-    if (Platform.isAndroid) {
-      await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    }
-  });
+  // WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+  //   if (Platform.isAndroid) {
+  //     await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  //   }
+  // });
 }
 
 class MyApp extends StatefulWidget {
@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
     //1: This method only call when app is terminated
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (kDebugMode) {
-        log('This method only call when app is terminated');
+        log('This method only call when app is terminated pandey');
         log('Initial Message - ${FirebaseMessaging.instance.getInitialMessage()}');
       }
       if (message != null) {

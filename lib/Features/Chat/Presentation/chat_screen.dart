@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi';
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
@@ -28,14 +26,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:focused_menu_custom/focused_menu.dart';
 import 'package:focused_menu_custom/modals.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:get/instance_manager.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:linkable/linkable.dart';
@@ -44,6 +39,8 @@ import 'package:swipe_to/swipe_to.dart';
 import 'package:uuid/uuid.dart';
 import '../../../Api/urls.dart';
 import '../../../Utils/app_preference.dart';
+import '../../../Widgets/notify_message_widget.dart';
+import '../../../Widgets/video_player.dart';
 
 class ChatScreen extends StatefulWidget {
   final String groupId;
@@ -99,67 +96,44 @@ class _ChatScreenState extends State<ChatScreen> {
   String chatId = '';
 
   //get current user details from firebase firestore
-  Future<void> updateMessageSeenStatus(
-    String groupId,
-    String messageId,
-    String uid,
-    String profilePicture,
-    int index,
-  ) async {
-    // Update chat member data for seen and delivered
-    if (uid == auth.currentUser!.uid) {
-      chatMemberData = {
-        "isSeen": true,
-        "isDelivered": true,
-        "uid": auth.currentUser!.uid,
-        "profile_picture": profilePicture,
-        "name": auth.currentUser!.displayName,
-      };
+  // Future<void> updateMessageSeenStatus(
+  //   String groupId,
+  //   String messageId,
+  //   String uid,
+  //   String profilePicture,
+  //   int index,
+  // ) async {
+  //   // Update chat member data for seen and delivered
+  //   if (uid == auth.currentUser!.uid) {
+  //     chatMemberData = {
+  //       "isSeen": true,
+  //       "isDelivered": true,
+  //       "uid": auth.currentUser!.uid,
+  //       "profile_picture": profilePicture,
+  //       "name": auth.currentUser!.displayName,
+  //     };
 
-      // remove item from chat members and update with new data
-      if (mem.length != null) {
-        for (var i = 0; i < mem.length; i++) {
-          if (i == index) {
-            updatedChatMemberList.removeAt(i);
-            updatedChatMemberList.add(chatMemberData);
-            log('updated chat members - ${updatedChatMemberList[i]}');
-          }
-        }
-      }
-    }
-
-    // update new data to firebase firestore
-    await FirebaseProvider.firestore
-        .collection('groups')
-        .doc(groupId)
-        .collection('chats')
-        .doc(messageId)
-        .update({'members': updatedChatMemberList}).then(
-            (value) => 'Message Seen Status Updated ');
-  }
-
-  // Future<void> updateIsSeenStatus(String groupId, String messageId) async {
+  //     // remove item from chat members and update with new data
+  //     if (mem.length != null) {
+  //       for (var i = 0; i < mem.length; i++) {
+  //         if (i == index) {
+  //           updatedChatMemberList.removeAt(i);
+  //           updatedChatMemberList.add(chatMemberData);
+  //           log('updated chat members - ${updatedChatMemberList[i]}');
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // update new data to firebase firestore
   //   await FirebaseProvider.firestore
   //       .collection('groups')
   //       .doc(groupId)
   //       .collection('chats')
   //       .doc(messageId)
-  //       .update({
-  //     'isSeen': true,
-  //   });
+  //       .update({'members': updatedChatMemberList}).then(
+  //           (value) => 'Message Seen Status Updated ');
   // }
-
-  // Future<void> updateIsDeliveredStatus(String groupId, String messageId) async {
-  //   await FirebaseProvider.firestore
-  //       .collection('groups')
-  //       .doc(groupId)
-  //       .collection('chats')
-  //       .doc(messageId)
-  //       .update({
-  //     'isDelivered': true,
-  //   }).then((value) => 'Status Updated Successfully');
-  // }
-
+ 
   void onSwipedMessage(Map<String, dynamic> message) {
     // log("-------------- ${message['sendBy']} - ${message['message']}");
     chatController.isRelayFunction(true);
@@ -189,16 +163,12 @@ class _ChatScreenState extends State<ChatScreen> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
-      allowedExtensions: [
-        'pdf',
-        'doc',
-        'docx',
-      ],
+      allowedExtensions: ['pdf', 'doc', 'docx', 'mp4'],
     );
-
     if (result != null) {
       PlatformFile file = result.files.first;
       extension = file.extension;
+      debugPrint("file extension--> $extension");
       List<File> files =
           result.paths.map((path) => File(path.toString())).toList();
       for (var i in files) {
@@ -265,6 +235,8 @@ class _ChatScreenState extends State<ChatScreen> {
       extType = "doc";
     } else if (extension == 'gif') {
       extType = "gif";
+    } else if (extension == 'mp4') {
+      extType = "mp4";
     }
     int status = 1;
     try {
@@ -414,13 +386,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // void updateIsSeenField(String groupId, bool isSeen) async {
-  //   await FirebaseProvider.firestore
-  //       .collection('groups')
-  //       .doc(groupId)
-  //       .update({"time": DateTime.now().millisecondsSinceEpoch});
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -434,15 +399,17 @@ class _ChatScreenState extends State<ChatScreen> {
   void messageQueue(String messageId, List<dynamic> members) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+    debugPrint("message seen call");
+
     // Create a batch
     WriteBatch batch = firestore.batch();
-    if (members.isEmpty || messageId.length == 0) return;
+    if (members.isEmpty || messageId.isEmpty) return;
     timer?.cancel();
     orderedSet.add(messageId);
     timer = Timer(const Duration(seconds: 1), () async {
       // Loop through the document IDs and update each document in the batch
       for (String documentId in orderedSet.toList()) {
-        print("seen123 $members");
+        debugPrint("seen123 $members");
         members.forEach((element) {
           if (element["uid"] == auth.currentUser!.uid) {
             element["isSeen"] = true;
@@ -466,8 +433,9 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         });
         WriteBatch batch2 = firestore.batch();
-        if (seen == members.length) {
-          print("seenIs-> $seen \n $members");
+        debugPrint("seen value $seen");
+        if (seen <= members.length) {
+          debugPrint("seenIs-> $seen \n $members");
           for (String documentId in orderedSet.toList()) {
             DocumentReference documentReference = _firestore
                 .collection('groups')
@@ -615,30 +583,31 @@ class _ChatScreenState extends State<ChatScreen> {
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.hasData) {
                         chatList = snapshot.data!.docs;
-                        lastChatMsg =
-                            chatList[0].data() as Map<String, dynamic>;
-                        log("lastmsg---> $lastChatMsg['i']['isSeen']");
+                        // lastChatMsg =
+                        //     chatList[0].data() as Map<String, dynamic>;
+                        // log("lastmsg---> ${lastChatMsg['i']['isSeen']}");
                         if (chatList.length > 1) {
-                          chatMembersList = lastChatMsg['members'];
+                          // chatMembersList = lastChatMsg['members'];
                         }
-                        for (var i = 0; i < chatList.length; i++) {
-                          chatMap = chatList[i].data() as Map<String, dynamic>;
-                          if (chatMap['type'] == 'text' ||
-                              chatMap['type'] == 'img' ||
-                              chatMap['type'] == 'pdf' ||
-                              chatMap['type'] == 'doc' ||
-                              chatMap['type'] == 'docx') {
-                            lastChatMsg =
-                                chatList[0].data() as Map<String, dynamic>;
-                            mem = lastChatMsg['members'];
-                            chatMembers = chatMap['members'];
-                            if (mem != null) {
-                              updatedChatMemberList = mem;
-                            }
-                            log('mem ------------ ${mem}');
-                            log('chat members ------------ ${chatMembers}');
-                          }
-                        }
+                        // for (var i = 0; i < chatList.length; i++) {
+                        //   chatMap = chatList[i].data() as Map<String, dynamic>;
+                        //   if (chatMap['type'] == 'text' ||
+                        //       chatMap['type'] == 'img' ||
+                        //       chatMap['type'] == 'pdf' ||
+                        //       chatMap['type'] == 'doc' ||
+                        //       chatMap['type'] == 'docx' ||
+                        //       chatMap['type'] == 'mp4') {
+                        //     lastChatMsg =
+                        //         chatList[0].data() as Map<String, dynamic>;
+                        //     mem = lastChatMsg['members'];
+                        //     chatMembers = chatMap['members'];
+                        //     if (mem != null) {
+                        //       updatedChatMemberList = mem;
+                        //     }
+                        //     log('mem ------------ ${mem}');
+                        //     log('chat members ------------ ${chatMembers}');
+                        //   }
+                        // }
                         return Column(
                           children: [
                             Expanded(
@@ -652,30 +621,24 @@ class _ChatScreenState extends State<ChatScreen> {
                                   padding: const EdgeInsets.only(
                                       bottom: AppSizes.kDefaultPadding * 2),
                                   itemBuilder: (context, index) {
+                                    debugPrint(
+                                        "type-data-->${chatList[index]['type']}");
                                     if (chatList[index]['type'] == 'notify') {
-                                      return ReceiverTile(
-                                          onSwipedMessage: (chatMap) {
-                                            replyToMessage(chatMap);
-                                          },
-                                          message: chatList[index]['message'],
-                                          messageType: chatList[index]['type'],
-                                          sentTime: sentTime,
-                                          sentByName: chatList[index]['sendBy'],
-                                          sentByImageUrl: chatList[index]
-                                              ['profile_picture'],
-                                          groupCreatedBy: FirebaseProvider
-                                                      .auth.currentUser!.uid ==
-                                                  chatList[index]['sendById']
-                                              ? 'You'
-                                              : chatList[index]['sendBy']);
-                                    }
-                                    if (chatList[index]["isSeen"] == false) {
-                                      print('PANDEY-> $index');
-                                      messageQueue(
-                                        chatList[index].id,
-                                        membersList,
+                                      return NotifieMessageWidget(
+                                        messageBy: FirebaseProvider
+                                                    .auth.currentUser!.uid ==
+                                                chatList[index]['sendById']
+                                            ? 'You'
+                                            : chatList[index]['sendBy'],
+                                        message: chatList[index]['message'],
                                       );
                                     }
+                                    // if (chatList[index]["isSeen"] == false) {
+                                    //   messageQueue(
+                                    //     chatList[index].id,
+                                    //     membersList,
+                                    //   );
+                                    // }
                                     var chatMap = chatList[index].data()
                                         as Map<String, dynamic>;
                                     replyMessage = chatList[index].data()
@@ -753,6 +716,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     true),
                                               )
                                         : chatMap['type'] != 'notify' &&
+                                                chatMap['type'] != 'mp4' &&
                                                 chatMap['type'] == 'text' &&
                                                 (chatMap['reply'] != null &&
                                                     chatMap['reply']['type'] ==
@@ -860,6 +824,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                       ],
                                                       onPressed: () {},
                                                       child: ReceiverTile(
+                                                        chatController:
+                                                            chatController,
                                                         onSwipedMessage:
                                                             (chatMap) {
                                                           replyToMessage(
@@ -880,6 +846,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     ),
                                                   )
                                                 : ReceiverTile(
+                                                    chatController:
+                                                        chatController,
                                                     onSwipedMessage: (chatMap) {
                                                       replyToMessage(chatMap);
                                                     },
@@ -920,7 +888,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           itemCount: membersList.length,
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
-                            // print("Memebrlist-> $membersList");
+                            // debugPrint("Memebrlist-> $membersList");
                             // return Text("index $index");
                             return ListTile(
                               onTap: () {
@@ -1397,7 +1365,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             padding: messageType == 'img' ||
                                     messageType == 'pdf' ||
                                     messageType == 'docx' ||
-                                    messageType == 'doc'
+                                    messageType == 'doc' ||
+                                    messageType == "mp4"
                                 ? EdgeInsets.zero
                                 : null,
                             clipper: ChatBubbleClipper3(
@@ -1421,15 +1390,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                         borderRadius: BorderRadius.circular(
                                             AppSizes.cardCornerRadius),
                                         child: CachedNetworkImage(
-                                          imageUrl: message,
-                                          fit: BoxFit.contain,
-                                          placeholder: (context, url) =>
-                                              const CircularProgressIndicator
-                                                  .adaptive(),
-                                          errorWidget: (context, url, error) =>
-                                              const CircularProgressIndicator
-                                                  .adaptive(),
-                                        ),
+                                            imageUrl: message,
+                                            fit: BoxFit.contain,
+                                            placeholder: (context, url) =>
+                                                const CircularProgressIndicator
+                                                    .adaptive(),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                const Icon(Icons.video_call)),
                                       ),
                                     )
                                   : messageType == 'text'
@@ -1437,7 +1405,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                           text: message,
                                           linkColor: Colors.blue,
                                         )
-                                      : messageType == 'pdf'
+                                      : messageType == 'pdf' 
+                                             
                                           ? message != null
                                               ? Stack(
                                                   children: [
@@ -1663,19 +1632,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     const Center(
                                                         child:
                                                             Text('Loading...')),
-                                              )
-                                              // SfPdfViewer.network(
-                                              //   message,
-                                              //   canShowPaginationDialog: false,
-                                              //   enableHyperlinkNavigation: false,
-                                              //   canShowScrollHead: false,
-                                              //   enableDoubleTapZooming: false,
-                                              //   canShowScrollStatus: false,
-                                              //   pageLayoutMode:
-                                              //       PdfPageLayoutMode.single,
-                                              //   canShowPasswordDialog: false,
-                                              // ),
-                                              ),
+                                              )),
                                         ),
                                         GestureDetector(
                                           onTap: () {
@@ -1699,7 +1656,64 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                       ],
                                     )
-                                  : const SizedBox(),
+                                  : messageType == "mp4"
+                                      ? Stack(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(AppSizes
+                                                      .cardCornerRadius),
+                                              child: Container(
+                                                  alignment: Alignment.center,
+                                                  constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.35,
+                                                      maxHeight:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.20),
+                                                  child: chatController
+                                                          .getAsyncString(
+                                                              message)
+                                                          .isNotEmpty
+                                                      ? Image.file(File(
+                                                          chatController
+                                                              .getAsyncString(message)))
+                                                      : const Icon(Icons.play_arrow)),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          VideoMessage(
+                                                        videoUrl: message,
+                                                      ),
+                                                    ));
+                                              },
+                                              child: Container(
+                                                color: AppColors.transparent,
+                                                constraints: BoxConstraints(
+                                                    maxWidth:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.35,
+                                                    maxHeight:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.20),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : const SizedBox(),
                     ),
                   ),
                 ],
@@ -2018,11 +2032,6 @@ class ShowPdf extends StatelessWidget {
           //duration of cache
           placeholder: (progress) => Center(child: Text('$progress %')),
           errorWidget: (error) => const Center(child: Text('Loading...')),
-        )
-        // SfPdfViewer.network(
-        //   pdfPath,
-        //   scrollDirection: PdfScrollDirection.vertical,
-        // )
-        );
+        ));
   }
 }

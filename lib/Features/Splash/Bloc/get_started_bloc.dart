@@ -13,6 +13,7 @@ class GetStartedBloc extends Bloc<GetStartedEvent, GetStartedState> {
 
     on<GetStartedSubmittedEvent>((event, emit) async {
       final RequestGetStarted requestGetStarted = RequestGetStarted(isPanel: 'admin');
+      print(requestGetStarted.isPanel);
       try {
         emit(GetStartedStateLoading());
         final mData = await repository.getStarted(requestGetStarted);

@@ -1,13 +1,16 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/route.dart';
+import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Presentation/chat_screen.dart';
+import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:linkable/linkable.dart';
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
-
 
 class ReceiverTile extends StatelessWidget {
   final String message;
@@ -17,8 +20,10 @@ class ReceiverTile extends StatelessWidget {
   final String sentByImageUrl;
   final String groupCreatedBy;
   final ValueChanged<Map<String, dynamic>> onSwipedMessage;
+ ChatController chatController;
 
-  const ReceiverTile(
+
+   ReceiverTile(
       {Key? key,
       required this.message,
       required this.messageType,
@@ -26,7 +31,7 @@ class ReceiverTile extends StatelessWidget {
       required this.sentByName,
       this.sentByImageUrl = '',
       required this.groupCreatedBy,
-      required this.onSwipedMessage})
+      required this.onSwipedMessage, required this.chatController})
       : super(key: key);
 
   @override
@@ -122,7 +127,8 @@ class ReceiverTile extends StatelessWidget {
                         padding: messageType == 'img' ||
                                 messageType == 'pdf' ||
                                 messageType == 'docx' ||
-                                messageType == 'doc'
+                                messageType == 'doc' ||
+                                messageType == ''
                             ? EdgeInsets.zero
                             : null,
                         clipper:
@@ -228,7 +234,69 @@ class ReceiverTile extends StatelessWidget {
                                               ],
                                             )
                                           : const SizedBox()
-                                      : const SizedBox(),
+                                      : messageType == "mp4"
+                                          ? messageType == "mp4"
+                                              ? Stack(
+                                                  children: [
+                                                    ClipRRect(
+                                                      borderRadius: BorderRadius
+                                                          .circular(AppSizes
+                                                              .cardCornerRadius),
+                                                      child: Container(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          constraints: BoxConstraints(
+                                                              maxWidth:
+                                                                  MediaQuery.of(context)
+                                                                          .size
+                                                                          .width *
+                                                                      0.35,
+                                                              maxHeight:
+                                                                  MediaQuery.of(context)
+                                                                          .size
+                                                                          .width *
+                                                                      0.20),
+                                                          child: chatController
+                                                                  .getAsyncString(
+                                                                      message)
+                                                                  .isNotEmpty
+                                                              ? Image.file(File(
+                                                                  chatController.getAsyncString(message)))
+                                                              : const Icon(Icons.play_arrow)),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  VideoMessage(
+                                                                videoUrl:
+                                                                    message,
+                                                              ),
+                                                            ));
+                                                      },
+                                                      child: Container(
+                                                        color: AppColors
+                                                            .transparent,
+                                                        constraints: BoxConstraints(
+                                                            maxWidth: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.35,
+                                                            maxHeight:
+                                                                MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.20),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : const SizedBox()
+                                          : SizedBox(),
                         ),
                       ),
                     ),

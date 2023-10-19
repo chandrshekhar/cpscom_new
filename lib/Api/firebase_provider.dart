@@ -357,6 +357,7 @@ class FirebaseProvider {
 
   //UPDATE GROUP TITLE in  firebase
   static Future<void> updateGroupTitle(String groupId, String title) async {
+   
     await firestore
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
