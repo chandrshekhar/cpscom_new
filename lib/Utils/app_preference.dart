@@ -66,6 +66,21 @@ class AppPreference {
     prefs.setString('pushToken', pushToken);
   }
 
+  // new one
+  @override
+  void saveFirebaseToken({String? token}) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('sp_FirebaseToken', token!);
+  }
+
+  @override
+  Future<String?> getFirebaseToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.get('sp_FirebaseToken') != null
+        ? prefs.get("sp_FirebaseToken").toString()
+        : null;
+  }
+
   Future<String> getPushToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String pushToken = prefs.getString('pushToken') ?? '';

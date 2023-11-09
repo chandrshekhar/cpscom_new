@@ -17,15 +17,13 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+       throw UnsupportedError("DeafultFirebase option has not be confug");
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
         return ios;
-      case TargetPlatform.macOS:
-        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -43,14 +41,14 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyALDdPTyjaE6qad-Uc-hslCrR2PfknvhWE',
-    appId: '1:985033228014:web:b48e1ab07d656c29b93dff',
-    messagingSenderId: '985033228014',
-    projectId: 'cpscom-aea2f',
-    authDomain: 'cpscom-aea2f.firebaseapp.com',
-    storageBucket: 'cpscom-aea2f.appspot.com',
-  );
+  // static const FirebaseOptions web = FirebaseOptions(
+  //   apiKey: 'AIzaSyALDdPTyjaE6qad-Uc-hslCrR2PfknvhWE',
+  //   appId: '1:985033228014:web:b48e1ab07d656c29b93dff',
+  //   messagingSenderId: '985033228014',
+  //   projectId: 'cpscom-aea2f',
+  //   authDomain: 'cpscom-aea2f.firebaseapp.com',
+  //   storageBucket: 'cpscom-aea2f.appspot.com',
+  // );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCo5IGoy8C9xhexGxkOO4i69xzsV11OSAY',
@@ -67,16 +65,16 @@ class DefaultFirebaseOptions {
     projectId: 'cpscom-aea2f',
     storageBucket: 'cpscom-aea2f.appspot.com',
     iosClientId: '985033228014-s1tomr1pu3nq8ta76fki0pf495garjhs.apps.googleusercontent.com',
-    iosBundleId: 'us.csic.cpscom',
+    iosBundleId: 'us.csic.cpscomc.ios',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAFj8TKoqubHiHqa2Q0NaIt4wnBpr2K7gg',
-    appId: '1:985033228014:ios:527657c51795697eb93dff',
-    messagingSenderId: '985033228014',
-    projectId: 'cpscom-aea2f',
-    storageBucket: 'cpscom-aea2f.appspot.com',
-    iosClientId: '985033228014-m2eks9vv3q58al9r2q23ogkp3civh00m.apps.googleusercontent.com',
-    iosBundleId: 'com.app.cpscomAdmin',
-  );
+  // static const FirebaseOptions macos = FirebaseOptions(
+  //   apiKey: 'AIzaSyAFj8TKoqubHiHqa2Q0NaIt4wnBpr2K7gg',
+  //   appId: '1:985033228014:ios:527657c51795697eb93dff',
+  //   messagingSenderId: '985033228014',
+  //   projectId: 'cpscom-aea2f',
+  //   storageBucket: 'cpscom-aea2f.appspot.com',
+  //   iosClientId: '985033228014-m2eks9vv3q58al9r2q23ogkp3civh00m.apps.googleusercontent.com',
+  //   iosBundleId: 'com.app.cpscomAdmin',
+  // );
 }
