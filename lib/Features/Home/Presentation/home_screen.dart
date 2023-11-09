@@ -194,13 +194,15 @@ class _BuildChatListState extends State<BuildChatList> {
                         } else {
                           finalGroupList.clear();
                           // view only those groups which the user is present
-                          for (var i = 0; i < groupList.length; i++) {
+                          for (var i = 1; i < groupList.length; i++) {
                             data = groupList[i].data() as Map<String, dynamic>;
-                            data['members'].forEach((element) {
-                              if (element['uid'] == auth.currentUser!.uid) {
                                 finalGroupList.add(groupList[i]);
-                              }
-                            });
+
+                            // data['members'].forEach((element) {
+                              // if ( element['uid'] == auth.currentUser!.uid) {
+                              //   finalGroupList.add(groupList[i]);
+                              // }
+                            // });
                             // sorting groups by recent sent messages or time to show on top.
                             finalGroupList.sort((a, b) {
                               return b['time']
