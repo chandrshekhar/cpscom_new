@@ -10,6 +10,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'Commons/theme.dart';
 import 'Features/Splash/Presentation/splash_screen.dart';
 import 'Utils/app_preference.dart';
@@ -99,21 +100,22 @@ Future<void> main() async {
   //   }
   // });
 }
-  Future<void> setFirebaseToken(String? token) async {
-    await FirebaseMessaging.instance.requestPermission();
-      if (token != null) {
-       await FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .update({'pushToken': token});
-            await FirebaseFirestore.instance
-            .collection('group')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .update({'pushToken': token})
-            .then((value) => print("setFirebaseToken then"))
-            .onError((error, stackTrace) => print("setFirebaseToken $stackTrace")); 
-      }
+
+Future<void> setFirebaseToken(String? token) async {
+  await FirebaseMessaging.instance.requestPermission();
+  if (token != null) {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({'pushToken': token});
+    await FirebaseFirestore.instance
+        .collection('group')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({'pushToken': token});
+    // .then((value) => print("setFirebaseToken then"))
+    // .onError((error, stackTrace) => print("setFirebaseToken $stackTrace"));
   }
+}
 
 firebaseConfig() async {
   await PushNotificationService().setupInteractedMessage();
@@ -130,7 +132,6 @@ firebaseConfig() async {
   AppPreference().saveFirebaseToken(token: fcmToken ?? "");
 
   print("FCM->$fcmToken");
-
 }
 
 class MyApp extends StatefulWidget {

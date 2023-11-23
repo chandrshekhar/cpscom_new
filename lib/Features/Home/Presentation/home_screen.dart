@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,15 +11,12 @@ import 'package:cpscom_admin/Utils/app_helper.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/responsive.dart';
 import '../../Chat/Presentation/chat_screen.dart';
-import '../../Login/Presentation/login_screen.dart';
-import '../../MyProfile/Presentation/my_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -181,41 +177,35 @@ class _BuildChatListState extends State<BuildChatList> {
                     case ConnectionState.done:
                       if (snapshot.hasData) {
                         groupList = snapshot.data!.docs;
+                        log("pandey${groupList.length}");
                         if (groupList.isEmpty) {
                           return Center(
                             child: Text(
                               'No Groups Found',
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyText2!
+                                  .bodyMedium!
                                   .copyWith(fontWeight: FontWeight.w400),
                             ),
                           );
                         } else {
                           finalGroupList.clear();
-                          finalGroupList.addAll(groupList);
-                          finalGroupList.sort((a, b) {
-                            return b['time']
-                                .toString()
-                                .compareTo(a['time'].toString());
-                          });
                           // view only those groups which the user is present
-                          // for (var i = 0; i < groupList.length; i++) {
-                          //   data = groupList[i].data() as Map<String, dynamic>;
-                          //       finalGroupList.add(groupList[i]);
-
-                          //   // data['members'].forEach((element) {
-                          //     // if ( element['uid'] == auth.currentUser!.uid) {
-                          //     //   finalGroupList.add(groupList[i]);
-                          //     // }
-                          //   // });
-                          //   // sorting groups by recent sent messages or time to show on top.
-                          //   finalGroupList.sort((a, b) {
-                          //     return b['time']
-                          //         .toString()
-                          //         .compareTo(a['time'].toString());
-                          //   });
-                          // }
+                          for (var i = 0; i < groupList.length; i++) {
+                            data = groupList[i].data() as Map<String, dynamic>;
+                            // finalGroupList.add(groupList[i]);
+                            data['members'].forEach((element) {
+                              if (element['uid'] == auth.currentUser!.uid) {
+                                finalGroupList.add(groupList[i]);
+                              }
+                            });
+                            // sorting groups by recent sent messages or time to show on top.
+                            finalGroupList.sort((a, b) {
+                              return b['time']
+                                  .toString()
+                                  .compareTo(a['time'].toString());
+                            });
+                          }
                           return finalGroupList.isNotEmpty
                               ? Scrollbar(
                                   child: ListView.builder(
@@ -295,7 +285,7 @@ class _BuildChatListState extends State<BuildChatList> {
                                     'No Groups Found',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .bodyText2!
+                                        .bodyMedium!
                                         .copyWith(fontWeight: FontWeight.w400),
                                   ),
                                 );
@@ -350,7 +340,7 @@ class _BuildChatListState extends State<BuildChatList> {
                                 membersList[index]['name'].substring(0, 1),
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodyText1!
+                                    .bodyLarge!
                                     .copyWith(fontWeight: FontWeight.w600),
                               ),
                             ),
@@ -375,7 +365,7 @@ class _BuildChatListState extends State<BuildChatList> {
                           '+${membersList.length - 3}',
                           style: Theme.of(context)
                               .textTheme
-                              .caption!
+                              .bodySmall!
                               .copyWith(color: AppColors.black),
                         ),
                       ),

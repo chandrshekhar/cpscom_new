@@ -8,7 +8,6 @@ import '../../../Api/firebase_provider.dart';
 import '../../../Widgets/custom_floating_action_button.dart';
 import '../../AddMembers/Presentation/add_members_screen.dart';
 
-
 class BuildMobileView extends StatefulWidget {
   const BuildMobileView({Key? key}) : super(key: key);
 
@@ -37,11 +36,11 @@ class _BuildMobileViewState extends State<BuildMobileView> {
               case ConnectionState.active:
               case ConnectionState.done:
                 if (snapshot.hasData) {
-                  if(snapshot.data?['isAdmin'] != null){
+                  if (snapshot.data?['isAdmin'] != null) {
                     isAdmin = snapshot.data!['isAdmin'];
                   }
                   return Scaffold(
-                    body:  SafeArea(
+                    body: SafeArea(
                       bottom: false,
                       child: BuildChatList(
                         isAdmin: isAdmin,

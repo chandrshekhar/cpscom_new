@@ -1,7 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
 // ignore: slash_for_doc_comments
 /*
  * Documents added by Alaa, enjoy ^-^:
@@ -26,13 +24,11 @@ import 'package:permission_handler/permission_handler.dart';
  *   is called when user clicks on the notification.
  *  
  * */
- 
+
 class PushNotificationService {
   // It is assumed that all messages contain a data field with the key 'type'
 
-
   Future<void> setupInteractedMessage() async {
-
     //await Firebase.initializeApp();
 // Get any messages which caused the application to open from a terminated state.
     // If you want to handle a notification click when the app is terminated, you can use `getInitialMessage`
@@ -60,45 +56,52 @@ class PushNotificationService {
     await enableIOSNotifications();
     await registerNotificationListeners();
   }
-registerNotificationListeners() async {
+
+  registerNotificationListeners() async {
     AndroidNotificationChannel channel = androidNotificationChannel();
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
-await flutterLocalNotificationsPlugin
+    await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-var androidSettings = const AndroidInitializationSettings('@mipmap/ic_launcher');
-    var iOSSettings =  const DarwinInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
+    var androidSettings =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOSSettings = const DarwinInitializationSettings(
+      requestSoundPermission: true,
+      requestBadgePermission: true,
+      requestAlertPermission: true,
     );
     var initSetttings =
         InitializationSettings(android: androidSettings, iOS: iOSSettings);
     flutterLocalNotificationsPlugin.initialize(initSetttings,
         onDidReceiveNotificationResponse:
             (NotificationResponse notificationResponse) {
-          switch (notificationResponse.notificationResponseType) {
-            case NotificationResponseType.selectedNotification:
-            //selectNotificationStream.add(notificationResponse.payload);
-              break;
-            case NotificationResponseType.selectedNotificationAction:
-            /*if (notificationResponse.actionId == navigationActionId) {
+      switch (notificationResponse.notificationResponseType) {
+        case NotificationResponseType.selectedNotification:
+          // selectNotificationStream.add(notificationResponse.payload);
+          break;
+        case NotificationResponseType.selectedNotificationAction:
+          /*if (notificationResponse.actionId == navigationActionId) {
               selectNotificationStream.add(notificationResponse.payload);
             }*/
-              break;
-          }});
+          break;
+      }
+    });
 // onMessage is called when the app is in foreground and a notification is received
     FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
       // Get.find<HomeController>().getNotificationsNumber();
-      print("onMessage ${message?.notification}");
-      print("onMessage ${message?.from} , ${message?.category},${message?.contentAvailable}, ${message?.data},${message?.messageId},${message?.messageType},${message?.notification},${message?.senderId} ");
+      print("onMessage ${message?.notification!.body}");
+      print(
+          "onMessage ${message?.from} , ${message?.category},${message?.contentAvailable}, ${message?.data},${message?.messageId},${message?.messageType},${message?.notification},${message?.senderId} ");
       RemoteNotification? notification = message!.notification;
+      print(notification!.apple);
+
       AndroidNotification? android = message.notification?.android;
+      AppleNotification? apple = message.notification?.apple;
 // If `onMessage` is triggered with a notification, construct our own
       // local notification to show to users using the created channel.
-      if (notification != null && android != null) {
+      // if (android != null) {
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
@@ -108,15 +111,34 @@ var androidSettings = const AndroidInitializationSettings('@mipmap/ic_launcher')
               channel.id,
               channel.name,
               channelDescription: channel.description,
-              icon: android.smallIcon,
+              icon: android!.smallIcon,
               playSound: true,
             ),
+          iOS: const DarwinNotificationDetails(
+             
+          )
           ),
         );
-      }
+      // } else {
+      //   if (apple != null) {
+      //     flutterLocalNotificationsPlugin.show(
+      //       notification.hashCode,
+      //       notification.title,
+      //       notification.body,
+      //       NotificationDetails(
+            
+      //         iOS:DarwinNotificationDetails (
+               
+           
+      //         ),
+      //       ),
+      //     );
+      //   }
+      // }
     });
   }
-enableIOSNotifications() async {
+
+  enableIOSNotifications() async {
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
       alert: true, // Required to display a heads up notification
@@ -124,10 +146,12 @@ enableIOSNotifications() async {
       sound: true,
     );
   }
-androidNotificationChannel() => const AndroidNotificationChannel(
+
+  androidNotificationChannel() => const AndroidNotificationChannel(
         'high_importance_channel', // id
         'High Importance Notifications', // title
-        description:'This channel is used for important notifications.', // description
+        description:
+            'This channel is used for important notifications.', // description
         importance: Importance.max,
       );
 }

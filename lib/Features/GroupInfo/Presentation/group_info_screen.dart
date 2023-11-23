@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,6 +7,7 @@ import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Presentation/add_members_screen.dart';
 import 'package:cpscom_admin/Features/GroupInfo/ChangeGroupDescription/Presentation/chnage_group_description.dart';
 import 'package:cpscom_admin/Features/GroupInfo/ChangeGroupTitle/Presentation/change_group_title.dart';
+import 'package:cpscom_admin/Features/Home/Controller/home_controller.dart';
 import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_card.dart';
@@ -19,6 +19,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/instance_manager.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../Commons/app_images.dart';
@@ -115,6 +116,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     }
   }
 
+  final homeController = Get.put(HomeController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,7 +130,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 case ConnectionState.active:
                 case ConnectionState.done:
                   if (snapshot.hasData) {
-                    membersList = snapshot.data!['members'];
+                    var data = membersList = snapshot.data!['members'];
+                    print("check$data[]");
                     for (var i = 0; i < membersList.length; i++) {
                       if (membersList[i]['isSuperAdmin'] == true) {
                         superAdminUid = membersList[i]['uid'];
@@ -155,9 +159,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                           'Change Group Title',
                                           style: Theme.of(context)
                                               .textTheme
-                                              .bodyText2,
+                                              .bodyMedium,
                                         )),
-
                                   ],
                                   onSelected: (value) {
                                     switch (value) {
@@ -166,7 +169,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                           groupId: widget.groupId,
                                         ));
                                         break;
-
                                     }
                                   },
                                 )
@@ -283,7 +285,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                             shrinkWrap: true,
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .all(
+                                                                    .all(
                                                                     AppSizes
                                                                         .kDefaultPadding),
                                                             itemCount:
@@ -310,7 +312,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                                 },
                                                                 child: Padding(
                                                                   padding: const EdgeInsets
-                                                                          .only(
+                                                                      .only(
                                                                       left: AppSizes
                                                                               .kDefaultPadding *
                                                                           2),
@@ -321,8 +323,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                                             60,
                                                                         height:
                                                                             60,
-                                                                        padding:
-                                                                            const EdgeInsets.all(AppSizes.kDefaultPadding),
+                                                                        padding: const EdgeInsets
+                                                                            .all(
+                                                                            AppSizes.kDefaultPadding),
                                                                         decoration: BoxDecoration(
                                                                             border:
                                                                                 Border.all(width: 1, color: AppColors.lightGrey),
@@ -380,14 +383,15 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                   Text(
                                     '${snapshot.data!['name']}',
                                     style:
-                                        Theme.of(context).textTheme.headline6,
+                                        Theme.of(context).textTheme.titleLarge,
                                   ),
                                   const SizedBox(
                                     height: AppSizes.kDefaultPadding / 2,
                                   ),
                                   Text(
                                     'Group \u2022 ${membersList.length} People',
-                                    style: Theme.of(context).textTheme.caption,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ],
                               ),
@@ -421,7 +425,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                             'Add Group Description',
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodyText2!
+                                                .bodyMedium!
                                                 .copyWith(
                                                     color: AppColors.primary,
                                                     fontWeight:
@@ -456,7 +460,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                 'Group Description',
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .bodyText1,
+                                                    .bodyLarge,
                                               ),
                                               const SizedBox(
                                                 height:
@@ -472,7 +476,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                           TextOverflow.ellipsis,
                                                       style: Theme.of(context)
                                                           .textTheme
-                                                          .bodyText2!
+                                                          .bodyMedium!
                                                           .copyWith(
                                                               color: AppColors
                                                                   .black),
@@ -515,7 +519,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                         '${membersList.length} Participants',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodyText1,
+                                            .bodyLarge,
                                       ),
                                       snapshot.data?['group_creator_uid'] ==
                                                   FirebaseProvider

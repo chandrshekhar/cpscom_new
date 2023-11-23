@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
@@ -37,6 +38,7 @@ import 'package:linkable/linkable.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../../Api/urls.dart';
 import '../../../Utils/app_preference.dart';
 import '../../../Widgets/notify_message_widget.dart';
@@ -73,8 +75,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   File? imageFile;
 
-  bool _mention = false;
-  List<String> _suggestions = [];
+  final bool _mention = false;
+  final List<String> _suggestions = [];
 
   dynamic extension;
   dynamic extType;
@@ -356,14 +358,25 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> sendPushNotification(String senderName, String msg) async {
     for (var i = 0; i < membersList.length; i++) {
+      print(membersList.length);
       // notification will sent to all the users of the group except current user.
-      if (membersList[i]['uid'] == _auth.currentUser!.uid) {
-        membersList.removeAt(i);
+      String token = "";
+
+      if (membersList[i]['uid'] != _auth.currentUser!.uid) {
+        // membersList.removeAt(i);
+        DocumentSnapshot<Map<String, dynamic>> ref = await FirebaseFirestore
+            .instance
+            .collection("users")
+            .doc(membersList[i]['uid'])
+            .get();
+        token = ref['pushToken'];
+        log("test token $token");
       }
+
       try {
         final body = {
           "priority": "high",
-          "to": membersList[i]['pushToken'],
+          "to": token,
           "data": <String, dynamic>{"title": senderName, "body": msg},
           "notification": <String, dynamic>{"title": senderName, "body": msg}
         };
@@ -410,11 +423,11 @@ class _ChatScreenState extends State<ChatScreen> {
       // Loop through the document IDs and update each document in the batch
       for (String documentId in orderedSet.toList()) {
         debugPrint("seen123 $members");
-        members.forEach((element) {
+        for (var element in members) {
           if (element["uid"] == auth.currentUser!.uid) {
             element["isSeen"] = true;
           }
-        });
+        }
         DocumentReference documentReference = _firestore
             .collection('groups')
             .doc(widget.groupId)
@@ -427,11 +440,11 @@ class _ChatScreenState extends State<ChatScreen> {
       // Commit the batch
       int seen = 0;
       batch.commit().then((_) {
-        members.forEach((element) {
+        for (var element in members) {
           if (element["isSeen"] == true) {
             seen++;
           }
-        });
+        }
         WriteBatch batch2 = firestore.batch();
         debugPrint("seen value $seen");
         if (seen <= members.length) {
@@ -517,7 +530,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       'Group Info',
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText2!
+                          .bodyMedium!
                           .copyWith(color: AppColors.black),
                     )),
                 PopupMenuItem(
@@ -526,7 +539,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       'Report Group',
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText2!
+                          .bodyMedium!
                           .copyWith(color: AppColors.black),
                     )),
                 // PopupMenuItem(
@@ -556,7 +569,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     break;
                   case 2:
                     context.push(ReportScreen(
-                      chatMap: {},
+                      chatMap: const {},
                       groupId: widget.groupId,
                       groupName: groupName,
                       message: '',
@@ -1054,10 +1067,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                             onChanged: (value) {
                                               chatController
                                                   .mentionMember(value!);
+                                              return null;
                                             },
                                             isBorder: false,
                                             onCancelReply: onCancelReply,
-                                            replyMessage: {},
+                                            replyMessage: const {},
                                           ),
                                         ],
                                       )),
@@ -1240,14 +1254,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Text(
                         sentByName,
-                        style: Theme.of(context).textTheme.caption!.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                       Text(
                         ', $sentTime',
                         style: Theme.of(context)
                             .textTheme
-                            .caption!
+                            .bodySmall!
                             .copyWith(fontSize: 12),
                       ),
                     ],
@@ -1538,7 +1552,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           sentTime,
                           style: Theme.of(context)
                               .textTheme
-                              .caption!
+                              .bodySmall!
                               .copyWith(fontSize: 12),
                         ),
                         const SizedBox(
@@ -1775,7 +1789,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           sentTime,
                           style: Theme.of(context)
                               .textTheme
-                              .caption!
+                              .bodySmall!
                               .copyWith(fontSize: 12),
                         ),
                         const SizedBox(
