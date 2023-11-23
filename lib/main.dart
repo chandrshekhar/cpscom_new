@@ -1,10 +1,10 @@
 import 'dart:developer';
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Commons/app_strings.dart';
 import 'package:cpscom_admin/Utils/dismis_keyboard.dart';
 import 'package:cpscom_admin/global_bloc.dart';
-import 'package:cpscom_admin/local_notification_service.dart';
 import 'package:cpscom_admin/pushNotificationService.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -99,6 +99,21 @@ Future<void> main() async {
   //   }
   // });
 }
+  Future<void> setFirebaseToken(String? token) async {
+    await FirebaseMessaging.instance.requestPermission();
+      if (token != null) {
+       await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({'pushToken': token});
+            await FirebaseFirestore.instance
+            .collection('group')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({'pushToken': token})
+            .then((value) => print("setFirebaseToken then"))
+            .onError((error, stackTrace) => print("setFirebaseToken $stackTrace")); 
+      }
+  }
 
 firebaseConfig() async {
   await PushNotificationService().setupInteractedMessage();
@@ -111,10 +126,11 @@ firebaseConfig() async {
       await FirebaseMessaging.instance.getInitialMessage();
 
   String? fcmToken = await FirebaseMessaging.instance.getToken();
+  setFirebaseToken(fcmToken);
+  AppPreference().saveFirebaseToken(token: fcmToken ?? "");
 
   print("FCM->$fcmToken");
 
-  AppPreference().saveFirebaseToken(token: fcmToken ?? "");
 }
 
 class MyApp extends StatefulWidget {

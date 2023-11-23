@@ -193,23 +193,29 @@ class _BuildChatListState extends State<BuildChatList> {
                           );
                         } else {
                           finalGroupList.clear();
+                          finalGroupList.addAll(groupList);
+                          finalGroupList.sort((a, b) {
+                            return b['time']
+                                .toString()
+                                .compareTo(a['time'].toString());
+                          });
                           // view only those groups which the user is present
-                          for (var i = 1; i < groupList.length; i++) {
-                            data = groupList[i].data() as Map<String, dynamic>;
-                                finalGroupList.add(groupList[i]);
+                          // for (var i = 0; i < groupList.length; i++) {
+                          //   data = groupList[i].data() as Map<String, dynamic>;
+                          //       finalGroupList.add(groupList[i]);
 
-                            // data['members'].forEach((element) {
-                              // if ( element['uid'] == auth.currentUser!.uid) {
-                              //   finalGroupList.add(groupList[i]);
-                              // }
-                            // });
-                            // sorting groups by recent sent messages or time to show on top.
-                            finalGroupList.sort((a, b) {
-                              return b['time']
-                                  .toString()
-                                  .compareTo(a['time'].toString());
-                            });
-                          }
+                          //   // data['members'].forEach((element) {
+                          //     // if ( element['uid'] == auth.currentUser!.uid) {
+                          //     //   finalGroupList.add(groupList[i]);
+                          //     // }
+                          //   // });
+                          //   // sorting groups by recent sent messages or time to show on top.
+                          //   finalGroupList.sort((a, b) {
+                          //     return b['time']
+                          //         .toString()
+                          //         .compareTo(a['time'].toString());
+                          //   });
+                          // }
                           return finalGroupList.isNotEmpty
                               ? Scrollbar(
                                   child: ListView.builder(
@@ -262,14 +268,12 @@ class _BuildChatListState extends State<BuildChatList> {
                                                     .trim()
                                                     .toString())) {
                                           return HomeChatCard(
-                                              
                                               groupId: finalGroupList[index].id,
                                               onPressed: () {
                                                 context.push(ChatScreen(
                                                   groupId:
                                                       finalGroupList[index].id,
                                                   isAdmin: widget.isAdmin,
-                                                  
                                                 ));
                                               },
                                               groupName: finalGroupList[index]
@@ -306,7 +310,7 @@ class _BuildChatListState extends State<BuildChatList> {
     );
   }
 
-  Widget memberWidget(List membersList) {
+  Widget memberWidget(dynamic membersList) {
     return SizedBox(
       height: 30,
       child: Row(

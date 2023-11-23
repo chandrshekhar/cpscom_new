@@ -1,8 +1,5 @@
-import 'dart:developer';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Utils/app_helper.dart';
@@ -37,14 +34,12 @@ class HomeChatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var isSeenByUser = false;
     final FirebaseAuth auth = FirebaseAuth.instance;
     String lastMsgSenderName = '';
     return SizedBox(
       child: StreamBuilder(
           stream: FirebaseProvider.getLastMessage(groupId),
           builder: (context, AsyncSnapshot snapshot) {
-            print("Azharuddin -- > ${snapshot.data}");
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.waiting:

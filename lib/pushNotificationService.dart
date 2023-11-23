@@ -68,8 +68,8 @@ await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-var androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    var iOSSettings =  DarwinInitializationSettings(
+var androidSettings = const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOSSettings =  const DarwinInitializationSettings(
       requestSoundPermission: false,
       requestBadgePermission: false,
       requestAlertPermission: false,
@@ -124,7 +124,7 @@ enableIOSNotifications() async {
       sound: true,
     );
   }
-androidNotificationChannel() => AndroidNotificationChannel(
+androidNotificationChannel() => const AndroidNotificationChannel(
         'high_importance_channel', // id
         'High Importance Notifications', // title
         description:'This channel is used for important notifications.', // description

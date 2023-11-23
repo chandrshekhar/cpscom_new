@@ -133,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
   //       .update({'members': updatedChatMemberList}).then(
   //           (value) => 'Message Seen Status Updated ');
   // }
- 
+
   void onSwipedMessage(Map<String, dynamic> message) {
     // log("-------------- ${message['sendBy']} - ${message['message']}");
     chatController.isRelayFunction(true);
@@ -1405,8 +1405,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                           text: message,
                                           linkColor: Colors.blue,
                                         )
-                                      : messageType == 'pdf' 
-                                             
+                                      : messageType == 'pdf'
                                           ? message != null
                                               ? Stack(
                                                   children: [
