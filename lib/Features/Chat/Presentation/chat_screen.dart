@@ -184,11 +184,12 @@ class _ChatScreenState extends State<ChatScreen> {
   Future pickImageFromGallery() async {
     List<XFile>? imageFileList = [];
     try {
-      final images = await ImagePicker()
-          .pickMultiImage(maxHeight: 512, maxWidth: 512, imageQuality: 75);
-      if (images.isNotEmpty) {
+      final images = await ImagePicker().pickMedia();
+      // final images = await ImagePicker()
+      //     .pickMultiImage(maxHeight: 512, maxWidth: 512, imageQuality: 75);
+      if (images != null) {
         setState(() {
-          imageFileList.addAll(images);
+          imageFileList.add(images);
         });
         final extension = imageFileList.first.path.split(".").last;
         for (var i in imageFileList) {
@@ -203,6 +204,18 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
   }
+  // choose video from gallary
+
+  // Future<void> pickImageFromGallery() async {
+  //   final pickedFile = await ImagePicker().pickMedia();
+
+  //   if (pickedFile != null) {
+  //     // Handle the picked media file
+  //     print(pickedFile.path);
+  //   } else {
+  //     // User canceled the picker
+  //   }
+  // }
 
   Future pickImageFromCamera() async {
     try {
@@ -225,7 +238,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future uploadImage(File file, extension) async {
     String fileName = const Uuid().v1();
-    final ext = file.path.split('.').last;
+    // final ext = file.path.split('.').last;
     if (extension == 'pdf') {
       extType = "pdf";
     } else if (extension == 'jpg' ||
@@ -266,7 +279,7 @@ class _ChatScreenState extends State<ChatScreen> {
       var ref = FirebaseStorage.instance
           .ref()
           .child('cpscom_admin_images')
-          .child("$fileName.jpg");
+          .child("$fileName.$extension");
       var uploadTask = await ref.putFile(file).catchError((error) async {
         await _firestore
             .collection('groups')
@@ -1677,26 +1690,43 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   BorderRadius.circular(AppSizes
                                                       .cardCornerRadius),
                                               child: Container(
-                                                  alignment: Alignment.center,
-                                                  constraints: BoxConstraints(
-                                                      maxWidth:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.35,
-                                                      maxHeight:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.20),
-                                                  child: chatController
-                                                          .getAsyncString(
-                                                              message)
-                                                          .isNotEmpty
-                                                      ? Image.file(File(
-                                                          chatController
-                                                              .getAsyncString(message)))
-                                                      : const Icon(Icons.play_arrow)),
+                                                alignment: Alignment.center,
+                                                constraints: BoxConstraints(
+                                                    maxWidth:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.35,
+                                                    maxHeight:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.20),
+                                                child: chatController
+                                                        .getAsyncString(message)
+                                                        .isNotEmpty
+                                                    ? Image.file(File(
+                                                        chatController
+                                                            .getAsyncString(
+                                                                message)))
+                                                    : ClipRRect(
+                                                        borderRadius: BorderRadius
+                                                            .circular(AppSizes
+                                                                .cardCornerRadius),
+                                                        child: CachedNetworkImage(
+                                                            imageUrl: message,
+                                                            fit: BoxFit.cover,
+                                                            placeholder: (context,
+                                                                    url) =>
+                                                                const CircularProgressIndicator
+                                                                    .adaptive(),
+                                                            errorWidget: (context,
+                                                                    url,
+                                                                    error) =>
+                                                                const Icon(Icons
+                                                                    .play_arrow)),
+                                                      ),
+                                              ),
                                             ),
                                             GestureDetector(
                                               onTap: () {

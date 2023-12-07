@@ -102,11 +102,11 @@ class PushNotificationService {
 // If `onMessage` is triggered with a notification, construct our own
       // local notification to show to users using the created channel.
       // if (android != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
             android: AndroidNotificationDetails(
               channel.id,
               channel.name,
@@ -114,11 +114,8 @@ class PushNotificationService {
               icon: android!.smallIcon,
               playSound: true,
             ),
-          iOS: const DarwinNotificationDetails(
-             
-          )
-          ),
-        );
+            iOS: const DarwinNotificationDetails()),
+      );
       // } else {
       //   if (apple != null) {
       //     flutterLocalNotificationsPlugin.show(
@@ -126,10 +123,9 @@ class PushNotificationService {
       //       notification.title,
       //       notification.body,
       //       NotificationDetails(
-            
+
       //         iOS:DarwinNotificationDetails (
-               
-           
+
       //         ),
       //       ),
       //     );
