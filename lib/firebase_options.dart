@@ -17,7 +17,8 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-       throw UnsupportedError("DeafultFirebase option has not be confug");
+      return web;
+     //  throw UnsupportedError("DeafultFirebase option has not be confug");
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -41,14 +42,14 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // static const FirebaseOptions web = FirebaseOptions(
-  //   apiKey: 'AIzaSyALDdPTyjaE6qad-Uc-hslCrR2PfknvhWE',
-  //   appId: '1:985033228014:web:b48e1ab07d656c29b93dff',
-  //   messagingSenderId: '985033228014',
-  //   projectId: 'cpscom-aea2f',
-  //   authDomain: 'cpscom-aea2f.firebaseapp.com',
-  //   storageBucket: 'cpscom-aea2f.appspot.com',
-  // );
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyALDdPTyjaE6qad-Uc-hslCrR2PfknvhWE',
+    appId: '1:985033228014:web:b48e1ab07d656c29b93dff',
+    messagingSenderId: '985033228014',
+    projectId: 'cpscom-aea2f',
+    authDomain: 'cpscom-aea2f.firebaseapp.com',
+    storageBucket: 'cpscom-aea2f.appspot.com',
+  );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCo5IGoy8C9xhexGxkOO4i69xzsV11OSAY',

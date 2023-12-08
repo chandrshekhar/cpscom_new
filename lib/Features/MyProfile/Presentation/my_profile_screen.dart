@@ -13,6 +13,7 @@ import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_
 import 'package:cpscom_admin/Utils/app_preference.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
+import 'package:dio/dio.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -96,8 +97,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           .collection('users')
           .doc(FirebaseProvider.auth.currentUser!.uid)
           .update({'profile_picture': imageUrl});
-         await homeController.getUSerData();
-
+      await homeController.getUSerData();
 
       // Update user profile picture to firestore, i.e. group-> groupID -> members
       // if (widget.groupsList!.isNotEmpty) {
@@ -121,8 +121,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       //     });
       //   }
       // }
-
-      
     } on FirebaseException catch (e) {
       if (kDebugMode) {
         print(e.message.toString());
@@ -272,7 +270,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                                   pickImageFromCamera();
                                                                   break;
                                                               }
-                                                             
+
                                                               Navigator.pop(
                                                                   context);
                                                             },
@@ -302,7 +300,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                                         shape: BoxShape
                                                                             .circle),
                                                                     child: imagePickerList[
-                                                                            index]
+                                                                            0]
                                                                         .icon,
                                                                   ),
                                                                   const SizedBox(
@@ -311,7 +309,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                                             2,
                                                                   ),
                                                                   Text(
-                                                                    '${imagePickerList[index].title}',
+                                                                    '${imagePickerList[0].title}',
                                                                     style: Theme.of(
                                                                             context)
                                                                         .textTheme
@@ -421,7 +419,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         ),
                         ListTile(
                           onTap: () {
-                            context.push(const UpdateUserStatusScreen());
+                            if (!kIsWeb) {
+                              context.push(const UpdateUserStatusScreen());
+                            }
                           },
                           dense: true,
                           contentPadding: const EdgeInsets.symmetric(

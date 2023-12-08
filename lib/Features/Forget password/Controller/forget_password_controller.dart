@@ -5,6 +5,8 @@ import 'package:cpscom_admin/Features/Forget%20password/presentation/forget_pass
 import 'package:cpscom_admin/Features/Forget%20password/presentation/reset_password.dart';
 import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
 import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -26,7 +28,23 @@ class ForgetPasswordControler extends GetxController {
     if (res['status'] == true) {
       customSnackBar(context, res['message'].toString());
       isForgetPasswordLoading(false);
-      context.push(ForgetPasswordScreen());
+      if (Responsive.isDesktop(context)) {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: StatefulBuilder(builder: (context, setState) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    child: ForgetPasswordScreen(),
+                  );
+                }),
+              );
+            });
+      } else {
+        context.push(ForgetPasswordScreen());
+      }
     } else {
       customSnackBar(context, res['message'].toString());
       isForgetPasswordLoading(false);
@@ -40,7 +58,24 @@ class ForgetPasswordControler extends GetxController {
     if (res['status'] == true) {
       resetPasswordField(true);
       customSnackBar(context, res['message'].toString());
-      context.push(ResetPasswordPasswordScreen());
+      if (Responsive.isDesktop(context)) {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: StatefulBuilder(builder: (context, setState) {
+                  return SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    child: ResetPasswordPasswordScreen(),
+                  );
+                }),
+              );
+            });
+      } else {
+        context.push(ResetPasswordPasswordScreen());
+      }
+
       otpController.value.text = "";
       verifyingOtp(false);
       password.value.text = "";

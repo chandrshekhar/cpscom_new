@@ -5,6 +5,7 @@ import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Utils/app_preference.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:linkable/constants.dart';
 
 part 'login_event.dart';
 
@@ -18,6 +19,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginSubmittedEvent>((event, emit) async {
       try {
         emit(LoginStateLoading());
+        print(event.email);
+        print(event.password);
         final mData = await firebaseProvider.login(event.email, event.password);
 
         if (mData?.uid != null) {

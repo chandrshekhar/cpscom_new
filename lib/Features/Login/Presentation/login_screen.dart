@@ -2,6 +2,7 @@ import 'package:cpscom_admin/Commons/app_icons.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Forget%20password/Controller/forget_password_controller.dart';
 import 'package:cpscom_admin/Features/Forget%20password/presentation/forget_passrow.dart';
+import 'package:cpscom_admin/Features/Home/Presentation/build_desktop_view.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/home_screen.dart';
 import 'package:cpscom_admin/Features/Login/Bloc/login_bloc.dart';
 import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
@@ -395,14 +396,14 @@ class _LoginScreenState extends State<LoginScreen> {
           Container(
             margin: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.1,
-                vertical: AppSizes.kDefaultPadding * 2),
+                vertical: AppSizes.kDefaultPadding * 5),
             child: Row(
               children: [
                 Expanded(
                   flex: 2,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
+                    // height: MediaQuery.of(context).size.height,
                     padding: const EdgeInsets.all(AppSizes.kDefaultPadding * 2),
                     decoration: const BoxDecoration(
                         color: AppColors.shimmer,
@@ -420,21 +421,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 Expanded(
                     flex: 2,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Image.asset(
-                          AppIcons.appLogo,
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                        ),
-                        const SizedBox(
-                          height: AppSizes.kDefaultPadding,
-                        ),
+                        // const SizedBox(
+                        //   height: AppSizes.kDefaultPadding,
+                        // ),
                         Container(
                           width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          // padding: const EdgeInsets.all(AppSizes.kDefaultPadding * 2),
+
                           padding: const EdgeInsets.symmetric(
-                              vertical: AppSizes.kDefaultPadding * 2,
+                              vertical: AppSizes.kDefaultPadding,
                               horizontal: AppSizes.kDefaultPadding * 3),
                           decoration: const BoxDecoration(
                             color: Colors.white,
@@ -442,6 +440,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              Image.asset(
+                                AppIcons.appLogo,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
                               Text(
                                 'Welcome Back!',
                                 style: Theme.of(context)
@@ -466,34 +470,79 @@ class _LoginScreenState extends State<LoginScreen> {
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(
-                                height: AppSizes.kDefaultPadding * 6,
+                                height: AppSizes.kDefaultPadding * 1,
                               ),
-                              CustomTextField(
-                                controller: emailController,
-                                hintText: 'Email Address',
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Invalid Email Address';
-                                  }
-                                  return null;
-                                },
+                              Obx(
+                                () => Form(
+                                  key: _formKeyEmail,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  child: CustomTextField(
+                                    controller: forgetpasswordController
+                                        .forgetemailController.value,
+                                    hintText: 'Email Address',
+                                    keyboardType: TextInputType.emailAddress,
+                                    validator: (value) {
+                                      if (!value!.isEmail) {
+                                        return 'Invalid Email Address';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
                               ),
                               const SizedBox(
                                 height: AppSizes.kDefaultPadding * 2,
                               ),
-                              CustomTextField(
-                                controller: passwordController,
-                                hintText: 'Password',
-                                obscureText: true,
-                                keyboardType: TextInputType.visiblePassword,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Invalid Password';
-                                  }
-                                  return null;
-                                },
+                              Form(
+                                key: _formKeyPass,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                child: CustomTextField(
+                                  controller: passwordController,
+                                  hintText: 'Password',
+                                  obscureText: true,
+                                  keyboardType: TextInputType.visiblePassword,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'Invalid Password';
+                                    }
+                                    return null;
+                                  },
+                                ),
                               ),
+                              const SizedBox(
+                                height: AppSizes.kDefaultPadding * 2,
+                              ),
+                              Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: InkWell(
+                                    onTap: () {
+                                      if (_formKeyEmail.currentState!
+                                          .validate()) {
+                                        forgetpasswordController
+                                            .sentOtp(context);
+                                      }
+                                    },
+                                    child: Obx(
+                                      () => forgetpasswordController
+                                                  .isForgetPasswordLoading
+                                                  .value ==
+                                              true
+                                          ? const CircularProgressIndicator
+                                              .adaptive()
+                                          : Text(
+                                              "Forget Password",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge!
+                                                  .copyWith(
+                                                      color: AppColors.red,
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                            ),
+                                    ),
+                                  )),
                               const SizedBox(
                                 height: AppSizes.kDefaultPadding * 6,
                               ),
@@ -502,8 +551,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: BlocConsumer<LoginBloc, LoginState>(
                                   listener: (context, state) {
                                     if (state is LoginStateLoaded) {
-                                      context.pushAndRemoveUntil(
-                                          const HomeScreen());
+                                      if (Responsive.isDesktop(context)) {
+                                        context.pushAndRemoveUntil(
+                                            BuildDesktopView());
+                                      } else {
+                                        context.pushAndRemoveUntil(
+                                            const HomeScreen());
+                                      }
                                     }
                                     if (state is LoginStateFailed) {
                                       customSnackBar(
@@ -525,8 +579,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                           onPressed: () {
                                             BlocProvider.of<LoginBloc>(context)
                                                 .add(LoginSubmittedEvent(
-                                                    email: emailController.text
-                                                        .trim(),
+                                                    email:
+                                                        forgetpasswordController
+                                                            .forgetemailController
+                                                            .value
+                                                            .text
+                                                            .trim(),
                                                     password: passwordController
                                                         .text
                                                         .trim()));

@@ -4,15 +4,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Home/Presentation/build_desktop_view.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_chat_card.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_header.dart';
+import 'package:cpscom_admin/Features/Home/bloc/chat_screen_bloc.dart';
 import 'package:cpscom_admin/Utils/app_helper.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/responsive.dart';
@@ -65,7 +69,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const BuildMobileView();
+    return Responsive.isDesktop(context)
+        ? BuildDesktopView()
+        : const BuildMobileView();
   }
 }
 
@@ -159,6 +165,7 @@ class _BuildChatListState extends State<BuildChatList> {
             ],
           ),
         ),
+        Responsive.isDesktop(context) ? const SizedBox(height: 10) : SizedBox(),
         Responsive.isMobile(context) ? const SizedBox() : const CustomDivider(),
         Expanded(
           child: GestureDetector(
@@ -224,11 +231,27 @@ class _BuildChatListState extends State<BuildChatList> {
                                           return HomeChatCard(
                                               groupId: finalGroupList[index].id,
                                               onPressed: () {
-                                                context.push(ChatScreen(
-                                                  groupId:
-                                                      finalGroupList[index].id,
-                                                  isAdmin: widget.isAdmin,
-                                                ));
+                                                print("card is clicked");
+                                                if (Responsive.isDesktop(
+                                                    context)) {
+                                                  BlocProvider.of<
+                                                              ChatScreenBloc>(
+                                                          context)
+                                                      .add(ChatScreenEvent(
+                                                          groupId:
+                                                              finalGroupList[
+                                                                      index]
+                                                                  .id,
+                                                          isAdmin:
+                                                              widget.isAdmin));
+                                                } else {
+                                                  context.push(ChatScreen(
+                                                    groupId:
+                                                        finalGroupList[index]
+                                                            .id,
+                                                    isAdmin: widget.isAdmin,
+                                                  ));
+                                                }
                                               },
                                               groupName: finalGroupList[index]
                                                   ['name'],
@@ -260,11 +283,26 @@ class _BuildChatListState extends State<BuildChatList> {
                                           return HomeChatCard(
                                               groupId: finalGroupList[index].id,
                                               onPressed: () {
-                                                context.push(ChatScreen(
-                                                  groupId:
-                                                      finalGroupList[index].id,
-                                                  isAdmin: widget.isAdmin,
-                                                ));
+                                                if (Responsive.isDesktop(
+                                                    context)) {
+                                                  BlocProvider.of<
+                                                              ChatScreenBloc>(
+                                                          context)
+                                                      .add(ChatScreenEvent(
+                                                          groupId:
+                                                              finalGroupList[
+                                                                      index]
+                                                                  .id,
+                                                          isAdmin:
+                                                              widget.isAdmin));
+                                                } else {
+                                                  context.push(ChatScreen(
+                                                    groupId:
+                                                        finalGroupList[index]
+                                                            .id,
+                                                    isAdmin: widget.isAdmin,
+                                                  ));
+                                                }
                                               },
                                               groupName: finalGroupList[index]
                                                   ['name'],

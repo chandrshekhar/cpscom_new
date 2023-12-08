@@ -19,6 +19,7 @@ import 'package:cpscom_admin/Utils/custom_bottom_modal_sheet.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:cpscom_admin/Widgets/custom_text_field.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -266,8 +267,8 @@ class _ChatScreenState extends State<ChatScreen> {
     //     extension == '3gp' ||
     //     extension == 'mxf' ||
     //     extension == 'svi' ||
-    //     extension == 'amv') 
-    else{
+    //     extension == 'amv')
+    else {
       extType = "mp4";
     }
     int status = 1;
@@ -515,106 +516,142 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (snapshot.hasData) {
                   membersList.clear();
                   membersList.addAll(snapshot.data?['members']);
-                  return Text('${snapshot.data!['name']}');
+                  return Responsive.isDesktop(context)
+                      ? Text("")
+                      : Text('${snapshot.data!['name']}');
                 } else {
                   return const SizedBox();
                 }
               }),
           actions: [
             PopupMenuButton(
-              icon: StreamBuilder(
-                  stream: FirebaseProvider.getGroupDetails(widget.groupId),
-                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    return ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(AppSizes.cardCornerRadius * 10),
-                      child: CachedNetworkImage(
-                          width: 30,
-                          height: 30,
-                          fit: BoxFit.cover,
-                          imageUrl: '${snapshot.data?['profile_picture']}',
-                          placeholder: (context, url) => const CircleAvatar(
-                                radius: 16,
-                                backgroundColor: AppColors.bg,
-                              ),
-                          errorWidget: (context, url, error) => CircleAvatar(
-                                radius: 16,
-                                backgroundColor: AppColors.bg,
-                                child: Text(
-                                  snapshot.data!['name']
-                                      .substring(0, 1)
-                                      .toString()
-                                      .toUpperCase(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .copyWith(fontWeight: FontWeight.w600),
+                icon: StreamBuilder(
+                    stream: FirebaseProvider.getGroupDetails(widget.groupId),
+                    builder:
+                        (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            AppSizes.cardCornerRadius * 10),
+                        child: CachedNetworkImage(
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                            imageUrl: '${snapshot.data?['profile_picture']}',
+                            placeholder: (context, url) => const CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppColors.bg,
                                 ),
-                              )),
-                    );
-                  }),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                    value: 1,
-                    child: Text(
-                      'Group Info',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: AppColors.black),
-                    )),
-                PopupMenuItem(
-                    value: 2,
-                    child: Text(
-                      'Report Group',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: AppColors.black),
-                    )),
-                // PopupMenuItem(
-                //     value: 2,
-                //     child: Text(
-                //       'Group Media',
-                //       style: Theme.of(context)
-                //           .textTheme
-                //           .bodyText2!
-                //           .copyWith(color: AppColors.black),
-                //     )),
-                // PopupMenuItem(
-                //     value: 3,
-                //     child: Text(
-                //       'Search',
-                //       style: Theme.of(context)
-                //           .textTheme
-                //           .bodyText2!
-                //           .copyWith(color: AppColors.black),
-                //     )),
-              ],
-              onSelected: (value) {
-                switch (value) {
-                  case 1:
-                    context.push(GroupInfoScreen(
-                        groupId: widget.groupId, isAdmin: widget.isAdmin));
-                    break;
-                  case 2:
-                    context.push(ReportScreen(
-                      chatMap: const {},
-                      groupId: widget.groupId,
-                      groupName: groupName,
-                      message: '',
-                      isGroupReport: true,
-                    ));
-                    break;
-                  // case 2:
-                  //   context.push(const GroupMediaScreen());
-                  //   break;
-                  // case 3:
-                  //   context.push(const MessageSearchScreen());
-                  //   break;
-                }
-              },
-            ),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppColors.bg,
+                                  child: Text(
+                                    snapshot.data!['name']
+                                        .substring(0, 1)
+                                        .toString()
+                                        .toUpperCase(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                )),
+                      );
+                    }),
+                itemBuilder: (context) => [
+                      PopupMenuItem(
+                          value: 1,
+                          child: Text(
+                            'Group Info',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: AppColors.black),
+                          )),
+                      PopupMenuItem(
+                          value: 2,
+                          child: Text(
+                            'Report Group',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: AppColors.black),
+                          )),
+                      // PopupMenuItem(
+                      //     value: 2,
+                      //     child: Text(
+                      //       'Group Media',
+                      //       style: Theme.of(context)
+                      //           .textTheme
+                      //           .bodyText2!
+                      //           .copyWith(color: AppColors.black),
+                      //     )),
+                      // PopupMenuItem(
+                      //     value: 3,
+                      //     child: Text(
+                      //       'Search',
+                      //       style: Theme.of(context)
+                      //           .textTheme
+                      //           .bodyText2!
+                      //           .copyWith(color: AppColors.black),
+                      //     )),
+                    ],
+                onSelected: (value) {
+                  switch (value) {
+                    case 1:
+                      if (Responsive.isDesktop(context)) {
+                        showDialog(
+                           barrierDismissible: false,
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(content: StatefulBuilder(
+                                  builder: (BuildContext context,
+                                      StateSetter setState) {
+                                return SizedBox(
+                                  width: 600,
+                                  child: GroupInfoScreen(
+                                      groupId: widget.groupId,
+                                      isAdmin: widget.isAdmin),
+                                );
+                              }));
+                            });
+                      } else {
+                        context.push(GroupInfoScreen(
+                            groupId: widget.groupId, isAdmin: widget.isAdmin));
+                      }
+
+                      break;
+                    case 2:
+                      if (Responsive.isDesktop(context)) {
+                        showDialog(
+                          barrierDismissible: false,
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(content: StatefulBuilder(
+                                  builder: (BuildContext context,
+                                      StateSetter setState) {
+                                return SizedBox(
+                                  width: 600,
+                                  child: ReportScreen(
+                                    chatMap: chatMap,
+                                    groupId: widget.groupId,
+                                    groupName: groupName,
+                                    message: '',
+                                    isGroupReport: true,
+                                  ),
+                                );
+                              }));
+                            });
+                      } else {
+                        context.push(ReportScreen(
+                          chatMap: chatMap,
+                          groupId: widget.groupId,
+                          groupName: groupName,
+                          message: '',
+                          isGroupReport: true,
+                        ));
+                      }
+                  }
+                }),
           ],
         ),
         body: SafeArea(

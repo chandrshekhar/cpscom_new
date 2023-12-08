@@ -45,12 +45,18 @@ void requestPermission() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Status bar configuration
-  await Firebase.initializeApp();
-  firebaseConfig();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light));
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform
+    );
+  } else {
+    await Firebase.initializeApp();
+    firebaseConfig();
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light));
+  }
 
   // Initialize Firebase to App
   // firebaseApp = await Firebase.initializeApp(
