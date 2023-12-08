@@ -1,5 +1,7 @@
 import 'package:cpscom_admin/Commons/app_icons.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Forget%20password/Controller/forget_password_controller.dart';
+import 'package:cpscom_admin/Features/Forget%20password/presentation/forget_passrow.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/home_screen.dart';
 import 'package:cpscom_admin/Features/Login/Bloc/login_bloc.dart';
 import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
@@ -7,6 +9,7 @@ import 'package:cpscom_admin/Widgets/custom_text_field.dart';
 import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 import '../../../Commons/app_images.dart';
 import '../../../Widgets/full_button.dart';
@@ -22,18 +25,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyEmail = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyPass = GlobalKey<FormState>();
+
+  final forgetpasswordController = Get.put(ForgetPasswordControler());
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Responsive.isMobile(context)
-          ? _buildMobileView(context)
-          : Responsive.isTablet(context)
-              ? _buildTabletView(context)
-              : _buildDesktopView(context),
-    );
+    return Responsive.isMobile(context)
+        ? _buildMobileView(context)
+        : Responsive.isTablet(context)
+            ? _buildTabletView(context)
+            : _buildDesktopView(context);
   }
 
   Widget _buildMobileView(BuildContext context) {
@@ -85,32 +88,70 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(
                 height: AppSizes.kDefaultPadding * 6,
               ),
-              CustomTextField(
-                controller: emailController,
-                hintText: 'Email Address',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Invalid Email Address';
-                  }
-                  return null;
-                },
+              Obx(
+                () => Form(
+                  key: _formKeyEmail,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: CustomTextField(
+                    controller:
+                        forgetpasswordController.forgetemailController.value,
+                    hintText: 'Email Address',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (!value!.isEmail) {
+                        return 'Invalid Email Address';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
               ),
               const SizedBox(
                 height: AppSizes.kDefaultPadding * 2,
               ),
-              CustomTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                obscureText: true,
-                keyboardType: TextInputType.visiblePassword,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Invalid Password';
-                  }
-                  return null;
-                },
+              Form(
+                key: _formKeyPass,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: CustomTextField(
+                  controller: passwordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                  keyboardType: TextInputType.visiblePassword,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Invalid Password';
+                    }
+                    return null;
+                  },
+                ),
               ),
+              const SizedBox(
+                height: AppSizes.kDefaultPadding * 1,
+              ),
+              Align(
+                  alignment: Alignment.bottomRight,
+                  child: InkWell(
+                    onTap: () {
+                      if (_formKeyEmail.currentState!.validate()) {
+                        forgetpasswordController.sentOtp(context);
+                      }
+                    },
+                    child: Obx(
+                      () => forgetpasswordController
+                                  .isForgetPasswordLoading.value ==
+                              true
+                          ? const CircularProgressIndicator.adaptive()
+                          : Text(
+                              "Forget Password",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      color: AppColors.red,
+                                      fontWeight: FontWeight.w400),
+                            ),
+                    ),
+                  )),
               const SizedBox(
                 height: AppSizes.kDefaultPadding * 6,
               ),
@@ -138,10 +179,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       return FullButton(
                           label: 'Login',
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (_formKeyEmail.currentState!.validate() &&
+                                _formKeyPass.currentState!.validate()) {
                               BlocProvider.of<LoginBloc>(context).add(
                                   LoginSubmittedEvent(
-                                      email: emailController.text.trim(),
+                                      email: forgetpasswordController
+                                          .forgetemailController.value.text
+                                          .trim(),
                                       password:
                                           passwordController.text.trim()));
                             }
@@ -298,15 +342,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return FullButton(
                                     label: 'Login',
                                     onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        BlocProvider.of<LoginBloc>(context).add(
-                                            LoginSubmittedEvent(
-                                                email:
-                                                    emailController.text.trim(),
-                                                password: passwordController
-                                                    .text
-                                                    .trim()));
-                                      }
+                                      // if (_formKey.currentState!.validate()) {
+                                      //   BlocProvider.of<LoginBloc>(context).add(
+                                      //       LoginSubmittedEvent(
+                                      //           email:
+                                      //               emailController.text.trim(),
+                                      //           password: passwordController
+                                      //               .text
+                                      //               .trim()));
+                                      // }
                                       return null;
                                     });
                               }
@@ -479,20 +523,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                       return FullButton(
                                           label: 'Login',
                                           onPressed: () {
-                                            if (_formKey.currentState!
-                                                .validate()) {
-                                              BlocProvider.of<LoginBloc>(
-                                                      context)
-                                                  .add(LoginSubmittedEvent(
-                                                      email: emailController
-                                                          .text
-                                                          .trim(),
-                                                      password:
-                                                          passwordController
-                                                              .text
-                                                              .trim()));
-                                            }
-                                            return null;
+                                            BlocProvider.of<LoginBloc>(context)
+                                                .add(LoginSubmittedEvent(
+                                                    email: emailController.text
+                                                        .trim(),
+                                                    password: passwordController
+                                                        .text
+                                                        .trim()));
                                           });
                                     }
                                     return Container();

@@ -250,7 +250,24 @@ class _ChatScreenState extends State<ChatScreen> {
       extType = "doc";
     } else if (extension == 'gif') {
       extType = "gif";
-    } else if (extension == 'mp4') {
+    }
+    // } else if (extension == 'mp4' ||
+    //     extension == 'avi' ||
+    //     extension == 'MST' ||
+    //     extension == 'M2TS' ||
+    //     extension == 'mov' ||
+    //     extension == 'TS' ||
+    //     extension == 'QT' ||
+    //     extension == 'wmv' ||
+    //     extension == 'nkv' ||
+    //     extension == 'avi' ||
+    //     extension == 'm4p' ||
+    //     extension == 'm4v' ||
+    //     extension == '3gp' ||
+    //     extension == 'mxf' ||
+    //     extension == 'svi' ||
+    //     extension == 'amv') 
+    else{
       extType = "mp4";
     }
     int status = 1;
@@ -1120,7 +1137,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   },
                                                   child: Padding(
                                                     padding: const EdgeInsets
-                                                        .only(
+                                                            .only(
                                                         left: AppSizes
                                                                 .kDefaultPadding *
                                                             2),
@@ -1130,7 +1147,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           width: 60,
                                                           height: 60,
                                                           padding: const EdgeInsets
-                                                              .all(AppSizes
+                                                                  .all(
+                                                              AppSizes
                                                                   .kDefaultPadding),
                                                           decoration: BoxDecoration(
                                                               border: Border.all(
@@ -1683,78 +1701,48 @@ class _ChatScreenState extends State<ChatScreen> {
                                       ],
                                     )
                                   : messageType == "mp4"
-                                      ? Stack(
-                                          children: [
-                                            ClipRRect(
+                                      ? GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      VideoMessage(
+                                                    videoUrl: message,
+                                                  ),
+                                                ));
+                                          },
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            constraints: BoxConstraints(
+                                                maxWidth: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.35,
+                                                maxHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.20),
+                                            child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(AppSizes
                                                       .cardCornerRadius),
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                constraints: BoxConstraints(
-                                                    maxWidth:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.35,
-                                                    maxHeight:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.20),
-                                                child: chatController
-                                                        .getAsyncString(message)
-                                                        .isNotEmpty
-                                                    ? Image.file(File(
-                                                        chatController
-                                                            .getAsyncString(
-                                                                message)))
-                                                    : ClipRRect(
-                                                        borderRadius: BorderRadius
-                                                            .circular(AppSizes
-                                                                .cardCornerRadius),
-                                                        child: CachedNetworkImage(
-                                                            imageUrl: message,
-                                                            fit: BoxFit.cover,
-                                                            placeholder: (context,
-                                                                    url) =>
-                                                                const CircularProgressIndicator
-                                                                    .adaptive(),
-                                                            errorWidget: (context,
-                                                                    url,
-                                                                    error) =>
-                                                                const Icon(Icons
-                                                                    .play_arrow)),
-                                                      ),
+                                              child: CachedNetworkImage(
+                                                imageUrl: message.isNotEmpty
+                                                    ? message
+                                                    : '',
+                                                fit: BoxFit.cover,
+                                                placeholder: (context, url) =>
+                                                    const CircularProgressIndicator
+                                                        .adaptive(),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(
+                                                            Icons.play_arrow),
                                               ),
                                             ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          VideoMessage(
-                                                        videoUrl: message,
-                                                      ),
-                                                    ));
-                                              },
-                                              child: Container(
-                                                color: AppColors.transparent,
-                                                constraints: BoxConstraints(
-                                                    maxWidth:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.35,
-                                                    maxHeight:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.20),
-                                              ),
-                                            ),
-                                          ],
+                                          ),
                                         )
                                       : const SizedBox(),
                     ),

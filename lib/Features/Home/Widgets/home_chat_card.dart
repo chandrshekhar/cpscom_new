@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
@@ -48,7 +47,6 @@ class HomeChatCard extends StatelessWidget {
                   if (snapshot.data != null &&
                       snapshot.data.docs != null &&
                       snapshot.data.docs.length >= 1) {
-                        
                     lastMsgSenderName = snapshot.data.docs[0]['sendBy'] ==
                             auth.currentUser!.displayName
                         ? 'You'
@@ -63,15 +61,15 @@ class HomeChatCard extends StatelessWidget {
                       chatMembersList =
                           snapshot.data.docs[0]['members'] as List<dynamic>;
 
-                  print("chat member--->>>>$chatMembersList");
+                      print("chat member--->>>>$chatMembersList");
                     }
 
-                      // for (var i = 0; i < chatMembersList.length; i++) {
-                      //   if (chatMembersList[i]['uid'] ==
-                      //       auth.currentUser!.uid) {
-                      //     isSeenByUser = chatMembersList[i]['isSeen'];
-                      //   }
-                      // }
+                    // for (var i = 0; i < chatMembersList.length; i++) {
+                    //   if (chatMembersList[i]['uid'] ==
+                    //       auth.currentUser!.uid) {
+                    //     isSeenByUser = chatMembersList[i]['isSeen'];
+                    //   }
+                    // }
                     // }
                   }
                   return InkWell(
@@ -210,12 +208,11 @@ class HomeChatCard extends StatelessWidget {
                                                                         text:
                                                                             ' PDF')
                                                                   ],
-                                                                style: Theme.of(context)
+                                                                style: Theme.of(
+                                                                        context)
                                                                     .textTheme
                                                                     .bodySmall)
-                                                            : snapshot.data.docs[0]
-                                                                        [
-                                                                        'type'] ==
+                                                            : snapshot.data.docs[0]['type'] ==
                                                                     'img'
                                                                 ? TextSpan(
                                                                     children: const [
@@ -239,12 +236,28 @@ class HomeChatCard extends StatelessWidget {
                                                                     style: Theme.of(context)
                                                                         .textTheme
                                                                         .bodySmall)
-                                                                : TextSpan(
-                                                                    text:
-                                                                        ' ${snapshot.data.docs[0]['message']}',
-                                                                    style: Theme.of(context)
-                                                                        .textTheme
-                                                                        .bodySmall),
+                                                                : snapshot.data.docs[0]['type'] ==
+                                                                        'mp4'
+                                                                    ? TextSpan(
+                                                                        children: const [
+                                                                            TextSpan(text: ': '),
+                                                                            WidgetSpan(
+                                                                                child: Icon(
+                                                                              Icons.video_library_outlined,
+                                                                              color: AppColors.grey,
+                                                                              size: 16,
+                                                                            )),
+                                                                            TextSpan(text: ' video')
+                                                                          ],
+                                                                        style: Theme.of(context)
+                                                                            .textTheme
+                                                                            .bodySmall)
+                                                                    : TextSpan(
+                                                                        text:
+                                                                            ' ${snapshot.data.docs[0]['message']}',
+                                                                        style: Theme.of(context)
+                                                                            .textTheme
+                                                                            .bodySmall),
                                                     //TextSpan(),
                                                   ]))
                                           : const SizedBox(),
@@ -252,7 +265,6 @@ class HomeChatCard extends StatelessWidget {
                                         height: AppSizes.kDefaultPadding / 2,
                                       ),
                                       child
-                                     
                                     ],
                                   ),
                                 ),

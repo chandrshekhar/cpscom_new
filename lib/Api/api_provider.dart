@@ -32,13 +32,12 @@ class ApiProvider {
     }
   }
 
-
   ///--------- User Report Api Call  -----///
   Future<UserReportResponseModel> userReport(
       Map<String, dynamic> requestUserReport) async {
     try {
-      Response response = await _dio.post(Urls.baseUrl + Urls.report,
-          data: requestUserReport);
+      Response response =
+          await _dio.post(Urls.baseUrl + Urls.report, data: requestUserReport);
       if (kDebugMode) {
         log('--------Response Report : $response');
       }
@@ -74,6 +73,119 @@ class ApiProvider {
     }
   }
 
+  ///--------- Forget password-----///
+
+  Future<Map> forgetPassword(String email) async {
+    Map<String, dynamic> reqModel = {"email": email.trim()};
+    try {
+      _dio.options.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      Response response =
+          await _dio.post(Urls.forgetPasswordurl, data: reqModel);
+      if (kDebugMode) {
+        log('--------Response forgetPassword : ${response.data}');
+      }
+      return response.statusCode == 200
+          ? response.data
+          : throw Exception('Something Went Wrong');
+    } catch (e) {
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          // log("bed res--> ${e.response?.data}");
+          return {"status": false, "message": e.response!.data['message']};
+          // throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          // throw Exception("Faild to load data");
+          log(e.response!.data.toString());
+          return {"status": false, "message": e.response!.data['message']};
+        }
+      }
+      return {"status": false, "message": "Something went wrong"};
+    }
+  }
+
+  ///--------- Forget password-----///
+
+  Future<Map> verifyOtp({required String email, required String otp}) async {
+    Map<String, dynamic> reqModel = {"email": email.trim(), "otp": otp.trim()};
+    try {
+      _dio.options.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      Response response = await _dio.post(Urls.verifyOtp, data: reqModel);
+      if (kDebugMode) {
+        log('--------Response forgetPassword : ${response.data}');
+      }
+      return response.statusCode == 200
+          ? response.data
+          : throw Exception('Something Went Wrong');
+    } catch (e) {
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          // log("bed res--> ${e.response?.data}");
+          return {"status": false, "message": e.response!.data['message']};
+          // throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          // throw Exception("Faild to load data");
+          log(e.response!.data.toString());
+          return {"status": false, "message": e.response!.data['message']};
+        }
+      }
+      return {"status": false, "message": "Something went wrong"};
+    }
+  }
+
+  ///--------- reset password-----///
+
+  Future<Map> resetpassword(
+      {required String email,
+      required String password,
+      required String cnfPassword}) async {
+    Map<String, dynamic> reqModel = {
+      "email": email.trim(),
+      "password": password.trim(),
+      "confirm_password": cnfPassword.trim()
+    };
+    log(reqModel.toString());
+    try {
+      _dio.options.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      Response response = await _dio.post(Urls.resetPassword, data: reqModel);
+      if (kDebugMode) {
+        log('--------Response forgetPassword : ${response.data}');
+      }
+      return response.statusCode == 200
+          ? response.data
+          : throw Exception('Something Went Wrong');
+    } catch (e) {
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          // log("bed res--> ${e.response?.data}");
+          return {"status": false, "message": e.response!.data['error']};
+          // throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          // throw Exception("Faild to load data");
+          log(e.response!.data.toString());
+          return {"status": false, "message": e.response!.data['error']};
+        }
+      }
+      return {"status": false, "message": "Something went wrong"};
+    }
+  }
 
   ///--------- Upload  Group Image -----///
   // Future<ResponseImageUpload> uploadGroupImage(

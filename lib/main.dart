@@ -10,7 +10,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'Commons/theme.dart';
 import 'Features/Splash/Presentation/splash_screen.dart';
 import 'Utils/app_preference.dart';
