@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:path/path.dart' as p;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
@@ -161,43 +160,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  /// picked for web
-  ///
-  List<PlatformFile>? _paths;
-
-  void fickforWeb() async {
-    debugPrint("file for web is calling");
-    try {
-      _paths = (await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowMultiple: false,
-        onFileLoading: (FilePickerStatus status) => print(status),
-        allowedExtensions: ['png', 'jpg', 'jpeg', 'heic'],
-      ))
-          ?.files;
-    } on PlatformException catch (e) {
-      log('Unsupported operation' + e.toString());
-    } catch (e) {
-      log(e.toString());
-    }
-    debugPrint("file path-> ${_paths!.first.path}");
-    setState(() {
-      if (_paths != null) {
-        if (_paths != null) {
-          //passing file bytes and file name for API call
-          // Get the file path from the PlatformFile
-          String filePath = _paths![0].path!;
-          // Create a File instance using the file path
-          File file = File(filePath);
-          String extension = p.extension(file.path);
-          print("ee-> $extension");
-          print("File--> $file");
-          uploadImage(file, extension);
-        }
-      }
-    });
-  }
-
   ////////////
   Future<void> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -210,10 +172,17 @@ class _ChatScreenState extends State<ChatScreen> {
       extension = file.extension;
       debugPrint("file--> $result");
       debugPrint("file extension--> $extension");
-      List<File> files =
-          result.paths.map((path) => File(path.toString())).toList();
-      for (var i in files) {
-        uploadImage(i, extension);
+      if (kIsWeb) {
+        Uint8List uploadfile = result.files.first.bytes!;
+        uploadDatafromWeb(uploadfile, result.files.first.extension);
+
+        print("upload file--> $uploadfile");
+      } else {
+        List<File> files =
+            result.paths.map((path) => File(path.toString())).toList();
+        for (var i in files) {
+          uploadImage(i, extension);
+        }
       }
     } else {
       // User canceled the picker
@@ -224,8 +193,6 @@ class _ChatScreenState extends State<ChatScreen> {
     List<XFile>? imageFileList = [];
     try {
       final images = await ImagePicker().pickMedia();
-      // final images = await ImagePicker()
-      //     .pickMultiImage(maxHeight: 512, maxWidth: 512, imageQuality: 75);
       if (images != null) {
         setState(() {
           imageFileList.add(images);
@@ -243,18 +210,6 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
   }
-  // choose video from gallary
-
-  // Future<void> pickImageFromGallery() async {
-  //   final pickedFile = await ImagePicker().pickMedia();
-
-  //   if (pickedFile != null) {
-  //     // Handle the picked media file
-  //     print(pickedFile.path);
-  //   } else {
-  //     // User canceled the picker
-  //   }
-  // }
 
   Future pickImageFromCamera() async {
     try {
@@ -342,6 +297,97 @@ class _ChatScreenState extends State<ChatScreen> {
           .child('cpscom_admin_images')
           .child("$fileName.$extension");
       var uploadTask = await ref.putFile(file).catchError((error) async {
+        await _firestore
+            .collection('groups')
+            .doc(widget.groupId)
+            .collection('chats')
+            .doc(fileName)
+            .delete();
+        status = 0;
+      });
+      if (status == 1) {
+        String imageUrl = await uploadTask.ref.getDownloadURL();
+        await _firestore
+            .collection('groups')
+            .doc(widget.groupId)
+            .collection('chats')
+            .doc(fileName)
+            .update({"message": imageUrl});
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        log(e.toString());
+      }
+    }
+  }
+
+  Future uploadDatafromWeb(Uint8List file, extension) async {
+    String fileName = const Uuid().v1();
+    // final ext = file.path.split('.').last;
+    if (extension == 'pdf') {
+      extType = "pdf";
+    } else if (extension == 'jpg' ||
+        extension == 'JPG' ||
+        extension == 'jpeg' ||
+        extension == 'JPEG' ||
+        extension == 'png' ||
+        extension == 'PNG') {
+      extType = "img";
+    } else if (extension == 'doc' || extension == 'docx') {
+      extType = "doc";
+    } else if (extension == 'gif') {
+      extType = "gif";
+    }
+
+    // } else if (extension == 'mp4' ||
+    //     extension == 'avi' ||
+    //     extension == 'MST' ||
+    //     extension == 'M2TS' ||
+    //     extension == 'mov' ||
+    //     extension == 'TS' ||
+    //     extension == 'QT' ||
+    //     extension == 'wmv' ||
+    //     extension == 'nkv' ||
+    //     extension == 'avi' ||
+    //     extension == 'm4p' ||
+    //     extension == 'm4v' ||
+    //     extension == '3gp' ||
+    //     extension == 'mxf' ||
+    //     extension == 'svi' ||
+    //     extension == 'amv')
+    else {
+      extType = "mp4";
+    }
+    int status = 1;
+    // print("imagepath-->  ${file.path}");
+    print("pickImagExtension-> $extension");
+    try {
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupId)
+          .collection('chats')
+          .doc(fileName)
+          .set({
+        "sendBy": _auth.currentUser!.displayName,
+        "sendById": _auth.currentUser!.uid,
+        "message": "",
+        'profile_picture': profilePicture,
+        "type": extType,
+        "isSeen": false,
+        "time": DateTime.now().millisecondsSinceEpoch,
+        "members": chatMembersList.toSet().toList(),
+      });
+      // Update last msg time with group time to show latest messaged group on top on the groups list
+      await FirebaseProvider.firestore
+          .collection('groups')
+          .doc(widget.groupId)
+          .update({"time": DateTime.now().millisecondsSinceEpoch});
+
+      var ref = FirebaseStorage.instance
+          .ref()
+          .child('cpscom_admin_images')
+          .child("$fileName.$extension");
+      var uploadTask = await ref.putData(file).catchError((error) async {
         await _firestore
             .collection('groups')
             .doc(widget.groupId)
@@ -1190,6 +1236,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   onTap: () {
                                     if (kIsWeb) {
                                       print("pandey");
+                                      // getMultipleImageInfos();
                                       // fickforWeb();
                                       pickFile();
                                     } else {

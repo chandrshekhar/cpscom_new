@@ -74,4 +74,5 @@ class ChatController extends GetxController {
     print("path--${(await getTemporaryDirectory()).path}");
     return fileName!;
   }
+  
 }
