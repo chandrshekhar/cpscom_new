@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:path/path.dart' as p;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
@@ -161,16 +161,54 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  /// picked for web
+  ///
+  List<PlatformFile>? _paths;
+
+  void fickforWeb() async {
+    debugPrint("file for web is calling");
+    try {
+      _paths = (await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowMultiple: false,
+        onFileLoading: (FilePickerStatus status) => print(status),
+        allowedExtensions: ['png', 'jpg', 'jpeg', 'heic'],
+      ))
+          ?.files;
+    } on PlatformException catch (e) {
+      log('Unsupported operation' + e.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+    debugPrint("file path-> ${_paths!.first.path}");
+    setState(() {
+      if (_paths != null) {
+        if (_paths != null) {
+          //passing file bytes and file name for API call
+          // Get the file path from the PlatformFile
+          String filePath = _paths![0].path!;
+          // Create a File instance using the file path
+          File file = File(filePath);
+          String extension = p.extension(file.path);
+          print("ee-> $extension");
+          print("File--> $file");
+          uploadImage(file, extension);
+        }
+      }
+    });
+  }
+
   ////////////
   Future<void> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'mp4'],
+      allowedExtensions: ['pdf', 'doc', 'docx', 'mp4', 'png', 'jpg', 'jpeg'],
     );
     if (result != null) {
       PlatformFile file = result.files.first;
       extension = file.extension;
+      debugPrint("file--> $result");
       debugPrint("file extension--> $extension");
       List<File> files =
           result.paths.map((path) => File(path.toString())).toList();
@@ -245,13 +283,16 @@ class _ChatScreenState extends State<ChatScreen> {
     } else if (extension == 'jpg' ||
         extension == 'JPG' ||
         extension == 'jpeg' ||
-        extension == 'png') {
+        extension == 'JPEG' ||
+        extension == 'png' ||
+        extension == 'PNG') {
       extType = "img";
     } else if (extension == 'doc' || extension == 'docx') {
       extType = "doc";
     } else if (extension == 'gif') {
       extType = "gif";
     }
+
     // } else if (extension == 'mp4' ||
     //     extension == 'avi' ||
     //     extension == 'MST' ||
@@ -272,6 +313,8 @@ class _ChatScreenState extends State<ChatScreen> {
       extType = "mp4";
     }
     int status = 1;
+    print("imagepath-->  ${file.path}");
+    print("pickImagExtension-> $extension");
     try {
       await _firestore
           .collection('groups')
@@ -600,7 +643,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     case 1:
                       if (Responsive.isDesktop(context)) {
                         showDialog(
-                           barrierDismissible: false,
+                            barrierDismissible: false,
                             context: context,
                             builder: (context) {
                               return AlertDialog(content: StatefulBuilder(
@@ -623,7 +666,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     case 2:
                       if (Responsive.isDesktop(context)) {
                         showDialog(
-                          barrierDismissible: false,
+                            barrierDismissible: false,
                             context: context,
                             builder: (context) {
                               return AlertDialog(content: StatefulBuilder(
@@ -1145,79 +1188,89 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    showCustomBottomSheet(
-                                        context,
-                                        '',
-                                        SizedBox(
-                                          height: 150,
-                                          child: ListView.builder(
-                                              shrinkWrap: true,
-                                              padding: const EdgeInsets.all(
-                                                  AppSizes.kDefaultPadding),
-                                              itemCount: chatPickerList.length,
-                                              scrollDirection: Axis.horizontal,
-                                              itemBuilder: (context, index) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    switch (index) {
-                                                      case 0:
-                                                        pickFile();
-                                                        break;
-                                                      case 1:
-                                                        pickImageFromGallery();
-                                                        break;
-                                                      case 2:
-                                                        pickImageFromCamera();
-                                                        break;
-                                                    }
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                            .only(
-                                                        left: AppSizes
-                                                                .kDefaultPadding *
-                                                            2),
-                                                    child: Column(
-                                                      children: [
-                                                        Container(
-                                                          width: 60,
-                                                          height: 60,
-                                                          padding: const EdgeInsets
-                                                                  .all(
-                                                              AppSizes
-                                                                  .kDefaultPadding),
-                                                          decoration: BoxDecoration(
-                                                              border: Border.all(
-                                                                  width: 1,
-                                                                  color: AppColors
-                                                                      .lightGrey),
-                                                              color: AppColors
-                                                                  .white,
-                                                              shape: BoxShape
-                                                                  .circle),
-                                                          child: chatPickerList[
-                                                                  index]
-                                                              .icon,
-                                                        ),
-                                                        const SizedBox(
-                                                          height: AppSizes
-                                                                  .kDefaultPadding /
-                                                              2,
-                                                        ),
-                                                        Text(
-                                                          '${chatPickerList[index].title}',
-                                                          style:
-                                                              Theme.of(context)
-                                                                  .textTheme
-                                                                  .bodyMedium,
-                                                        ),
-                                                      ],
+                                    if (kIsWeb) {
+                                      print("pandey");
+                                      // fickforWeb();
+                                      pickFile();
+                                    } else {
+                                      showCustomBottomSheet(
+                                          context,
+                                          '',
+                                          SizedBox(
+                                            height: 150,
+                                            child: ListView.builder(
+                                                shrinkWrap: true,
+                                                padding: const EdgeInsets.all(
+                                                    AppSizes.kDefaultPadding),
+                                                itemCount:
+                                                    chatPickerList.length,
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemBuilder: (context, index) {
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      switch (index) {
+                                                        case 0:
+                                                          pickFile();
+                                                          break;
+                                                        case 1:
+                                                          pickImageFromGallery();
+                                                          break;
+                                                        case 2:
+                                                          pickImageFromCamera();
+                                                          break;
+                                                      }
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                              .only(
+                                                          left: AppSizes
+                                                                  .kDefaultPadding *
+                                                              2),
+                                                      child: Column(
+                                                        children: [
+                                                          Container(
+                                                            width: 60,
+                                                            height: 60,
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .all(
+                                                                    AppSizes
+                                                                        .kDefaultPadding),
+                                                            decoration: BoxDecoration(
+                                                                border: Border.all(
+                                                                    width: 1,
+                                                                    color: AppColors
+                                                                        .lightGrey),
+                                                                color: AppColors
+                                                                    .white,
+                                                                shape: BoxShape
+                                                                    .circle),
+                                                            child:
+                                                                chatPickerList[
+                                                                        index]
+                                                                    .icon,
+                                                          ),
+                                                          const SizedBox(
+                                                            height: AppSizes
+                                                                    .kDefaultPadding /
+                                                                2,
+                                                          ),
+                                                          Text(
+                                                            '${chatPickerList[index].title}',
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyMedium,
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                );
-                                              }),
-                                        ));
+                                                  );
+                                                }),
+                                          ));
+                                    }
                                   },
                                   child: const Icon(
                                     EvaIcons.attach,

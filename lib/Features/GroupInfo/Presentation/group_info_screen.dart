@@ -279,80 +279,74 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                         .auth.currentUser!.uid
                                             ? GestureDetector(
                                                 onTap: () {
-                                                  showCustomBottomSheet(
-                                                      context,
-                                                      '',
-                                                      SizedBox(
-                                                        height: 150,
-                                                        child: ListView.builder(
-                                                            shrinkWrap: true,
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .all(
-                                                                    AppSizes
-                                                                        .kDefaultPadding),
-                                                            itemCount:
-                                                                imagePickerList
-                                                                    .length,
-                                                            scrollDirection:
-                                                                Axis.horizontal,
-                                                            itemBuilder:
-                                                                (context,
-                                                                    index) {
-                                                              return GestureDetector(
-                                                                onTap: () {
-                                                                  switch (
-                                                                      index) {
-                                                                    case 0:
-                                                                      pickImageFromGallery();
-                                                                      break;
-                                                                    case 1:
-                                                                      pickImageFromCamera();
-                                                                      break;
-                                                                  }
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                                child: Padding(
+                                                  if (kIsWeb) {
+                                                    pickImageFromGallery();
+                                                  } else {
+                                                    showCustomBottomSheet(
+                                                        context,
+                                                        '',
+                                                        SizedBox(
+                                                          height: 150,
+                                                          child: ListView
+                                                              .builder(
+                                                                  shrinkWrap:
+                                                                      true,
                                                                   padding: const EdgeInsets
-                                                                          .only(
-                                                                      left: AppSizes
-                                                                              .kDefaultPadding *
-                                                                          2),
-                                                                  child: Column(
-                                                                    children: [
-                                                                      Container(
-                                                                        width:
-                                                                            60,
-                                                                        height:
-                                                                            60,
+                                                                          .all(
+                                                                      AppSizes
+                                                                          .kDefaultPadding),
+                                                                  itemCount:
+                                                                      imagePickerList
+                                                                          .length,
+                                                                  scrollDirection:
+                                                                      Axis
+                                                                          .horizontal,
+                                                                  itemBuilder:
+                                                                      (context,
+                                                                          index) {
+                                                                    return GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        switch (
+                                                                            index) {
+                                                                          case 0:
+                                                                            pickImageFromGallery();
+                                                                            break;
+                                                                          case 1:
+                                                                            pickImageFromCamera();
+                                                                            break;
+                                                                        }
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                      child:
+                                                                          Padding(
                                                                         padding:
-                                                                            const EdgeInsets.all(AppSizes.kDefaultPadding),
-                                                                        decoration: BoxDecoration(
-                                                                            border:
-                                                                                Border.all(width: 1, color: AppColors.lightGrey),
-                                                                            color: AppColors.white,
-                                                                            shape: BoxShape.circle),
-                                                                        child: imagePickerList[index]
-                                                                            .icon,
+                                                                            const EdgeInsets.only(left: AppSizes.kDefaultPadding * 2),
+                                                                        child:
+                                                                            Column(
+                                                                          children: [
+                                                                            Container(
+                                                                              width: 60,
+                                                                              height: 60,
+                                                                              padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
+                                                                              decoration: BoxDecoration(border: Border.all(width: 1, color: AppColors.lightGrey), color: AppColors.white, shape: BoxShape.circle),
+                                                                              child: imagePickerList[index].icon,
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              height: AppSizes.kDefaultPadding / 2,
+                                                                            ),
+                                                                            Text(
+                                                                              '${imagePickerList[index].title}',
+                                                                              style: Theme.of(context).textTheme.bodyMedium,
+                                                                            ),
+                                                                          ],
+                                                                        ),
                                                                       ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            AppSizes.kDefaultPadding /
-                                                                                2,
-                                                                      ),
-                                                                      Text(
-                                                                        '${imagePickerList[index].title}',
-                                                                        style: Theme.of(context)
-                                                                            .textTheme
-                                                                            .bodyMedium,
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            }),
-                                                      ));
+                                                                    );
+                                                                  }),
+                                                        ));
+                                                  }
                                                 },
                                                 child: Container(
                                                   width: 40,

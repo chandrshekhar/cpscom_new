@@ -13,6 +13,7 @@ import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_
 import 'package:cpscom_admin/Utils/app_preference.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
+import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:dio/dio.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -242,7 +243,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                           right: 0,
                                           child: GestureDetector(
                                             onTap: () {
-                                              showCustomBottomSheet(
+                                              if(Responsive.isDesktop(context)){
+                                                  pickImageFromGallery();
+                                              } else{
+                                                 showCustomBottomSheet(
                                                   context,
                                                   '',
                                                   SizedBox(
@@ -321,7 +325,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                           );
                                                         }),
                                                   ));
-                                            },
+                                         
+
+                                              }
+                                                },
                                             child: Container(
                                               width: 40,
                                               height: 40,

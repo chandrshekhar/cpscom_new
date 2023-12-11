@@ -532,7 +532,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ? const CircularProgressIndicator
                                               .adaptive()
                                           : Text(
-                                              "Forget Password",
+                                              "Forgot Password",
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyLarge!
