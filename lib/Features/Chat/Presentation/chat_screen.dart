@@ -10,9 +10,9 @@ import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
+import 'package:cpscom_admin/Features/Chat/Presentation/camera.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Model/image_picker_model.dart';
-import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Features/ReportScreen/report_screen.dart';
 import 'package:cpscom_admin/Utils/app_helper.dart';
 import 'package:cpscom_admin/Utils/custom_bottom_modal_sheet.dart';
@@ -266,8 +266,8 @@ class _ChatScreenState extends State<ChatScreen> {
     //     extension == '3gp' ||
     //     extension == 'mxf' ||
     //     extension == 'svi' ||
-    //     extension == 'amv') 
-    else{
+    //     extension == 'amv')
+    else {
       extType = "mp4";
     }
     int status = 1;
@@ -594,8 +594,12 @@ class _ChatScreenState extends State<ChatScreen> {
               onSelected: (value) {
                 switch (value) {
                   case 1:
-                    context.push(GroupInfoScreen(
-                        groupId: widget.groupId, isAdmin: widget.isAdmin));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CameraPage()));
+                    // context.push(GroupInfoScreen(
+                    //     groupId: widget.groupId, isAdmin: widget.isAdmin));
                     break;
                   case 2:
                     context.push(ReportScreen(
@@ -1137,7 +1141,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   },
                                                   child: Padding(
                                                     padding: const EdgeInsets
-                                                            .only(
+                                                        .only(
                                                         left: AppSizes
                                                                 .kDefaultPadding *
                                                             2),
@@ -1147,8 +1151,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           width: 60,
                                                           height: 60,
                                                           padding: const EdgeInsets
-                                                                  .all(
-                                                              AppSizes
+                                                              .all(AppSizes
                                                                   .kDefaultPadding),
                                                           decoration: BoxDecoration(
                                                               border: Border.all(
