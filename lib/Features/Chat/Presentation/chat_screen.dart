@@ -1,8 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +7,6 @@ import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
-import 'package:cpscom_admin/Features/Chat/Presentation/camera.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Model/image_picker_model.dart';
 import 'package:cpscom_admin/Features/ReportScreen/report_screen.dart';
@@ -20,29 +16,22 @@ import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:cpscom_admin/Widgets/custom_text_field.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:focused_menu_custom/focused_menu.dart';
 import 'package:focused_menu_custom/modals.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:linkable/linkable.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:swipe_to/swipe_to.dart';
-import 'package:uuid/uuid.dart';
 
-import '../../../Api/urls.dart';
 import '../../../Utils/app_preference.dart';
 import '../../../Widgets/notify_message_widget.dart';
 import '../../../Widgets/video_player.dart';
+import '../../GroupInfo/Presentation/group_info_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String groupId;
@@ -64,7 +53,6 @@ class _ChatScreenState extends State<ChatScreen> {
   String replyWhom = '';
   String replyText = '';
 
-  late TextEditingController msgController;
   final AppPreference preference = AppPreference();
   List<dynamic> membersList = []; // add in appbar
   List<dynamic> chatMembersList = [];
@@ -73,13 +61,10 @@ class _ChatScreenState extends State<ChatScreen> {
   String profilePicture = '';
   List<String> pushToken = [];
 
-  File? imageFile;
-
   final bool _mention = false;
   final List<String> _suggestions = [];
 
   dynamic extension;
-  dynamic extType;
 
   ////////////
   List<QueryDocumentSnapshot> chatList = [];
@@ -92,9 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
   int isSeenCount = 0;
   dynamic lastChatMsg;
   dynamic mem;
-
   late Map<String, dynamic>? replyMessage;
-
   String chatId = '';
 
   //get current user details from firebase firestore
@@ -139,8 +122,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void onSwipedMessage(Map<String, dynamic> message) {
     // log("-------------- ${message['sendBy']} - ${message['message']}");
     chatController.isRelayFunction(true);
-    replyWhom = message['sendBy'];
-    replyText = message['message'];
+    chatController.replyWhom.value = message['sendBy'];
+    chatController.replyText.value = message['message'];
+    // replyWhom = message['sendBy'];
+    // replyText = message['message'];
     FocusScope.of(context).unfocus();
     AppHelper.openKeyboard(context, focusNode);
   }
@@ -161,49 +146,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   ////////////
-  Future<void> pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'mp4'],
-    );
-    if (result != null) {
-      PlatformFile file = result.files.first;
-      extension = file.extension;
-      debugPrint("file extension--> $extension");
-      List<File> files =
-          result.paths.map((path) => File(path.toString())).toList();
-      for (var i in files) {
-        uploadImage(i, extension);
-      }
-    } else {
-      // User canceled the picker
-    }
-  }
 
-  Future pickImageFromGallery() async {
-    List<XFile>? imageFileList = [];
-    try {
-      final images = await ImagePicker().pickMedia();
-      // final images = await ImagePicker()
-      //     .pickMultiImage(maxHeight: 512, maxWidth: 512, imageQuality: 75);
-      if (images != null) {
-        setState(() {
-          imageFileList.add(images);
-        });
-        final extension = imageFileList.first.path.split(".").last;
-        for (var i in imageFileList) {
-          await uploadImage(File(i.path), extension);
-        }
-      } else {
-        // User canceled the picker
-      }
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        log('Failed to pick image: $e');
-      }
-    }
-  }
   // choose video from gallary
 
   // Future<void> pickImageFromGallery() async {
@@ -217,224 +160,31 @@ class _ChatScreenState extends State<ChatScreen> {
   //   }
   // }
 
-  Future pickImageFromCamera() async {
-    try {
-      final image = await ImagePicker().pickImage(
-          source: ImageSource.camera,
-          maxHeight: 512,
-          maxWidth: 512,
-          imageQuality: 75);
-      if (image == null) return;
-      final imageTemp = File(image.path);
-      setState(() => imageFile = imageTemp);
-      final extension = image.path.split(".").last;
-      await uploadImage(imageFile!, extension);
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        log('Failed to pick image: $e');
-      }
-    }
-  }
+  // Future pickImageFromCamera() async {
+  //   try {
+  //     final image = await ImagePicker().pickImage(
+  //         source: ImageSource.camera,
+  //         maxHeight: 512,
+  //         maxWidth: 512,
+  //         imageQuality: 75);
+  //     if (image == null) return;
+  //     final imageTemp = File(image.path);
+  //     setState(() => imageFile = imageTemp);
+  //     final extension = image.path.split(".").last;
+  //     // await uploadImage(imageFile!, extension);
+  //   } on PlatformException catch (e) {
+  //     if (kDebugMode) {
+  //       log('Failed to pick image: $e');
+  //     }
+  //   }
+  // }
 
-  Future uploadImage(File file, extension) async {
-    String fileName = const Uuid().v1();
-    // final ext = file.path.split('.').last;
-    if (extension == 'pdf') {
-      extType = "pdf";
-    } else if (extension == 'jpg' ||
-        extension == 'JPG' ||
-        extension == 'jpeg' ||
-        extension == 'png') {
-      extType = "img";
-    } else if (extension == 'doc' || extension == 'docx') {
-      extType = "doc";
-    } else if (extension == 'gif') {
-      extType = "gif";
-    }
-    // } else if (extension == 'mp4' ||
-    //     extension == 'avi' ||
-    //     extension == 'MST' ||
-    //     extension == 'M2TS' ||
-    //     extension == 'mov' ||
-    //     extension == 'TS' ||
-    //     extension == 'QT' ||
-    //     extension == 'wmv' ||
-    //     extension == 'nkv' ||
-    //     extension == 'avi' ||
-    //     extension == 'm4p' ||
-    //     extension == 'm4v' ||
-    //     extension == '3gp' ||
-    //     extension == 'mxf' ||
-    //     extension == 'svi' ||
-    //     extension == 'amv')
-    else {
-      extType = "mp4";
-    }
-    int status = 1;
-    try {
-      await _firestore
-          .collection('groups')
-          .doc(widget.groupId)
-          .collection('chats')
-          .doc(fileName)
-          .set({
-        "sendBy": _auth.currentUser!.displayName,
-        "sendById": _auth.currentUser!.uid,
-        "message": "",
-        'profile_picture': profilePicture,
-        "type": extType,
-        "isSeen": false,
-        "time": DateTime.now().millisecondsSinceEpoch,
-        "members": chatMembersList.toSet().toList(),
-      });
-      // Update last msg time with group time to show latest messaged group on top on the groups list
-      await FirebaseProvider.firestore
-          .collection('groups')
-          .doc(widget.groupId)
-          .update({"time": DateTime.now().millisecondsSinceEpoch});
-
-      var ref = FirebaseStorage.instance
-          .ref()
-          .child('cpscom_admin_images')
-          .child("$fileName.$extension");
-      var uploadTask = await ref.putFile(file).catchError((error) async {
-        await _firestore
-            .collection('groups')
-            .doc(widget.groupId)
-            .collection('chats')
-            .doc(fileName)
-            .delete();
-        status = 0;
-      });
-      if (status == 1) {
-        String imageUrl = await uploadTask.ref.getDownloadURL();
-        await _firestore
-            .collection('groups')
-            .doc(widget.groupId)
-            .collection('chats')
-            .doc(fileName)
-            .update({"message": imageUrl});
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        log(e.toString());
-      }
-    }
-  }
-
-  Future<void> onSendMessages(String groupId, String msg, String profilePicture,
-      String senderName) async {
-    if (msg.trim().isNotEmpty) {
-      msgController.clear();
-      Map<String, dynamic> chatData = {};
-      Map<String, dynamic> reply = {};
-      try {
-        if (chatController.isReply.value == true) {
-          reply = {
-            "replyWhom": replyWhom,
-            'message': replyText,
-            'type': 'reply',
-          };
-
-          chatData = {
-            'sendBy': FirebaseProvider.auth.currentUser!.displayName,
-            'sendById': FirebaseProvider.auth.currentUser!.uid,
-            'profile_picture': profilePicture,
-            'message': msg,
-            'read': DateTime.now().millisecondsSinceEpoch,
-            'type': 'text',
-            'reply': reply,
-            'time': DateTime.now().millisecondsSinceEpoch,
-            "isSeen": false,
-            "members": membersList.toSet().toList(),
-          };
-          chatController.isRelayFunction(false);
-        } else {
-          chatData = {
-            'sendBy': FirebaseProvider.auth.currentUser!.displayName,
-            'sendById': FirebaseProvider.auth.currentUser!.uid,
-            'profile_picture': profilePicture,
-            'message': msg,
-            'read': DateTime.now().millisecondsSinceEpoch,
-            'type': 'text',
-            'time': DateTime.now().millisecondsSinceEpoch,
-            "isSeen": false,
-            "members": membersList.toSet().toList(),
-          };
-          chatController.isRelayFunction(false);
-        }
-        await FirebaseProvider.firestore
-            .collection('groups')
-            .doc(groupId)
-            .collection('chats')
-            .add(chatData)
-            .then((value) {
-          sendPushNotification(senderName, msg);
-        });
-
-        // Update last msg time with group time to show latest messaged group on top on the groups list
-        await FirebaseProvider.firestore
-            .collection('groups')
-            .doc(groupId)
-            .update({"time": DateTime.now().millisecondsSinceEpoch});
-      } catch (e) {
-        chatController.isRelayFunction(false);
-        if (kDebugMode) {
-          log(e.toString());
-        }
-      }
-    }
-  }
-
-  Future<void> sendPushNotification(String senderName, String msg) async {
-    for (var i = 0; i < membersList.length; i++) {
-      print(membersList.length);
-      // notification will sent to all the users of the group except current user.
-      String token = "";
-
-      if (membersList[i]['uid'] != _auth.currentUser!.uid) {
-        // membersList.removeAt(i);
-        DocumentSnapshot<Map<String, dynamic>> ref = await FirebaseFirestore
-            .instance
-            .collection("users")
-            .doc(membersList[i]['uid'])
-            .get();
-        token = ref['pushToken'];
-        log("test token $token");
-      }
-
-      try {
-        final body = {
-          "priority": "high",
-          "to": token,
-          "data": <String, dynamic>{"title": senderName, "body": msg},
-          "notification": <String, dynamic>{"title": senderName, "body": msg}
-        };
-        var response = await post(Uri.parse(Urls.sendPushNotificationUrl),
-            headers: <String, String>{
-              HttpHeaders.contentTypeHeader: 'application/json',
-              HttpHeaders.authorizationHeader: AppStrings.serverKey
-            },
-            body: jsonEncode(body));
-
-        if (kDebugMode) {
-          log('status code send notification - ${response.statusCode}');
-          log('body send notification -  ${response.body}');
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          log(e.toString());
-        }
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    //updateIsSeenField(widget.groupId, true);
-    msgController = TextEditingController();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   //updateIsSeenField(widget.groupId, true);
+  //   msgController = TextEditingController();
+  // }
 
   final queue = Queue<int>();
   Timer? timer;
@@ -498,11 +248,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Map<String, dynamic> chatMap = {};
 
-  @override
-  void dispose() {
-    msgController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   chatController.msgController.value.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -594,12 +344,8 @@ class _ChatScreenState extends State<ChatScreen> {
               onSelected: (value) {
                 switch (value) {
                   case 1:
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CameraPage()));
-                    // context.push(GroupInfoScreen(
-                    //     groupId: widget.groupId, isAdmin: widget.isAdmin));
+                    context.push(GroupInfoScreen(
+                        groupId: widget.groupId, isAdmin: widget.isAdmin));
                     break;
                   case 2:
                     context.push(ReportScreen(
@@ -940,11 +686,13 @@ class _ChatScreenState extends State<ChatScreen> {
                             return ListTile(
                               onTap: () {
                                 setState(() {
-                                  msgController.text = msgController.text +
-                                      membersList[index]['name'];
-                                  msgController.selection =
+                                  chatController.msgController.value.text =
+                                      chatController.msgController.value.text +
+                                          membersList[index]['name'];
+                                  chatController.msgController.value.selection =
                                       TextSelection.fromPosition(TextPosition(
-                                          offset: msgController.text.length));
+                                          offset: chatController.msgController
+                                              .value.text.length));
                                 });
                                 chatController.isMemberSuggestion(false);
                               },
@@ -1016,54 +764,53 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           padding:
                                                               const EdgeInsets
                                                                   .all(8.0),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Flexible(
-                                                                flex: 1,
-                                                                child: Text(
-                                                                  replyWhom,
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .bodyMedium!
-                                                                      .copyWith(
-                                                                          color: AppColors
-                                                                              .primary,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: AppSizes
-                                                                        .kDefaultPadding /
-                                                                    8,
-                                                              ),
-                                                              Flexible(
-                                                                flex: 1,
-                                                                child: Text(
-                                                                  replyText,
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .bodyMedium!
-                                                                      .copyWith(
-                                                                          color:
-                                                                              AppColors.darkGrey),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
+                                                          child:
+                                                              Obx(() => Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Flexible(
+                                                                        flex: 1,
+                                                                        child:
+                                                                            Text(
+                                                                          chatController
+                                                                              .replyWhom
+                                                                              .value,
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                          style: Theme.of(context)
+                                                                              .textTheme
+                                                                              .bodyMedium!
+                                                                              .copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            AppSizes.kDefaultPadding /
+                                                                                8,
+                                                                      ),
+                                                                      Flexible(
+                                                                        flex: 1,
+                                                                        child:
+                                                                            Text(
+                                                                          chatController
+                                                                              .replyText
+                                                                              .value,
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                          style: Theme.of(context)
+                                                                              .textTheme
+                                                                              .bodyMedium!
+                                                                              .copyWith(color: AppColors.darkGrey),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  )),
                                                         ),
                                                       ),
                                                       IconButton(
@@ -1089,7 +836,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                               ? const CustomDivider()
                                               : const SizedBox(),
                                           CustomTextField(
-                                            controller: msgController,
+                                            controller: chatController
+                                                .msgController.value,
                                             hintText: 'Type a message',
                                             maxLines: 4,
                                             isReplying:
@@ -1128,13 +876,30 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   onTap: () {
                                                     switch (index) {
                                                       case 0:
-                                                        pickFile();
+                                                        chatController.pickFile(
+                                                            widget.groupId,
+                                                            chatMembersList);
+
                                                         break;
                                                       case 1:
-                                                        pickImageFromGallery();
+                                                        chatController
+                                                            .pickImageFromGallery(
+                                                                widget.groupId,
+                                                                chatMembersList);
                                                         break;
                                                       case 2:
-                                                        pickImageFromCamera();
+                                                        print("dkfjajkdshf");
+                                                        chatController
+                                                            .pickVideoFromCamera(
+                                                                widget.groupId,
+                                                                chatMembersList);
+
+                                                        break;
+                                                      case 3:
+                                                        chatController
+                                                            .pickImageFromCamera(
+                                                                widget.groupId,
+                                                                chatMembersList);
                                                         break;
                                                     }
                                                     Navigator.pop(context);
@@ -1146,6 +911,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                 .kDefaultPadding *
                                                             2),
                                                     child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
                                                       children: [
                                                         Container(
                                                           width: 60,
@@ -1200,13 +971,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         GestureDetector(
                           onTap: () async {
-                            await onSendMessages(
-                              widget.groupId,
-                              msgController.text,
-                              profilePicture,
-                              '${_auth.currentUser!.displayName}',
-                            );
-                            msgController.clear();
+                            await chatController.onSendMessages(
+                                widget.groupId,
+                                chatController.msgController.value.text,
+                                profilePicture,
+                                '${_auth.currentUser!.displayName}',
+                                membersList);
+                            chatController.msgController.value.clear();
 
                             SchedulerBinding.instance.addPostFrameCallback((_) {
                               _scrollController.animateTo(0.0,
@@ -1886,7 +1657,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     Flexible(
                                       flex: 1,
                                       child: Text(
-                                        replyText,
+                                        chatController.replyText.value,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)

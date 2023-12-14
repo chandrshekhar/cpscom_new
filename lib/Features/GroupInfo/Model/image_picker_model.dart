@@ -22,6 +22,12 @@ final List<ImagePickerList> chatPickerList = [
         color: AppColors.primary,
       )),
   ImagePickerList(
+      "Video",
+      const Icon(
+        Icons.video_camera_back_outlined,
+        color: AppColors.primary,
+      )),
+  ImagePickerList(
       'Camera',
       const Icon(
         Icons.camera_alt_rounded,
