@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
@@ -58,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final chatController = Get.put(ChatController());
 
-  FocusNode focusNode = FocusNode();
+  var focusNode = FocusNode();
   // Map<String, dynamic> chatMap = <String, dynamic>{};
 
   String replyWhom = '';
@@ -1271,7 +1272,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     },
                                                     child: Padding(
                                                       padding: const EdgeInsets
-                                                              .only(
+                                                          .only(
                                                           left: AppSizes
                                                                   .kDefaultPadding *
                                                               2),
@@ -1282,7 +1283,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                             height: 60,
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .all(
+                                                                    .all(
                                                                     AppSizes
                                                                         .kDefaultPadding),
                                                             decoration: BoxDecoration(
@@ -1475,7 +1476,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: 52,
+                            height: 60,
                             constraints: BoxConstraints(
                               maxWidth:
                                   MediaQuery.of(context).size.width * 0.45,
@@ -1493,38 +1494,39 @@ class _ChatScreenState extends State<ChatScreen> {
                                   width: AppSizes.kDefaultPadding / 4,
                                 ),
                                 Container(
-                                  height: 52,
+                                  height: 60,
                                   width: 2,
                                   color: AppColors.primary,
                                 ),
                                 const SizedBox(
                                   width: AppSizes.kDefaultPadding / 2,
                                 ),
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            replyWhom,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                    color: AppColors.primary,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                          ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          replyWhom,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .copyWith(
+                                                  color: AppColors.primary,
+                                                  fontWeight: FontWeight.bold),
                                         ),
-                                        const SizedBox(
-                                          height: AppSizes.kDefaultPadding / 6,
-                                        ),
-                                        FittedBox(
+                                      ),
+                                      // const SizedBox(height: 8),
+                                      Expanded(
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.4,
                                           child: Text(
                                             replyText,
                                             maxLines: 1,
@@ -1536,8 +1538,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     color: AppColors.darkGrey),
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -1748,11 +1750,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     backGroundColor: AppColors.secondary.withOpacity(0.3),
                     alignment: Alignment.topRight,
                     elevation: 0,
-                    margin: const EdgeInsets.only(
-                        top: AppSizes.kDefaultPadding / 4),
+                    margin: EdgeInsets.only(
+                        top: AppSizes.kDefaultPadding / 4,
+                        left: MediaQuery.of(context).size.width * 0.2),
                     child: Container(
-                      constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.65),
+                      // constraints: BoxConstraints(
+                      //     maxWidth: MediaQuery.of(context).size.width * 0.65),
                       child: messageType == 'img'
                           ? GestureDetector(
                               onTap: () {
@@ -1970,10 +1973,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
-                        height: 50,
-                        constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.45,
-                        ),
+                        height: MediaQuery.of(context).size.height * 0.06,
+                        margin: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width * 0.1),
                         decoration: const BoxDecoration(
                             color: AppColors.bg,
                             borderRadius: BorderRadius.only(
@@ -1987,38 +1989,41 @@ class _ChatScreenState extends State<ChatScreen> {
                               width: AppSizes.kDefaultPadding / 6,
                             ),
                             Container(
-                              height: 50,
+                              height: MediaQuery.of(context).size.height * 0.06,
                               width: 2,
                               color: AppColors.primary,
                             ),
                             const SizedBox(
                               width: AppSizes.kDefaultPadding / 2,
                             ),
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Flexible(
-                                      flex: 1,
-                                      child: Text(
-                                        replyWhom,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .copyWith(
-                                                color: AppColors.primary,
-                                                fontWeight: FontWeight.bold),
-                                      ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      replyWhom,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .copyWith(
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(
-                                      height: AppSizes.kDefaultPadding / 6,
-                                    ),
-                                    Flexible(
-                                      flex: 1,
+                                  ),
+                                  const SizedBox(
+                                    height: AppSizes.kDefaultPadding / 6,
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      constraints: BoxConstraints(
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.3),
                                       child: Text(
                                         replyText,
                                         maxLines: 1,
@@ -2030,8 +2035,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 color: AppColors.darkGrey),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -2043,8 +2048,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         backGroundColor: AppColors.secondary.withOpacity(0.3),
                         alignment: Alignment.topRight,
                         elevation: 0,
-                        margin: const EdgeInsets.only(
-                            top: AppSizes.kDefaultPadding / 4),
+                        margin: EdgeInsets.only(
+                            top: AppSizes.kDefaultPadding / 4,
+                            left: MediaQuery.of(context).size.width * 0.1),
                         child: Container(
                           constraints: BoxConstraints(
                               maxWidth:
