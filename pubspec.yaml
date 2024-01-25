@@ -104,6 +104,8 @@ dependencies:
   # Collection Package for groupBy Function to separate Chats by Date
   collection: ^1.17.0
   overlay_support: ^2.1.0
+  #  camera
+  camera: ^0.10.5+7 
   
 
   # Launcher Icons for the Application

@@ -55,14 +55,14 @@ class HomeChatCard extends StatelessWidget {
                             : '';
                     sentTime = AppHelper.getStringTimeFromTimestamp(
                         snapshot.data.docs[0]['time']);
-                    List<dynamic> chatMembersList = [];
-                    // remove unseen count from home screen when user viewed last message.
-                    if (snapshot.data.docs[0]['type'] != 'notify') {
-                      chatMembersList =
-                          snapshot.data.docs[0]['members'] as List<dynamic>;
+                    // List<dynamic> chatMembersList = [];
+                    // // remove unseen count from home screen when user viewed last message.
+                    // if (snapshot.data.docs[0]['type'] != 'notify') {
+                    //   chatMembersList =
+                    //       snapshot.data.docs[0]['members'] as List<dynamic>;
 
-                      print("chat member--->>>>$chatMembersList");
-                    }
+                    //   print("chat member--->>>>$chatMembersList");
+                    // }
 
                     // for (var i = 0; i < chatMembersList.length; i++) {
                     //   if (chatMembersList[i]['uid'] ==
@@ -106,7 +106,7 @@ class HomeChatCard extends StatelessWidget {
                                           .toUpperCase(),
                                       style: Theme.of(context)
                                           .textTheme
-                                          .bodyText1!
+                                          .bodyLarge!
                                           .copyWith(
                                               fontWeight: FontWeight.w600),
                                     ),

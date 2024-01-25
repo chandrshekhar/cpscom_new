@@ -7,12 +7,12 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Api/firebase_provider.dart';
+import 'package:cpscom_admin/Api/urls.dart';
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Model/image_picker_model.dart';
-import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Features/ReportScreen/report_screen.dart';
 import 'package:cpscom_admin/Utils/app_helper.dart';
 import 'package:cpscom_admin/Utils/custom_bottom_modal_sheet.dart';
@@ -40,10 +40,10 @@ import 'package:photo_view/photo_view.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../Api/urls.dart';
 import '../../../Utils/app_preference.dart';
 import '../../../Widgets/notify_message_widget.dart';
 import '../../../Widgets/video_player.dart';
+import '../../GroupInfo/Presentation/group_info_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String groupId;
@@ -65,7 +65,6 @@ class _ChatScreenState extends State<ChatScreen> {
   String replyWhom = '';
   String replyText = '';
 
-  late TextEditingController msgController;
   final AppPreference preference = AppPreference();
   List<dynamic> membersList = []; // add in appbar
   List<dynamic> chatMembersList = [];
@@ -74,13 +73,10 @@ class _ChatScreenState extends State<ChatScreen> {
   String profilePicture = '';
   List<String> pushToken = [];
 
-  File? imageFile;
-
   final bool _mention = false;
   final List<String> _suggestions = [];
 
   dynamic extension;
-  dynamic extType;
 
   ////////////
   List<QueryDocumentSnapshot> chatList = [];
@@ -93,10 +89,9 @@ class _ChatScreenState extends State<ChatScreen> {
   int isSeenCount = 0;
   dynamic lastChatMsg;
   dynamic mem;
-
   late Map<String, dynamic>? replyMessage;
-
   String chatId = '';
+  String extType = '';
 
   //get current user details from firebase firestore
   // Future<void> updateMessageSeenStatus(
@@ -140,8 +135,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void onSwipedMessage(Map<String, dynamic> message) {
     // log("-------------- ${message['sendBy']} - ${message['message']}");
     chatController.isRelayFunction(true);
-    replyWhom = message['sendBy'];
-    replyText = message['message'];
+    chatController.replyWhom.value = message['sendBy'];
+    chatController.replyText.value = message['message'];
+    // replyWhom = message['sendBy'];
+    // replyText = message['message'];
     FocusScope.of(context).unfocus();
     AppHelper.openKeyboard(context, focusNode);
   }
@@ -212,24 +209,24 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future pickImageFromCamera() async {
-    try {
-      final image = await ImagePicker().pickImage(
-          source: ImageSource.camera,
-          maxHeight: 512,
-          maxWidth: 512,
-          imageQuality: 75);
-      if (image == null) return;
-      final imageTemp = File(image.path);
-      setState(() => imageFile = imageTemp);
-      final extension = image.path.split(".").last;
-      await uploadImage(imageFile!, extension);
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        log('Failed to pick image: $e');
-      }
-    }
-  }
+  // Future pickImageFromCamera() async {
+  //   try {
+  //     final image = await ImagePicker().pickImage(
+  //         source: ImageSource.camera,
+  //         maxHeight: 512,
+  //         maxWidth: 512,
+  //         imageQuality: 75);
+  //     if (image == null) return;
+  //     final imageTemp = File(image.path);
+  //     setState(() => imageFile = imageTemp);
+  //     final extension = image.path.split(".").last;
+  //     // await uploadImage(imageFile!, extension);
+  //   } on PlatformException catch (e) {
+  //     if (kDebugMode) {
+  //       log('Failed to pick image: $e');
+  //     }
+  //   }
+  // }
 
   Future uploadImage(File file, extension) async {
     String fileName = const Uuid().v1();
@@ -416,7 +413,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> onSendMessages(String groupId, String msg, String profilePicture,
       String senderName) async {
     if (msg.trim().isNotEmpty) {
-      msgController.clear();
+      chatController.msgController.value.clear();
       Map<String, dynamic> chatData = {};
       Map<String, dynamic> reply = {};
       try {
@@ -524,7 +521,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     //updateIsSeenField(widget.groupId, true);
-    msgController = TextEditingController();
+    //  chatController. msgController = TextEditingController();
   }
 
   final queue = Queue<int>();
@@ -589,11 +586,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Map<String, dynamic> chatMap = {};
 
-  @override
-  void dispose() {
-    msgController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   chatController.msgController.value.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1063,11 +1060,13 @@ class _ChatScreenState extends State<ChatScreen> {
                             return ListTile(
                               onTap: () {
                                 setState(() {
-                                  msgController.text = msgController.text +
-                                      membersList[index]['name'];
-                                  msgController.selection =
+                                  chatController.msgController.value.text =
+                                      chatController.msgController.value.text +
+                                          membersList[index]['name'];
+                                  chatController.msgController.value.selection =
                                       TextSelection.fromPosition(TextPosition(
-                                          offset: msgController.text.length));
+                                          offset: chatController.msgController
+                                              .value.text.length));
                                 });
                                 chatController.isMemberSuggestion(false);
                               },
@@ -1139,54 +1138,53 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           padding:
                                                               const EdgeInsets
                                                                   .all(8.0),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Flexible(
-                                                                flex: 1,
-                                                                child: Text(
-                                                                  replyWhom,
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .bodyMedium!
-                                                                      .copyWith(
-                                                                          color: AppColors
-                                                                              .primary,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: AppSizes
-                                                                        .kDefaultPadding /
-                                                                    8,
-                                                              ),
-                                                              Flexible(
-                                                                flex: 1,
-                                                                child: Text(
-                                                                  replyText,
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .bodyMedium!
-                                                                      .copyWith(
-                                                                          color:
-                                                                              AppColors.darkGrey),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
+                                                          child:
+                                                              Obx(() => Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Flexible(
+                                                                        flex: 1,
+                                                                        child:
+                                                                            Text(
+                                                                          chatController
+                                                                              .replyWhom
+                                                                              .value,
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                          style: Theme.of(context)
+                                                                              .textTheme
+                                                                              .bodyMedium!
+                                                                              .copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            AppSizes.kDefaultPadding /
+                                                                                8,
+                                                                      ),
+                                                                      Flexible(
+                                                                        flex: 1,
+                                                                        child:
+                                                                            Text(
+                                                                          chatController
+                                                                              .replyText
+                                                                              .value,
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                          style: Theme.of(context)
+                                                                              .textTheme
+                                                                              .bodyMedium!
+                                                                              .copyWith(color: AppColors.darkGrey),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  )),
                                                         ),
                                                       ),
                                                       IconButton(
@@ -1212,7 +1210,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                               ? const CustomDivider()
                                               : const SizedBox(),
                                           CustomTextField(
-                                            controller: msgController,
+                                            controller: chatController
+                                                .msgController.value,
                                             hintText: 'Type a message',
                                             maxLines: 4,
                                             isReplying:
@@ -1264,9 +1263,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         case 1:
                                                           pickImageFromGallery();
                                                           break;
-                                                        case 2:
-                                                          pickImageFromCamera();
-                                                          break;
+                                                        // case 2:
+                                                        //   pickImageFromCamera();
+                                                        //   break;
                                                       }
                                                       Navigator.pop(context);
                                                     },
@@ -1335,13 +1334,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         GestureDetector(
                           onTap: () async {
-                            await onSendMessages(
-                              widget.groupId,
-                              msgController.text,
-                              profilePicture,
-                              '${_auth.currentUser!.displayName}',
-                            );
-                            msgController.clear();
+                            await chatController.onSendMessages(
+                                widget.groupId,
+                                chatController.msgController.value.text,
+                                profilePicture,
+                                '${_auth.currentUser!.displayName}',
+                                membersList);
+                            chatController.msgController.value.clear();
 
                             SchedulerBinding.instance.addPostFrameCallback((_) {
                               _scrollController.animateTo(0.0,
@@ -1418,7 +1417,7 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(
-                      left: AppSizes.kDefaultPadding * 4 - 2),
+                      left: AppSizes.kDefaultPadding * 4 - 2, bottom: 5),
                   child: Row(
                     children: [
                       Text(
@@ -1476,10 +1475,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: 60,
+                            height: MediaQuery.of(context).size.height * 0.06,
                             constraints: BoxConstraints(
-                              maxWidth:
-                                  MediaQuery.of(context).size.width * 0.45,
+                              maxWidth: MediaQuery.of(context).size.width * 0.4,
                             ),
                             decoration: const BoxDecoration(
                                 color: AppColors.bg,
@@ -1494,7 +1492,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   width: AppSizes.kDefaultPadding / 4,
                                 ),
                                 Container(
-                                  height: 60,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.06,
                                   width: 2,
                                   color: AppColors.primary,
                                 ),
@@ -1526,7 +1525,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                           width: MediaQuery.of(context)
                                                   .size
                                                   .width *
-                                              0.4,
+                                              0.35,
                                           child: Text(
                                             replyText,
                                             maxLines: 1,
@@ -1559,11 +1558,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             alignment: Alignment.topLeft,
                             elevation: 0,
                             margin: const EdgeInsets.only(
-                                top: AppSizes.kDefaultPadding / 4),
+                                top: AppSizes.kDefaultPadding / 4,
+                                right: AppSizes.kDefaultPadding),
                             child: Container(
                               constraints: BoxConstraints(
                                   maxWidth:
-                                      MediaQuery.of(context).size.width * 0.65),
+                                      MediaQuery.of(context).size.width * 0.35),
                               child: messageType == 'img'
                                   ? GestureDetector(
                                       onTap: () {
@@ -2025,7 +2025,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   .width *
                                               0.3),
                                       child: Text(
-                                        replyText,
+                                        chatController.replyText.value,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)

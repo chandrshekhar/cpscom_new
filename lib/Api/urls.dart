@@ -11,4 +11,5 @@ class Urls {
   static const String forgetPasswordurl = "https://excellis.co.in/derick-veliz-admin/api/v1/user/submit-forget-password";
   static const String verifyOtp =  "https://excellis.co.in/derick-veliz-admin/api/v1/user/submit-otp";
   static const String resetPassword = "https://excellis.co.in/derick-veliz-admin/api/v1/user/reset-password";
+   static const String changePassword = "https://cpscomhub.com/admin/api/v1/user/change-password";
 }
