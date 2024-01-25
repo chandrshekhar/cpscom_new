@@ -7,6 +7,7 @@ import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/app_colors.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Commons/route.dart';
+import 'package:cpscom_admin/Features/Forget%20password/presentation/change_password.dart';
 import 'package:cpscom_admin/Features/Home/Controller/home_controller.dart';
 import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
 import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_status_screen.dart';
@@ -96,8 +97,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           .collection('users')
           .doc(FirebaseProvider.auth.currentUser!.uid)
           .update({'profile_picture': imageUrl});
-         await homeController.getUSerData();
-
+      await homeController.getUSerData();
 
       // Update user profile picture to firestore, i.e. group-> groupID -> members
       // if (widget.groupsList!.isNotEmpty) {
@@ -121,8 +121,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       //     });
       //   }
       // }
-
-      
     } on FirebaseException catch (e) {
       if (kDebugMode) {
         print(e.message.toString());
@@ -252,8 +250,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                     child: ListView.builder(
                                                         shrinkWrap: true,
                                                         padding: const EdgeInsets
-                                                                .all(
-                                                            AppSizes
+                                                            .all(AppSizes
                                                                 .kDefaultPadding),
                                                         itemCount:
                                                             imagePickerList
@@ -272,13 +269,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                                   pickImageFromCamera();
                                                                   break;
                                                               }
-                                                             
+
                                                               Navigator.pop(
                                                                   context);
                                                             },
                                                             child: Padding(
                                                               padding: const EdgeInsets
-                                                                      .only(
+                                                                  .only(
                                                                   left: AppSizes
                                                                           .kDefaultPadding *
                                                                       2),
@@ -288,7 +285,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                                     width: 60,
                                                                     height: 60,
                                                                     padding: const EdgeInsets
-                                                                            .all(
+                                                                        .all(
                                                                         AppSizes
                                                                             .kDefaultPadding),
                                                                     decoration: BoxDecoration(
@@ -355,7 +352,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                         'Add an optional profile picture',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodyText2,
+                                            .bodyMedium,
                                       ),
                                     ),
                                   ),
@@ -383,13 +380,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                 ),
                                 title: Text(
                                   'Name',
-                                  style: Theme.of(context).textTheme.bodyText2,
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                                 subtitle: Text(
                                   snapshot.data!['name'],
                                   style: Theme.of(context)
                                       .textTheme
-                                      .bodyText1!
+                                      .bodyLarge!
                                       .copyWith(fontWeight: FontWeight.w400),
                                 ),
                               ),
@@ -405,13 +402,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                 ),
                                 title: Text(
                                   'Email',
-                                  style: Theme.of(context).textTheme.bodyText2,
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                                 subtitle: Text(
                                   snapshot.data!['email'],
                                   style: Theme.of(context)
                                       .textTheme
-                                      .bodyText1!
+                                      .bodyLarge!
                                       .copyWith(fontWeight: FontWeight.w400),
                                 ),
                               ),
@@ -434,7 +431,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           ),
                           title: Text(
                             'Status',
-                            style: Theme.of(context).textTheme.bodyText2,
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           subtitle: Text(
                             snapshot.data!['status'],
@@ -442,7 +439,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
                                 .textTheme
-                                .bodyText1!
+                                .bodyLarge!
                                 .copyWith(fontWeight: FontWeight.w400),
                           ),
                           trailing: const Icon(
@@ -456,6 +453,37 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               horizontal: AppSizes.kDefaultPadding),
                           child: CustomDivider(),
                         ),
+                        ListTile(
+                          onTap: () {
+                            context.push(ChangePasswordScreen(
+                              userEmail: snapshot.data!['email'],
+                            ));
+                          },
+                          dense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AppSizes.kDefaultPadding),
+                          horizontalTitleGap: 0,
+                          leading: const Icon(
+                            EvaIcons.info,
+                            color: AppColors.grey,
+                            size: 20,
+                          ),
+                          title: Text(
+                            'Change password',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          trailing: const Icon(
+                            EvaIcons.arrowIosForward,
+                            color: AppColors.grey,
+                            size: 24,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: AppSizes.kDefaultPadding,
+                              vertical: 10),
+                          child: CustomDivider(),
+                        ),
                       ],
                     ),
                   );
@@ -464,7 +492,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             return Center(
                 child: Text(
               'Error getting profile',
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyMedium,
             ));
           }),
     );

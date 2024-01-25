@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cpscom_admin/Api/urls.dart';
-import 'package:cpscom_admin/Features/GroupInfo/Model/response_image_upload.dart';
 import 'package:cpscom_admin/Features/ReportScreen/Model/user_report_model.dart';
 import 'package:cpscom_admin/Features/Splash/Model/get_started_response_model.dart';
 import 'package:cpscom_admin/Models/send_notification_model.dart';
@@ -103,6 +102,46 @@ class ApiProvider {
           // throw Exception("Faild to load data");
           log(e.response!.data.toString());
           return {"status": false, "message": e.response!.data['message']};
+        }
+      }
+      return {"status": false, "message": "Something went wrong"};
+    }
+  }
+
+  ///--------- change password-----///
+
+  Future<Map<String, dynamic>> changePassword(
+      {Map<String, dynamic>? reqModel}) async {
+    // Map<String, dynamic> reqModel = {"email": email.trim()};
+    try {
+      _dio.options.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      Response response = await _dio.post(Urls.changePassword, data: reqModel);
+      if (kDebugMode) {
+        log('--------Response forgetPassword : ${response.data}');
+      }
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        return {"status": false, "message": response.data['message']};
+      }
+    } catch (e) {
+      // return e;
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          return {"status": false, "message": e.response!.data['message']};
+          // throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          // throw Exception("Faild to load data");
+          return {
+            "status": false,
+            "message": e.response?.data['message'] ?? "Bed Response"
+          };
         }
       }
       return {"status": false, "message": "Something went wrong"};
