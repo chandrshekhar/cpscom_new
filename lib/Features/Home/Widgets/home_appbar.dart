@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
-import 'package:cpscom_admin/Features/Home/Presentation/home_screen.dart';
 import 'package:cpscom_admin/Features/MyProfile/Presentation/my_profile_screen.dart';
-import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_confirmation_dialog.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,7 +21,7 @@ class HomeAppBar extends StatelessWidget {
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
-    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
 
     return Column(
       children: [
@@ -44,7 +42,7 @@ class HomeAppBar extends StatelessWidget {
                 ),
                 Text(
                   AppStrings.appName,
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 FutureBuilder(
                     future: future,
@@ -70,7 +68,7 @@ class HomeAppBar extends StatelessWidget {
                                       'My Profile',
                                       style: Theme.of(context)
                                           .textTheme
-                                          .bodyText2!
+                                          .bodyMedium!
                                           .copyWith(color: AppColors.black),
                                     )),
                                 PopupMenuItem(
@@ -79,7 +77,7 @@ class HomeAppBar extends StatelessWidget {
                                       'Logout',
                                       style: Theme.of(context)
                                           .textTheme
-                                          .bodyText2!
+                                          .bodyMedium!
                                           .copyWith(color: AppColors.black),
                                     ))
                               ],
@@ -99,7 +97,8 @@ class HomeAppBar extends StatelessWidget {
                                                   'Are you sure you want to logout?',
                                               positiveButtonLabel: 'Logout',
                                               negativeButtonLabel: 'Cancel',
-                                              onPressedPositiveButton: () async{
+                                              onPressedPositiveButton:
+                                                  () async {
                                                 await FirebaseProvider.logout();
                                                 context.pushAndRemoveUntil(
                                                     const LoginScreen());

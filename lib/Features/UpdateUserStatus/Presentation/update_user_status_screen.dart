@@ -1,11 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/MyProfile/Presentation/my_profile_screen.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Utils/custom_snack_bar.dart';
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/full_button.dart';
 
@@ -42,34 +39,17 @@ class _UpdateUserStatusScreenState extends State<UpdateUserStatusScreen> {
                     'Add Status',
                     style: Theme.of(context)
                         .textTheme
-                        .bodyText2!
+                        .bodyMedium!
                         .copyWith(color: AppColors.black),
                   ),
                   const SizedBox(
                     height: AppSizes.kDefaultPadding,
                   ),
-                  StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(FirebaseAuth.instance.currentUser!.uid)
-                          .snapshots(),
-                      builder:
-                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.none:
-                          case ConnectionState.waiting:
-                          default:
-                            if (snapshot.hasData) {
-                              statusController.text = snapshot.data!['status'];
-                              return CustomTextField(
-                                controller: statusController,
-                                hintText: 'Add Status',
-                                autoFocus: true,
-                              );
-                            }
-                        }
-                        return const SizedBox();
-                      })
+                  CustomTextField(
+                    controller: statusController,
+                    hintText: 'Add Status',
+                    autoFocus: true,
+                  ),
                 ],
               ),
             ),
@@ -83,17 +63,17 @@ class _UpdateUserStatusScreenState extends State<UpdateUserStatusScreen> {
                         label: 'Ok'.toUpperCase(),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(FirebaseAuth.instance.currentUser!.uid)
-                                .update({"status": statusController.text}).then(
-                                    (value) {
-                              customSnackBar(
-                                context,
-                                'Status Updated Successfully',
-                              );
-                              context.pop(const MyProfileScreen());
-                            });
+                            // FirebaseFirestore.instance
+                            //     .collection('users')
+                            //     .doc(FirebaseAuth.instance.currentUser!.uid)
+                            //     .update({"status": statusController.text}).then(
+                            //         (value) {
+                            //   customSnackBar(
+                            //     context,
+                            //     'Status Updated Successfully',
+                            //   );
+                            //   context.pop(const MyProfileScreen());
+                            // });
                           }
                         }),
                     Container(
@@ -108,7 +88,7 @@ class _UpdateUserStatusScreenState extends State<UpdateUserStatusScreen> {
                           child: Text(
                             'Cancel',
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyText1,
+                            style: Theme.of(context).textTheme.bodyLarge,
                           )),
                     )
                   ],

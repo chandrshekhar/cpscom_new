@@ -1,18 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Presentation/chat_screen.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:linkable/linkable.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../../Commons/app_colors.dart';
-import '../../../Commons/app_sizes.dart';
-
 class SenderTile extends StatelessWidget {
   final String message;
   final String messageType;

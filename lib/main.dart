@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpscom_admin/Commons/app_strings.dart';
 import 'package:cpscom_admin/Utils/dismis_keyboard.dart';
@@ -10,6 +11,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+
 import 'Commons/theme.dart';
 import 'Features/Splash/Presentation/splash_screen.dart';
 import 'Utils/app_preference.dart';
@@ -44,6 +48,7 @@ void requestPermission() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
   // Status bar configuration
   await Firebase.initializeApp();
   firebaseConfig();
@@ -189,7 +194,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return DismissKeyBoard(
       child: GlobalBloc(
-        child: MaterialApp(
+        child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: AppStrings.appName,
           theme: AppTheme.lightTheme,

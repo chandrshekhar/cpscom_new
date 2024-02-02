@@ -15,20 +15,11 @@ class BuildTabletView extends StatefulWidget {
 }
 
 class _BuildTabletViewState extends State<BuildTabletView> {
-
-  var future = FirebaseProvider.firestore
-      .collection('users')
-      .doc(FirebaseProvider.auth.currentUser!.uid)
-      .get();
-
   bool? isAdmin;
   int? selectedIndex;
-
-  final FirebaseProvider firebaseProvider = FirebaseProvider();
-
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       body: Row(
         children: [
           Expanded(
@@ -43,59 +34,36 @@ class _BuildTabletViewState extends State<BuildTabletView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      StreamBuilder(
-                          stream: firebaseProvider.getCurrentUserDetails(),
-                          builder: (context,
-                              AsyncSnapshot<DocumentSnapshot> snapshot) {
-                            switch (snapshot.connectionState) {
-                              case ConnectionState.none:
-                              case ConnectionState.waiting:
-                                return const CircularProgressIndicator
-                                    .adaptive();
-                              default:
-                                if (snapshot.hasData) {
-                                  // bool isAdmin = snapshot.data?['isAdmin'];
-                                  return GestureDetector(
-                                    onTap: () =>
-                                        context.push(const MyProfileScreen()),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(
-                                          AppSizes.cardCornerRadius * 10),
-                                      child: CachedNetworkImage(
-                                          width: 34,
-                                          height: 34,
-                                          fit: BoxFit.cover,
-                                          imageUrl:
-                                          '${snapshot.data?['profile_picture']}',
-                                          placeholder: (context, url) =>
-                                          const CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: AppColors.bg,
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              CircleAvatar(
-                                                radius: 16,
-                                                backgroundColor: AppColors.bg,
-                                                child: Text(
-                                                  snapshot.data!['name']
-                                                      .substring(0, 1)
-                                                      .toString()
-                                                      .toUpperCase(),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyText1!
-                                                      .copyWith(
-                                                      fontWeight:
-                                                      FontWeight.w600),
-                                                ),
-                                              )),
+                      GestureDetector(
+                        onTap: () => context.push(const MyProfileScreen()),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                              AppSizes.cardCornerRadius * 10),
+                          child: CachedNetworkImage(
+                              width: 34,
+                              height: 34,
+                              fit: BoxFit.cover,
+                              imageUrl:
+                                  'https://images.unsplash.com/photo-1575936123452-b67c3203c357?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D',
+                              placeholder: (context, url) => const CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: AppColors.bg,
+                                  ),
+                              errorWidget: (context, url, error) =>
+                                  CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: AppColors.bg,
+                                    child: Text(
+                                      "Name",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(
+                                              fontWeight: FontWeight.w600),
                                     ),
-                                  );
-                                }
-                            }
-                            return const SizedBox();
-                          }),
-
+                                  )),
+                        ),
+                      )
                     ],
                   ),
                 ),

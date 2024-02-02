@@ -1,22 +1,19 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_chat_card.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_header.dart';
-import 'package:cpscom_admin/Utils/app_helper.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../Utils/date_format.dart';
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/responsive.dart';
-import '../../Chat/Presentation/chat_screen.dart';
+import '../../Login/Controller/login_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -26,41 +23,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late FirebaseProvider firebaseProvider;
-  late TextEditingController searchController;
-
-  List<QueryDocumentSnapshot> groupList = [];
-  List<QueryDocumentSnapshot> finalGroupList = [];
-  Map<String, dynamic> data = {};
-  List<dynamic> groupMembers = [];
-  String groupName = '';
-  String groupDesc = '';
-  String sentTime = '';
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getAllGroups() async* {
-    try {
-      yield* FirebaseProvider.firestore
-          .collection('groups')
-          .orderBy('created_at', descending: true)
-          .snapshots();
-    } catch (e) {
-      if (kDebugMode) {
-        log(e.toString());
-      }
-    }
-  }
-
   @override
   void dispose() {
     super.dispose();
-    searchController.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    firebaseProvider = FirebaseProvider();
-    searchController = TextEditingController();
   }
 
   @override
@@ -69,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/////////////////////////////////////////////
 class BuildChatList extends StatefulWidget {
   final bool isAdmin;
 
@@ -81,35 +50,20 @@ class BuildChatList extends StatefulWidget {
 
 class _BuildChatListState extends State<BuildChatList> {
   final TextEditingController searchController = TextEditingController();
-
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  List<QueryDocumentSnapshot> groupList = [];
-  List<QueryDocumentSnapshot> finalGroupList = [];
-  Map<String, dynamic> data = {};
-  // List<dynamic> groupMembers = [];
-  String groupName = '';
-  String groupDesc = '';
-  String sentTime = '';
+  final groupListController = Get.put(GroupListController());
+  final loginController = Get.put(LoginController());
 
   @override
   void dispose() {
-    searchController.dispose();
     super.dispose();
   }
 
-  //get all groups from firebase firestore collection
-  Stream<QuerySnapshot<Map<String, dynamic>>> getAllGroups() async* {
-    try {
-      yield* firestore
-          .collection('groups')
-          .orderBy('created_at', descending: true)
-          .snapshots();
-    } catch (e) {
-      if (kDebugMode) {
-        log(e.toString());
-      }
-    }
+  @override
+  void initState() {
+    loginController.getUserProfile();
+    groupListController.getGroupList();
+    // TODO: implement initState
+    super.initState();
   }
 
   @override
@@ -117,10 +71,12 @@ class _BuildChatListState extends State<BuildChatList> {
     return Column(
       children: [
         Responsive.isMobile(context)
-            ? HomeHeader(
-                groupsList: finalGroupList,
+            ? const HomeHeader(
+                groupsList: ["Group list"],
               )
-            : const SizedBox(),
+            : const HomeHeader(
+                groupsList: ["Group list"],
+              ),
         Container(
           padding:
               const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
@@ -147,10 +103,10 @@ class _BuildChatListState extends State<BuildChatList> {
                   minLines: 1,
                   maxLines: 1,
                   onChanged: (value) {
-                    setState(() {
-                      groupName = value!;
-                      groupDesc = value;
-                    });
+                    // setState(() {
+                    //   groupName = value!;
+                    //   groupDesc = value;
+                    // });
                     return null;
                   },
                   isBorder: false,
@@ -161,146 +117,54 @@ class _BuildChatListState extends State<BuildChatList> {
         ),
         Responsive.isMobile(context) ? const SizedBox() : const CustomDivider(),
         Expanded(
-          child: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
-            child: StreamBuilder(
-                stream: getAllGroups(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.none:
-                    case ConnectionState.waiting:
-                      return const Center(
-                          child: CircularProgressIndicator.adaptive());
-                    case ConnectionState.active:
-                    case ConnectionState.done:
-                      if (snapshot.hasData) {
-                        groupList = snapshot.data!.docs;
-                        log("pandey${groupList.length}");
-                        if (groupList.isEmpty) {
-                          return Center(
-                            child: Text(
-                              'No Groups Found',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(fontWeight: FontWeight.w400),
-                            ),
-                          );
-                        } else {
-                          finalGroupList.clear();
-                          // view only those groups which the user is present
-                          for (var i = 0; i < groupList.length; i++) {
-                            data = groupList[i].data() as Map<String, dynamic>;
-                            // finalGroupList.add(groupList[i]);
-                            data['members'].forEach((element) {
-                              if (element['uid'] == auth.currentUser!.uid) {
-                                finalGroupList.add(groupList[i]);
-                              }
-                            });
-                            // sorting groups by recent sent messages or time to show on top.
-                            finalGroupList.sort((a, b) {
-                              return b['time']
-                                  .toString()
-                                  .compareTo(a['time'].toString());
-                            });
-                          }
-                          return finalGroupList.isNotEmpty
-                              ? Scrollbar(
-                                  child: ListView.builder(
-                                      itemCount: finalGroupList.length,
-                                      shrinkWrap: true,
-                                      padding: const EdgeInsets.only(
-                                          top: AppSizes.kDefaultPadding / 2),
-                                      itemBuilder: (context, index) {
-                                        //for search groups
-                                        sentTime = AppHelper
-                                            .getStringTimeFromTimestamp(
-                                                finalGroupList[index]
-                                                    ['created_at']);
-                                        if (groupName.isEmpty &&
-                                            groupDesc.isEmpty) {
-                                          return HomeChatCard(
-                                              groupId: finalGroupList[index].id,
-                                              onPressed: () {
-                                                context.push(ChatScreen(
-                                                  groupId:
-                                                      finalGroupList[index].id,
-                                                  isAdmin: widget.isAdmin,
-                                                ));
-                                              },
-                                              groupName: finalGroupList[index]
-                                                  ['name'],
-                                              groupDesc: finalGroupList[index]
-                                                  ['group_description'],
-                                              sentTime: sentTime,
-                                              imageUrl:
-                                                  '${finalGroupList[index]['profile_picture']}',
-                                              child: memberWidget(
-                                                  finalGroupList[index]
-                                                      ['members']));
-                                        } else if (finalGroupList[index]['name']
-                                                .toLowerCase()
-                                                .trim()
-                                                .toString()
-                                                .contains(groupName
-                                                    .toLowerCase()
-                                                    .trim()
-                                                    .toString()) ||
-                                            finalGroupList[index]
-                                                    ['group_description']
-                                                .toLowerCase()
-                                                .trim()
-                                                .toString()
-                                                .contains(groupName
-                                                    .toLowerCase()
-                                                    .trim()
-                                                    .toString())) {
-                                          return HomeChatCard(
-                                              groupId: finalGroupList[index].id,
-                                              onPressed: () {
-                                                context.push(ChatScreen(
-                                                  groupId:
-                                                      finalGroupList[index].id,
-                                                  isAdmin: widget.isAdmin,
-                                                ));
-                                              },
-                                              groupName: finalGroupList[index]
-                                                  ['name'],
-                                              groupDesc: finalGroupList[index]
-                                                  ['group_description'],
-                                              sentTime: sentTime,
-                                              imageUrl:
-                                                  '${finalGroupList[index]['profile_picture']}',
-                                              child: memberWidget(
-                                                  finalGroupList[index]
-                                                      ['members']));
-                                        }
-                                        return const SizedBox();
-                                      }),
-                                )
-                              : Center(
-                                  child: Text(
-                                    'No Groups Found',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(fontWeight: FontWeight.w400),
-                                  ),
-                                );
-                        }
-                      }
-                      return const SizedBox();
-                  }
-                }),
+          child: Scrollbar(
+            child: Obx(
+              () => groupListController.isGroupLiastLoading.value
+                  ? const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    )
+                  : ListView.builder(
+                      itemCount: groupListController.groupList.length,
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(
+                          top: AppSizes.kDefaultPadding / 2),
+                      itemBuilder: (context, index) {
+                        var item = groupListController.groupList[index];
+                        return HomeChatCard(
+                            groupId: "Group id",
+                            onPressed: () {
+                              // context.push(ChatScreen(
+                              //   groupId: finalGroupList[index].id,
+                              //   isAdmin: widget.isAdmin,
+                              // ));
+                            },
+                            groupName: item.groupName ?? "",
+                            groupDesc: item.createdAt ?? "",
+                            sentTime: item.lastMessage != null &&
+                                    item.lastMessage!.createdAt!.isNotEmpty
+                                ? dateFromatter(
+                                    dateFormat: "h:mm a",
+                                    dateTimeAsString:
+                                        item.lastMessage!.timestamp.toString())
+                                : "",
+                            sendBy: item.lastMessage != null
+                                ? item.lastMessage!.senderName ?? ""
+                                : "",
+                            lastMsg: item.lastMessage != null
+                                ? item.lastMessage?.message ?? ""
+                                : "",
+                            imageUrl: item.groupImage ?? "",
+                            child: memberWidget(item.currentUsers ?? []));
+                      },
+                    ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget memberWidget(dynamic membersList) {
+  Widget memberWidget(List<CurrentUsers> membersList) {
     return SizedBox(
       height: 30,
       child: Row(
@@ -308,7 +172,7 @@ class _BuildChatListState extends State<BuildChatList> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ListView.builder(
-              itemCount: membersList.length < 3 ? membersList.length : 3,
+              itemCount: membersList.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
@@ -327,8 +191,7 @@ class _BuildChatListState extends State<BuildChatList> {
                             width: 26,
                             height: 26,
                             fit: BoxFit.cover,
-                            imageUrl:
-                                '${membersList[index]['profile_picture']}',
+                            imageUrl: membersList[index].image ?? "",
                             placeholder: (context, url) => const CircleAvatar(
                               radius: 26,
                               backgroundColor: AppColors.shimmer,
@@ -337,7 +200,10 @@ class _BuildChatListState extends State<BuildChatList> {
                               radius: 26,
                               backgroundColor: AppColors.shimmer,
                               child: Text(
-                                membersList[index]['name'].substring(0, 1),
+                                membersList[index]
+                                    .name
+                                    .toString()[0]
+                                    .toUpperCase(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyLarge!
@@ -351,28 +217,6 @@ class _BuildChatListState extends State<BuildChatList> {
                   ],
                 );
               }),
-          membersList.length > 3
-              ? Align(
-                  widthFactor: 0.6,
-                  child: CircleAvatar(
-                    radius: 14,
-                    backgroundColor: AppColors.lightGrey,
-                    child: CircleAvatar(
-                      radius: 12,
-                      backgroundColor: AppColors.white,
-                      child: FittedBox(
-                        child: Text(
-                          '+${membersList.length - 3}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall!
-                              .copyWith(color: AppColors.black),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : const SizedBox()
         ],
       ),
     );

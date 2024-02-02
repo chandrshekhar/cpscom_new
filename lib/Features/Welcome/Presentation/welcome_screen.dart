@@ -8,9 +8,9 @@ import 'package:cpscom_admin/Widgets/responsive.dart';
 import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  final GetStartedStateLoaded stateLoaded;
 
-  const WelcomeScreen({Key? key, required this.stateLoaded}) : super(key: key);
+
+  const WelcomeScreen({Key? key, }) : super(key: key);
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -24,10 +24,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
         backgroundColor: AppColors.bg,
         body: Responsive.isMobile(context)
-            ? _buildMobileView(context, widget.stateLoaded)
-            : Responsive.isDesktop(context)
-                ? _buildDesktopView(context, widget.stateLoaded)
-                : _buildTabView(context, widget.stateLoaded));
+            ? _buildMobileView(context )
+          
+                : _buildTabView(context));
   }
 }
 
@@ -122,7 +121,7 @@ Widget _buildDesktopView(BuildContext context, GetStartedStateLoaded state) {
   );
 }
 
-Widget _buildTabView(BuildContext context, GetStartedStateLoaded state) {
+Widget _buildTabView(BuildContext context, ) {
   return Row(
     children: [
       Expanded(
@@ -160,7 +159,7 @@ Widget _buildTabView(BuildContext context, GetStartedStateLoaded state) {
               Column(
                 children: [
                   Text(
-                    state.responseGetStarted.data?.cms?.title.toString() ??
+                 
                         'Join the Conversation: Connect and Collaborate',
                     style: Theme.of(context).textTheme.headline6,
                     textAlign: TextAlign.center,
@@ -169,8 +168,8 @@ Widget _buildTabView(BuildContext context, GetStartedStateLoaded state) {
                     height: AppSizes.kDefaultPadding * 2,
                   ),
                   Text(
-                    state.responseGetStarted.data?.cms?.description
-                            .toString() ??
+                 
+                         
                         'Say goodbye to scattered conversations! Connect with your team, share files, and stay organized all in one place.',
                     style: Theme.of(context).textTheme.bodyText2,
                     textAlign: TextAlign.center,
@@ -193,7 +192,7 @@ Widget _buildTabView(BuildContext context, GetStartedStateLoaded state) {
   );
 }
 
-Widget _buildMobileView(BuildContext context, GetStartedStateLoaded state) {
+Widget _buildMobileView(BuildContext context, ) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
@@ -236,7 +235,7 @@ Widget _buildMobileView(BuildContext context, GetStartedStateLoaded state) {
                 height: AppSizes.kDefaultPadding,
               ),
               Text(
-                state.responseGetStarted.data?.cms?.title.toString() ??
+                
                     'Join the Conversation: Connect and Collaborate',
                 style: Theme.of(context).textTheme.headline6,
                 textAlign: TextAlign.center,
@@ -245,7 +244,7 @@ Widget _buildMobileView(BuildContext context, GetStartedStateLoaded state) {
                 height: AppSizes.kDefaultPadding,
               ),
               Text(
-                state.responseGetStarted.data?.cms?.description.toString() ??
+               
                     'Say goodbye to scattered conversations! Connect with your team, share files, and stay organized all in one place.',
                 style: Theme.of(context).textTheme.bodyText2,
                 textAlign: TextAlign.center,
