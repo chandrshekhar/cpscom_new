@@ -35,9 +35,9 @@ class _BuildMobileViewState extends State<BuildMobileView> {
                   isAdmin: userController.userModel.value.userType != null &&
                           userController.userModel.value.userType!.isNotEmpty
                       ? userController.userModel.value.userType!
-                              .contains('user')
-                          ? false
-                          : true
+                              .contains('admin')
+                          ? true
+                          : false
                       : false)),
             ),
             floatingActionButton: Obx(() =>

@@ -3,6 +3,7 @@ import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Controller/group_create_controller.dart';
 import 'package:cpscom_admin/Features/CreateNewGroup/Presentation/create_new_group_screen.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
+import 'package:cpscom_admin/Utils/device_size.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_floating_action_button.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
@@ -94,8 +95,10 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                     : memberListController.memberList.isNotEmpty
                         ? ListView.separated(
                             separatorBuilder: (context, index) {
-                              return const Divider(
-                                height: 1, // Adjust the height of the divider
+                              return Divider(
+                                height: isMobile(context)
+                                    ? 1
+                                    : 30, // Adjust the height of the divider
                                 color: Colors.grey,
                               );
                             },
@@ -113,8 +116,8 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                         borderRadius: BorderRadius.circular(
                                             AppSizes.cardCornerRadius * 10),
                                         child: CachedNetworkImage(
-                                          width: 30,
-                                          height: 30,
+                                          width: isMobile(context) ? 30 : 70,
+                                          height: isMobile(context) ? 30 : 70,
                                           fit: BoxFit.cover,
                                           imageUrl: data.image ?? "",
                                           placeholder: (context, url) =>
@@ -138,8 +141,10 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(
-                                        width: AppSizes.kDefaultPadding,
+                                      SizedBox(
+                                        width: isMobile(context)
+                                            ? AppSizes.kDefaultPadding
+                                            : 30,
                                       ),
                                       Column(
                                         crossAxisAlignment:
@@ -147,9 +152,17 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                         children: [
                                           Text(
                                             data.name ?? "",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge,
+                                            style: isTab(context)
+                                                ? Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge!
+                                                    .copyWith(fontSize: 30)
+                                                : Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge!,
+                                          ),
+                                          SizedBox(
+                                            width: isMobile(context) ? 5 : 30,
                                           ),
                                           Text(
                                             data.email ?? "",
