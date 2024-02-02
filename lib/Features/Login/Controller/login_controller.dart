@@ -50,7 +50,7 @@ class LoginController extends GetxController {
   }
 
   RxBool isUserLaoding = false.obs;
-  var userModel = User().obs;
+  Rx<User> userModel = User().obs;
   getUserProfile() async {
     isUserLaoding(true);
     try {

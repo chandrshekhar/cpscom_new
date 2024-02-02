@@ -1,46 +1,65 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+class MemberModel {
+  bool? success;
+  String? message;
+  List<MemberListMdoel>? memberList;
 
-class ParticipantsModel {
+  MemberModel({this.success, this.message, this.memberList});
+
+  MemberModel.fromJson(Map<String, dynamic> json) {
+    success = json['success'];
+    message = json['message'];
+    if (json['data'] != null) {
+      memberList = <MemberListMdoel>[];
+      json['data'].forEach((v) {
+        memberList!.add( MemberListMdoel.fromJson(v));
+      });
+    }
+  }
+}
+
+class MemberListMdoel {
+  String? sId;
+  int? sl;
   String? name;
   String? email;
-  String? uid;
-  String? profilePicture;
-  String? status;
-  bool? isSelected;
-  bool? isAdmin;
-  bool? isSuperAdmin;
+  String? password;
+  String? phone;
+  List<dynamic>? connectedDevices;
+  String? userType;
+  String? accountStatus;
+  String? createdAt;
+  int? iV;
+  String? image;
 
-  ParticipantsModel(
-      {this.name,
-        this.email,
-        this.uid,
-        this.profilePicture,
-        this.status,
-        this.isSelected,
-        this.isAdmin,
-        this.isSuperAdmin});
+  MemberListMdoel(
+      {this.sId,
+      this.sl,
+      this.name,
+      this.email,
+      this.password,
+      this.phone,
+      this.connectedDevices,
+      this.userType,
+      this.accountStatus,
+      this.createdAt,
+      this.iV,
+      this.image});
 
-  ParticipantsModel.fromJson(Map<String, dynamic> json) {
+  MemberListMdoel.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    sl = json['sl'];
     name = json['name'];
     email = json['email'];
-    uid = json['uid'];
-    profilePicture = json['profile_picture'];
-    status = json['status'];
-    isSelected = json['isSelected'];
-    isAdmin = json['isAdmin'];
-    isSuperAdmin = json['isSuperAdmin'];
-  }
+    password = json['password'];
+    phone = json['phone'];
+    connectedDevices = json['connectedDevices'] == null
+        ? null
+        : json['connectedDevices'] as List<dynamic>?;
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['uid'] = this.uid;
-    data['profile_picture'] = this.profilePicture;
-    data['status'] = this.status;
-    data['isSelected'] = this.isSelected;
-    data['isAdmin'] = this.isAdmin;
-    data['isSuperAdmin'] = this.isSuperAdmin;
-    return data;
+    userType = json['userType'];
+    accountStatus = json['accountStatus'];
+    createdAt = json['createdAt'];
+    iV = json['__v'];
+    image = json['image'];
   }
 }

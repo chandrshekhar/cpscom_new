@@ -29,27 +29,31 @@ class _BuildMobileViewState extends State<BuildMobileView> {
     return Container(
         color: AppColors.white,
         child: Scaffold(
-          body: SafeArea(
-            bottom: false,
-            child: Obx(() => BuildChatList(
-                  isAdmin:
-                      userController.userModel.value.userType!.contains('user')
+            body: SafeArea(
+              bottom: false,
+              child: Obx(() => BuildChatList(
+                  isAdmin: userController.userModel.value.userType != null &&
+                          userController.userModel.value.userType!.isNotEmpty
+                      ? userController.userModel.value.userType!
+                              .contains('user')
                           ? false
-                          : true,
-                )),
-          ),
-          floatingActionButton:
-              userController.userModel.value.userType!.contains('user') == true
-                  ? CustomFloatingActionButton(
-                      onPressed: () {
-                        context.push(const AddMembersScreen(
-                          isCameFromHomeScreen: true,
-                        ));
-                        //context.push(AddParticipantsScreen());
-                      },
-                      iconData: EvaIcons.plus,
-                    )
-                  : const SizedBox(),
-        ));
+                          : true
+                      : false)),
+            ),
+            floatingActionButton: Obx(() =>
+                userController.userModel.value.userType != null &&
+                        userController.userModel.value.userType!.isNotEmpty
+                    ? userController.userModel.value.userType!.contains('admin')
+                        ? CustomFloatingActionButton(
+                            onPressed: () {
+                              context.push(const AddMembersScreen(
+                                isCameFromHomeScreen: true,
+                              ));
+                              //context.push(AddParticipantsScreen());
+                            },
+                            iconData: EvaIcons.plus,
+                          )
+                        : const SizedBox()
+                    : const SizedBox())));
   }
 }

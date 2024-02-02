@@ -27,4 +27,10 @@ class ApiPath {
   //GROUP
   //group api path
   static const String groupListApi = "$baseUrls/groups/getall";
+
+  //MEMBER
+  //get all user for showing inside add participent screen
+  static const String getAllUserDAta = "$baseUrls/users/get-all-users";
+  //crate group
+  static const String craeteGroupApi = "$baseUrls/groups/create";
 }
