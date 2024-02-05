@@ -7,10 +7,13 @@ class GroupListController extends GetxController {
   final _groupListRepo = GroupRepo();
   RxList<GroupModel> groupList = <GroupModel>[].obs;
   RxBool isGroupLiastLoading = false.obs;
-  getGroupList() async {
+  RxInt limit = 20.obs;
+  RxString searchText = "".obs;
+  getGroupList({bool isLoadingShow = true}) async {
     try {
-      isGroupLiastLoading(true);
-      var res = await _groupListRepo.groupListService();
+      isLoadingShow ? isGroupLiastLoading(true) : null;
+      var res = await _groupListRepo.groupListService(
+          searchQuery: searchText.value, offset: 0, limit: limit.value);
       if (res.success == true) {
         groupList.value = res.groupModel!;
         isGroupLiastLoading(false);

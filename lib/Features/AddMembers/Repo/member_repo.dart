@@ -9,7 +9,8 @@ import '../../../Utils/storage_service.dart';
 class MemberlistRepo {
   final Dio dio = Dio();
   final localStorage = LocalStorage();
-  Future<MemberModel> getMemberList() async {
+  Future<MemberModel> getMemberList(
+      {String? searchQuery, int? offset, int? limit}) async {
     var token = localStorage.getUserToken();
     log("Member list calling....");
     Response response;
@@ -20,7 +21,8 @@ class MemberlistRepo {
         'access-token': token
       };
 
-      response = await dio.get(ApiPath.getAllUserDAta);
+      response = await dio.get(
+          "${ApiPath.getAllUserDAta}?searchQuery=$searchQuery&offset=$offset&limit=$limit");
       log("Member list response ${response.data.toString()}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return MemberModel.fromJson(response.data);

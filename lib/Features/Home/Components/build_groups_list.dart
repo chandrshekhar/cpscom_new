@@ -4,6 +4,7 @@ import 'package:cpscom_admin/Features/Home/Widgets/group_list_item.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../../../Models/group.dart';
 import '../../../Widgets/custom_text_field.dart';
 
@@ -79,7 +80,7 @@ class BuildGroupListState extends State<BuildGroupList> {
                   hintText: 'Search groups...',
                   minLines: 1,
                   maxLines: 1,
-                  onChanged: (String? value) {
+                  onChanged: (value) {
                     searchGroups(value!);
                   },
                   isBorder: false,
@@ -143,7 +144,7 @@ class BuildGroupListState extends State<BuildGroupList> {
                           'No Groups Found',
                           style: Theme.of(context)
                               .textTheme
-                              .bodyText2!
+                              .bodyMedium!
                               .copyWith(fontWeight: FontWeight.w400),
                         ),
                       );

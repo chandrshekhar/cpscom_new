@@ -18,7 +18,7 @@ class CustomTextField extends StatelessWidget {
   final bool? isReplying;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
-  final String? Function(String?)? onChanged;
+  final ValueChanged? onChanged;
   final Map<String, dynamic>? replyMessage;
   final VoidCallback? onCancelReply;
 

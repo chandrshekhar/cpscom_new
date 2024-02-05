@@ -11,6 +11,8 @@ import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:linkable/linkable.dart';
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
+import 'show_image_widget.dart';
+import 'show_pdf_viewer.dart';
 
 class ReceiverTile extends StatelessWidget {
   final String message;
@@ -20,10 +22,9 @@ class ReceiverTile extends StatelessWidget {
   final String sentByImageUrl;
   final String groupCreatedBy;
   final ValueChanged<Map<String, dynamic>> onSwipedMessage;
- ChatController chatController;
+  ChatController chatController;
 
-
-   ReceiverTile(
+  ReceiverTile(
       {Key? key,
       required this.message,
       required this.messageType,
@@ -31,12 +32,13 @@ class ReceiverTile extends StatelessWidget {
       required this.sentByName,
       this.sentByImageUrl = '',
       required this.groupCreatedBy,
-      required this.onSwipedMessage, required this.chatController})
+      required this.onSwipedMessage,
+      required this.chatController})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    print("kk" +messageType);
+    print("kk" + messageType);
     return messageType == 'notify'
         ? Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -236,51 +238,52 @@ class ReceiverTile extends StatelessWidget {
                                             )
                                           : const SizedBox()
                                       : messageType == "mp4"
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      VideoMessage(
-                                                    videoUrl: message,
-                                                  ),
-                                                ));
-                                          },
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            constraints: BoxConstraints(
-                                                maxWidth: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.35,
-                                                maxHeight:
-                                                    MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.20),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(AppSizes
-                                                      .cardCornerRadius),
-                                              child: CachedNetworkImage(
-                                                imageUrl: message.isNotEmpty
-                                                    ? message
-                                                    : '',
-                                                fit: BoxFit.cover,
-                                                placeholder: (context, url) =>
-                                                    const CircularProgressIndicator
-                                                        .adaptive(),
-                                                errorWidget:
-                                                    (context, url, error) =>
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          VideoMessage(
+                                                        videoUrl: message,
+                                                      ),
+                                                    ));
+                                              },
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                constraints: BoxConstraints(
+                                                    maxWidth:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.35,
+                                                    maxHeight:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.20),
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius
+                                                      .circular(AppSizes
+                                                          .cardCornerRadius),
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: message.isNotEmpty
+                                                        ? message
+                                                        : '',
+                                                    fit: BoxFit.cover,
+                                                    placeholder: (context,
+                                                            url) =>
+                                                        const CircularProgressIndicator
+                                                            .adaptive(),
+                                                    errorWidget: (context, url,
+                                                            error) =>
                                                         const Icon(
                                                             Icons.play_arrow),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox(),   
-                                         
+                                            )
+                                          : const SizedBox(),
                         ),
                       ),
                     ),

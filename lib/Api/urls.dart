@@ -7,7 +7,6 @@ class Urls {
   static const String report = 'report';
   static const String sendPushNotificationUrl =
       'https://fcm.googleapis.com/fcm/send';
-
   static const String forgetPasswordurl =
       "https://excellis.co.in/derick-veliz-admin/api/v1/user/submit-forget-password";
   static const String verifyOtp =
@@ -17,7 +16,9 @@ class Urls {
 }
 
 class ApiPath {
-  static const String baseUrls = 'https://api.excellis.in/api/v1';
+  //static const String baseUrls = 'https://api.excellis.in/api/v1';
+
+  static const String baseUrls = "https://tiny-spies-change.loca.lt/api/v1";
 
   //AUTH
   //Login Api
@@ -33,4 +34,6 @@ class ApiPath {
   static const String getAllUserDAta = "$baseUrls/users/get-all-users";
   //crate group
   static const String craeteGroupApi = "$baseUrls/groups/create";
+  //get group by id
+  static const String getGroupById = "$baseUrls/groups/get-group-details/";
 }

@@ -26,6 +26,8 @@ class MemeberlistController extends GetxController {
   RxBool isMemberListLoading = false.obs;
 
   RxString images = "".obs;
+  RxInt limit = 20.obs;
+  RxString searchText = "".obs;
 
   Future<void> pickImage({required ImageSource imageSource}) async {
     try {
@@ -54,10 +56,11 @@ class MemeberlistController extends GetxController {
   }
 
 //method for calling memeber  list
-  getMemberList({bool isLoaderShowing = true}) async {
+  getMemberList({bool isLoaderShowing = true, String? searchQuery}) async {
     try {
       isLoaderShowing ? isMemberListLoading(true) : null;
-      var res = await memebrListRepo.getMemberList();
+      var res = await memebrListRepo.getMemberList(
+          searchQuery: searchText.value, limit: limit.value, offset: 0);
       if (res.success == true) {
         memberList.value = res.memberList!;
         isMemberListLoading(false);

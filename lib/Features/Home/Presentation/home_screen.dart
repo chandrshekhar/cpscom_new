@@ -6,13 +6,18 @@ import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_chat_card.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_header.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../../Utils/date_format.dart';
+import '../../../Widgets/custom_smartrefresher_fotter.dart';
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/responsive.dart';
+import '../../../Widgets/shimmer_effetct.dart';
+import '../../Chat/Presentation/chat_screen.dart';
 import '../../Login/Controller/login_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -60,11 +65,15 @@ class _BuildChatListState extends State<BuildChatList> {
 
   @override
   void initState() {
+    groupListController.limit.value = 20;
     loginController.getUserProfile();
     groupListController.getGroupList();
-    // TODO: implement initState
+
     super.initState();
   }
+
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
@@ -102,12 +111,16 @@ class _BuildChatListState extends State<BuildChatList> {
                   hintText: 'Search groups...',
                   minLines: 1,
                   maxLines: 1,
-                  onChanged: (value) {
-                    // setState(() {
-                    //   groupName = value!;
-                    //   groupDesc = value;
-                    // });
-                    return null;
+                  onChanged: (value) async {
+                    groupListController.searchText.value = value.toString();
+                    EasyDebounce.debounce(
+                        'group-debounce', // <-- An ID for this particular debouncer
+                        const Duration(
+                            milliseconds: 200), // <-- The debounce duration
+                        () async {
+                      await groupListController.getGroupList();
+                    } // <-- The target method
+                        );
                   },
                   isBorder: false,
                 ),
@@ -120,43 +133,62 @@ class _BuildChatListState extends State<BuildChatList> {
           child: Scrollbar(
             child: Obx(
               () => groupListController.isGroupLiastLoading.value
-                  ? const Center(
-                      child: CircularProgressIndicator.adaptive(),
+                  ? const ShimmerEffectLaoder(
+                      numberOfWidget: 20,
                     )
-                  : ListView.builder(
-                      itemCount: groupListController.groupList.length,
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.only(
-                          top: AppSizes.kDefaultPadding / 2),
-                      itemBuilder: (context, index) {
-                        var item = groupListController.groupList[index];
-                        return HomeChatCard(
-                            groupId: "Group id",
-                            onPressed: () {
-                              // context.push(ChatScreen(
-                              //   groupId: finalGroupList[index].id,
-                              //   isAdmin: widget.isAdmin,
-                              // ));
+                  : groupListController.groupList.isNotEmpty
+                      ? SmartRefresher(
+                          controller: _refreshController,
+                          enablePullDown: false,
+                          enablePullUp: true,
+                          onLoading: () async {
+                            groupListController.limit.value += 20;
+                            groupListController.getGroupList(
+                                isLoadingShow: false);
+                            _refreshController.loadComplete();
+                          },
+                          footer: const CustomFooterWidget(),
+                          child: ListView.builder(
+                            itemCount: groupListController.groupList.length,
+                            shrinkWrap: true,
+                            // padding: const EdgeInsets.only(
+                            //     top: AppSizes.kDefaultPadding / 2),
+                            itemBuilder: (context, index) {
+                              var item = groupListController.groupList[index];
+                              return HomeChatCard(
+                                  groupId: "Group id",
+                                  onPressed: () {
+                                    context.push(ChatScreen(
+                                      groupId: item.sId.toString(),
+                                      isAdmin: widget.isAdmin,
+                                      groupModel: item,
+                                    ));
+                                  },
+                                  groupName: item.groupName ?? "",
+                                  groupDesc: item.createdAt ?? "",
+                                  sentTime: item.lastMessage != null &&
+                                          item.lastMessage!.createdAt!
+                                              .isNotEmpty
+                                      ? dateFromatter(
+                                          dateFormat: "h:mm a",
+                                          dateTimeAsString: item
+                                              .lastMessage!.timestamp
+                                              .toString())
+                                      : "",
+                                  sendBy: item.lastMessage != null
+                                      ? item.lastMessage!.senderName ?? ""
+                                      : "",
+                                  lastMsg: item.lastMessage != null
+                                      ? item.lastMessage?.message ?? ""
+                                      : "",
+                                  imageUrl: item.groupImage ?? "",
+                                  child: memberWidget(item.currentUsers ?? []));
                             },
-                            groupName: item.groupName ?? "",
-                            groupDesc: item.createdAt ?? "",
-                            sentTime: item.lastMessage != null &&
-                                    item.lastMessage!.createdAt!.isNotEmpty
-                                ? dateFromatter(
-                                    dateFormat: "h:mm a",
-                                    dateTimeAsString:
-                                        item.lastMessage!.timestamp.toString())
-                                : "",
-                            sendBy: item.lastMessage != null
-                                ? item.lastMessage!.senderName ?? ""
-                                : "",
-                            lastMsg: item.lastMessage != null
-                                ? item.lastMessage?.message ?? ""
-                                : "",
-                            imageUrl: item.groupImage ?? "",
-                            child: memberWidget(item.currentUsers ?? []));
-                      },
-                    ),
+                          ),
+                        )
+                      : const Center(
+                          child: Text("No group found"),
+                        ),
             ),
           ),
         ),

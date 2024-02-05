@@ -99,6 +99,8 @@ dependencies:
 
   # Pull Down To Refresh Package
   pull_to_refresh: ^2.0.0
+  easy_debounce: ^2.0.3
+  shimmer: ^3.0.0
 
   # zooming feature
   photo_view: ^0.14.0
@@ -128,6 +130,7 @@ dependencies:
   #show the video preview 
   video_thumbnail: ^0.5.3
   path_provider: ^2.1.1
+
 
 flutter_launcher_icons:
   android: true

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
@@ -34,7 +32,6 @@ class HomeChatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("image url $imageUrl");
     return InkWell(
       onTap: () => onPressed.call(),
       child: Column(
@@ -92,7 +89,7 @@ class HomeChatCard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '$sentTime',
+                              sentTime,
                               maxLines: 1,
                               style: Theme.of(context)
                                   .textTheme
@@ -106,81 +103,34 @@ class HomeChatCard extends StatelessWidget {
                         const SizedBox(
                           height: AppSizes.kDefaultPadding / 3,
                         ),
-                        RichText(
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            text: TextSpan(
-                                text: sendBy,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                children: [
-                                  "text" == 'text'
-                                      ? TextSpan(
-                                          text: ': $lastMsg',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!,
-                                        )
-                                      // : "pdf" == 'pdf'
-                                      //     ? TextSpan(
-                                      //         children: const [
-                                      //             TextSpan(text: ': '),
-                                      //             WidgetSpan(
-                                      //                 child: Icon(
-                                      //               Icons.file_copy_rounded,
-                                      //               color: AppColors.grey,
-                                      //               size: 14,
-                                      //             )),
-                                      //             TextSpan(text: ' PDF')
-                                      //           ],
-                                      //         style: Theme.of(context)
-                                      //             .textTheme
-                                      //             .bodySmall)
-                                      // : "img" == 'img'
-                                      //     ? TextSpan(
-                                      //         children: const [
-                                      //             TextSpan(text: ': '),
-                                      //             WidgetSpan(
-                                      //                 child: Icon(
-                                      //               Icons
-                                      //                   .camera_alt_rounded,
-                                      //               color: AppColors.grey,
-                                      //               size: 16,
-                                      //             )),
-                                      //             TextSpan(text: ' Photo')
-                                      //           ],
-                                      //         style: Theme.of(context)
-                                      //             .textTheme
-                                      //             .bodySmall)
-                                      // : "mp4" == 'mp4'
-                                      //     ? TextSpan(
-                                      //         children: const [
-                                      //             TextSpan(text: ': '),
-                                      //             WidgetSpan(
-                                      //                 child: Icon(
-                                      //               Icons
-                                      //                   .video_library_outlined,
-                                      //               color:
-                                      //                   AppColors.grey,
-                                      //               size: 16,
-                                      //             )),
-                                      //             TextSpan(
-                                      //                 text: ' video')
-                                      //           ],
-                                      //         style: Theme.of(context)
-                                      //             .textTheme
-                                      //             .bodySmall)
-                                      : TextSpan(
-                                          text: lastMsg,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall),
-                                  //TextSpan(),
-                                ])),
+                        lastMsg!.isEmpty && sendBy!.isEmpty
+                            ? const SizedBox()
+                            : RichText(
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                text: TextSpan(
+                                    text: sendBy,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall!
+                                        .copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                    children: [
+                                      "text" == 'text'
+                                          ? TextSpan(
+                                              text: ': $lastMsg',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall!,
+                                            )
+                                          : TextSpan(
+                                              text: lastMsg,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall),
+                                      //TextSpan(),
+                                    ])),
                         const SizedBox(
                           height: AppSizes.kDefaultPadding / 2,
                         ),
@@ -193,7 +143,7 @@ class HomeChatCard extends StatelessWidget {
             ),
           ),
           const Padding(
-            padding: EdgeInsets.only(left: 74),
+            padding: EdgeInsets.only(left: 0),
             child: CustomDivider(),
           )
         ],

@@ -1,40 +1,17 @@
-import 'dart:convert';
-import 'dart:developer';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
+import 'package:cpscom_admin/Features/Home/Repository/group_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 
 class ChatController extends GetxController {
+  final GroupRepo _groupRepo = GroupRepo();
   RxBool isReply = false.obs;
   RxBool isMemberSuggestion = false.obs;
   var chatMap = <AsyncSnapshot>{}.obs;
-
-  setLastChatMap(var data) {
-    chatMap.addAll(data);
-  }
+  var groupModel = GroupModel().obs;
 
   isRelayFunction(bool isRep) {
     isReply(isRep);
-  }
-
-  Stream<QuerySnapshot> getLastMessage(
-    String groupId,
-  ) async* {
-    try {
-      yield* FirebaseFirestore.instance
-          .collection('groups')
-          .doc(groupId)
-          .collection('chats')
-          .orderBy('time', descending: true)
-          .snapshots();
-    } catch (e) {
-      if (kDebugMode) {
-        log(e.toString());
-      }
-    }
   }
 
   void mentionMember(String value) {
@@ -54,24 +31,37 @@ class ChatController extends GetxController {
     }
   }
 
-  String getAsyncString(String videoUrl) {
-    RxString thumbnail = "".obs;
-    Future.delayed(const Duration(milliseconds: 300)).then((value) async {
-      thumbnail.value = await generateThumbnail(videoUrl);
-    });
-    return thumbnail.value;
-  }
+  // String getAsyncString(String videoUrl) {
+  //   RxString thumbnail = "".obs;
+  //   Future.delayed(const Duration(milliseconds: 300)).then((value) async {
+  //     thumbnail.value = await generateThumbnail(videoUrl);
+  //   });
+  //   return thumbnail.value;
+  // }
 
-  Future<String> generateThumbnail(String videoUrl) async {
-    final fileName = await VideoThumbnail.thumbnailFile(
-      video: videoUrl,
-      thumbnailPath: (await getTemporaryDirectory()).path,
-      imageFormat: ImageFormat.WEBP,
-      maxHeight:
-          64, 
-      quality: 75,
-    );
-    print("path--${(await getTemporaryDirectory()).path}");
-    return fileName!;
+  // Future<String> generateThumbnail(String videoUrl) async {
+  //   final fileName = await VideoThumbnail.thumbnailFile(
+  //     video: videoUrl,
+  //     thumbnailPath: (await getTemporaryDirectory()).path,
+  //     imageFormat: ImageFormat.WEBP,
+  //     maxHeight:
+  //         64,
+  //     quality: 75,
+  //   );
+  //   print("path--${(await getTemporaryDirectory()).path}");
+  //   return fileName!;
+  // }
+
+  RxBool isDetailsLaoding = false.obs;
+  getGroupDetailsById({required String groupId}) async {
+    try {
+      isDetailsLaoding(true);
+      var res = await _groupRepo.getGroupDetailsById(groupId: groupId);
+      groupModel.value = res;
+      isDetailsLaoding(false);
+    } catch (e) {
+      groupModel.value = GroupModel();
+      isDetailsLaoding(false);
+    }
   }
 }

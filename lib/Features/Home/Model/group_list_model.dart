@@ -27,7 +27,7 @@ class GroupModel {
   String? updatedAt;
   int? iV;
   String? id;
-  List<String>? currentUsersId;
+  List<dynamic>? currentUsersId;
   LastMessage? lastMessage;
 
   GroupModel(
@@ -59,7 +59,9 @@ class GroupModel {
     updatedAt = json['updatedAt'];
     iV = json['__v'];
     id = json['id'];
-    currentUsersId = json['currentUsersId'].cast<String>();
+    currentUsersId = json['currentUsersId'] == null
+        ? null
+        : json['currentUsersId'] as List<dynamic>;
     lastMessage = json['lastMessage'] != null
         ? LastMessage.fromJson(json['lastMessage'])
         : null;
