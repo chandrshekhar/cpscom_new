@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Controller/group_create_controller.dart';
 import 'package:cpscom_admin/Features/AddMembers/Model/members_model.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/GroupInfo/ChangeGroupDescription/Presentation/chnage_group_description.dart';
-import 'package:cpscom_admin/Features/GroupInfo/ChangeGroupTitle/Presentation/change_group_title.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_card.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
@@ -12,6 +13,7 @@ import 'package:cpscom_admin/Widgets/participants_card.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../Commons/app_images.dart';
 import '../../../Utils/custom_bottom_modal_sheet.dart';
@@ -39,6 +41,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     // TODO: implement initState
     super.initState();
     memberController.memberList.clear();
+    memberController.memberId.clear();
     getDetails();
   }
 
@@ -46,6 +49,10 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     await Future.delayed(const Duration(milliseconds: 200), () {
       chatController.getGroupDetailsById(groupId: widget.groupId);
       for (var element in chatController.groupModel.value.currentUsers!) {
+        memberController.memberId.clear();
+        for (var element in chatController.groupModel.value.currentUsers!) {
+          memberController.memberId.add(element.sId.toString());
+        }
         memberController.memberList.add(MemberListMdoel(
             sId: element.sId ?? "",
             name: element.name ?? "",
@@ -57,35 +64,21 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    log("member id list is ${memberController.memberId.toString()}");
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: CustomAppBar(
         title: 'Group Info',
         actions: [
-          PopupMenuButton(
-            icon: const Icon(
-              EvaIcons.moreVerticalOutline,
-              color: AppColors.darkGrey,
-              size: 20,
-            ),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                  value: 1,
-                  child: Text(
-                    'Change Group Title',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  )),
-            ],
-            onSelected: (value) {
-              switch (value) {
-                case 1:
-                  context.push(ChangeGroupTitle(
-                    groupId: widget.groupId,
-                  ));
-                  break;
-              }
-            },
-          )
+          IconButton(
+              onPressed: () {
+                context.push(ChangeGroupDescription(
+                  groupId: widget.groupId,
+                ));
+              },
+              icon: const Icon(
+                Icons.edit,
+              ))
         ],
       ),
       body: SingleChildScrollView(
@@ -101,31 +94,35 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(
                             AppSizes.cardCornerRadius * 10),
-                        child: CachedNetworkImage(
-                            width: 106,
-                            height: 106,
-                            fit: BoxFit.cover,
-                            imageUrl: "",
-                            placeholder: (context, url) => const CircleAvatar(
-                                  radius: 66,
-                                  backgroundColor: AppColors.lightGrey,
+                        child: Obx(() => CachedNetworkImage(
+                              width: 106,
+                              height: 106,
+                              fit: BoxFit.cover,
+                              imageUrl:
+                                  chatController.groupModel.value.groupImage ??
+                                      "",
+                              placeholder: (context, url) => const CircleAvatar(
+                                radius: 66,
+                                backgroundColor: AppColors.lightGrey,
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  CircleAvatar(
+                                radius: 66,
+                                backgroundColor: AppColors.lightGrey,
+                                child: Obx(
+                                  () => Text(
+                                    chatController.groupModel.value.groupName
+                                        .toString()
+                                        .substring(0, 1)
+                                        .toUpperCase(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge!
+                                        .copyWith(fontWeight: FontWeight.w600),
+                                  ),
                                 ),
-                            errorWidget: (context, url, error) => CircleAvatar(
-                                  radius: 66,
-                                  backgroundColor: AppColors.lightGrey,
-                                  child: Obx(() => Text(
-                                        chatController
-                                            .groupModel.value.groupName
-                                            .toString()
-                                            .substring(0, 1)
-                                            .toUpperCase(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineLarge!
-                                            .copyWith(
-                                                fontWeight: FontWeight.w600),
-                                      )),
-                                )),
+                              ),
+                            )),
                       ),
                       Positioned(
                           right: 0,
@@ -148,9 +145,19 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                             onTap: () {
                                               switch (index) {
                                                 case 0:
+                                                  chatController.pickImage(
+                                                      imageSource:
+                                                          ImageSource.gallery,
+                                                      groupId: widget.groupId,
+                                                      context: context);
                                                   //  pickImageFromGallery();
                                                   break;
                                                 case 1:
+                                                  chatController.pickImage(
+                                                      imageSource:
+                                                          ImageSource.camera,
+                                                      groupId: widget.groupId,
+                                                      context: context);
                                                   // pickImageFromCamera();
                                                   break;
                                               }
@@ -208,12 +215,19 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                       width: 1, color: AppColors.lightGrey),
                                   color: AppColors.white,
                                   shape: BoxShape.circle),
-                              child: Image.asset(
-                                AppImages.cameraIcon,
-                                width: 36,
-                                height: 36,
-                                fit: BoxFit.contain,
-                              ),
+                              child: Obx(() => chatController
+                                      .isUpdateLoading.value
+                                  ? const Center(
+                                      child: CircularProgressIndicator.adaptive(
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      AppImages.cameraIcon,
+                                      width: 36,
+                                      height: 36,
+                                      fit: BoxFit.contain,
+                                    )),
                             ),
                           ))
                     ],
@@ -242,11 +256,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                context.push(ChangeGroupDescription(
-                  groupId: widget.groupId,
-                ));
-              },
+              onTap: () {},
               child: CustomCard(
                 margin: const EdgeInsets.all(AppSizes.kDefaultPadding),
                 padding: const EdgeInsets.all(AppSizes.kDefaultPadding),

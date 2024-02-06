@@ -451,6 +451,15 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
         appBar: AppBar(
           elevation: 1,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back,
+              size: 22,
+            ),
+          ),
           title: Obx(
             () => chatController.isDetailsLaoding.value == false
                 ? Text(chatController.groupModel.value.groupName ?? "")
@@ -472,27 +481,37 @@ class _ChatScreenState extends State<ChatScreen> {
               icon: ClipRRect(
                 borderRadius:
                     BorderRadius.circular(AppSizes.cardCornerRadius * 10),
-                child: CachedNetworkImage(
-                    width: 30,
-                    height: 30,
-                    fit: BoxFit.cover,
-                    imageUrl:
-                        'https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg',
-                    placeholder: (context, url) => const CircleAvatar(
-                          radius: 16,
-                          backgroundColor: AppColors.bg,
+                child: Obx(() => CachedNetworkImage(
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.cover,
+                      imageUrl:
+                          chatController.groupModel.value.groupImage ?? "",
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: const CircleAvatar(
+                          radius: 50.0,
+                          backgroundImage:
+                              AssetImage('assets/your_avatar_image.jpg'),
                         ),
-                    errorWidget: (context, url, error) => CircleAvatar(
-                          radius: 16,
-                          backgroundColor: AppColors.bg,
-                          child: Text(
-                            "U",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(fontWeight: FontWeight.w600),
-                          ),
-                        )),
+                      ),
+                      errorWidget: (context, url, error) => CircleAvatar(
+                        radius: 16,
+                        backgroundColor: AppColors.bg,
+                        child: Text(
+                          chatController.groupModel.value.groupName != null
+                              ? chatController.groupModel.value.groupName!
+                                  .substring(0, 1)
+                                  .toUpperCase()
+                              : "",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    )),
               ),
               itemBuilder: (context) => [
                 PopupMenuItem(

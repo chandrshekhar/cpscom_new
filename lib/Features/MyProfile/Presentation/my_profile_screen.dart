@@ -1,8 +1,4 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/app_colors.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Commons/route.dart';
@@ -10,15 +6,11 @@ import 'package:cpscom_admin/Features/Home/Controller/home_controller.dart';
 import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
 import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
 import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_status_screen.dart';
-import 'package:cpscom_admin/Utils/app_preference.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -37,102 +29,11 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
-  final AppPreference preference = AppPreference();
-  final FirebaseProvider firebaseProvider = FirebaseProvider();
   final homeController = Get.put(HomeController());
   final loginController = Get.put(LoginController());
-
-  File? image;
-  String imageUrl = "";
-
-  Future pickImageFromGallery() async {
-    try {
-      final image = await ImagePicker().pickImage(
-          source: ImageSource.gallery,
-          maxHeight: 512,
-          maxWidth: 512,
-          imageQuality: 75);
-      if (image == null) return;
-      final imageTemp = File(image.path);
-      setState(() => this.image = imageTemp);
-      uploadImage();
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        print('Failed to pick image: $e');
-      }
-    }
-  }
-
-  Future pickImageFromCamera() async {
-    try {
-      final image = await ImagePicker().pickImage(
-          source: ImageSource.camera,
-          maxHeight: 512,
-          maxWidth: 512,
-          imageQuality: 75);
-      if (image == null) return;
-      final imageTemp = File(image.path);
-      setState(() => this.image = imageTemp);
-      await uploadImage();
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        print('Failed to pick image: $e');
-      }
-    }
-  }
-
-  UploadTask uploadFile(File image, String fileName) {
-    Reference reference =
-        FirebaseProvider.storage.ref().child('user_profile_pictures/$fileName');
-    UploadTask uploadTask = reference.putFile(image);
-    return uploadTask;
-  }
-
-  Future uploadImage() async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    UploadTask uploadTask = uploadFile(image!, fileName);
-    try {
-      TaskSnapshot snapshot = await uploadTask;
-      imageUrl = await snapshot.ref.getDownloadURL();
-      await FirebaseProvider.firestore
-          .collection('users')
-          .doc(FirebaseProvider.auth.currentUser!.uid)
-          .update({'profile_picture': imageUrl});
-      await homeController.getUSerData();
-
-      // Update user profile picture to firestore, i.e. group-> groupID -> members
-      // if (widget.groupsList!.isNotEmpty) {
-      //   Map<int, List<dynamic>> testtable = {};
-      //
-      //   for (var i = 0; i < widget.groupsList!.length; i++) {
-      //     var data = widget.groupsList![i].data() as Map<String, dynamic>;
-      //     data['members'].forEach((element) async {
-      //       if (element['uid'] == FirebaseProvider.auth.currentUser!.uid) {
-      //         testtable.update(data.length, (value){
-      //           log('${value.length}');
-      //           return value;
-      //         });
-      //         //log('${element['profile_picture']}');
-      //         // log('${element['profile_picture']}');
-      //         // await FirebaseProvider.firestore
-      //         //     .collection('groups')
-      //         //     .doc(data['id'])
-      //         //     .update({'members': FieldValue.arrayRemove(element)});
-      //       }
-      //     });
-      //   }
-      // }
-    } on FirebaseException catch (e) {
-      if (kDebugMode) {
-        print(e.message.toString());
-      }
-    }
-  }
-
   @override
   void initState() {
     loginController.getUserProfile();
-    log('final groups list in profile screen --------- ${widget.groupsList?.length}');
     super.initState();
   }
 
@@ -140,7 +41,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: CustomAppBar(
-          title: 'My Profiles',
+          title: 'My Profile',
           actions: [
             TextButton(
                 onPressed: () {
@@ -196,11 +97,16 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(
                                   AppSizes.cardCornerRadius * 10),
-                              child: CachedNetworkImage(
+                              child: Obx(() => CachedNetworkImage(
                                   width: 106,
                                   height: 106,
                                   fit: BoxFit.cover,
-                                  imageUrl: 'Profile Picture',
+                                  imageUrl:
+                                      loginController.userModel.value.image !=
+                                              null
+                                          ? loginController.userModel.value.image
+                                              .toString()
+                                          : "",
                                   placeholder: (context, url) =>
                                       const CircleAvatar(
                                         radius: 66,
@@ -220,7 +126,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                               .copyWith(
                                                   fontWeight: FontWeight.w600),
                                         ),
-                                      )),
+                                      ))),
                             ),
                             Positioned(
                                 bottom: 0,
@@ -243,10 +149,20 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                   onTap: () {
                                                     switch (index) {
                                                       case 0:
-                                                        pickImageFromGallery();
+                                                        loginController.pickImage(
+                                                            context: context,
+                                                            imageSource:
+                                                                ImageSource
+                                                                    .gallery);
                                                         break;
                                                       case 1:
-                                                        pickImageFromCamera();
+                                                        loginController
+                                                            .pickImage(
+                                                                context:
+                                                                    context,
+                                                                imageSource:
+                                                                    ImageSource
+                                                                        .camera);
                                                         break;
                                                     }
 

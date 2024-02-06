@@ -44,12 +44,15 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
   void initState() {
     super.initState();
     memberListController.limit.value = 20;
-    memberListController.dataClearAfterAdd();
+    widget.groupId!.isNotEmpty
+        ? null
+        : memberListController.dataClearAfterAdd();
     memberListController.getMemberList();
   }
 
   @override
   Widget build(BuildContext context) {
+    print("hsfhsdfahsdfgv${memberListController.memberId.toString()}");
     return Scaffold(
         appBar: CustomAppBar(
           title: 'Add Participants',

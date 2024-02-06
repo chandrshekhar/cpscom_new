@@ -1,5 +1,6 @@
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:flutter/material.dart';
+
 import '../Commons/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -114,6 +115,7 @@ class CustomTextField extends StatelessWidget {
           focusNode: focusNode,
           decoration: isBorder!
               ? InputDecoration(
+                  labelText: labelText ?? "",
                   suffixIcon: suffixIcon,
                   contentPadding: const EdgeInsets.symmetric(
                       vertical: AppSizes.kDefaultPadding),
@@ -125,8 +127,8 @@ class CustomTextField extends StatelessWidget {
                     borderSide: BorderSide(color: AppColors.lightGrey),
                   ),
                   hintText: hintText ?? '',
-                  hintStyle: Theme.of(context).textTheme.bodyText2,
-                  labelStyle: Theme.of(context).textTheme.bodyText2,
+                  hintStyle: Theme.of(context).textTheme.bodyMedium,
+                  labelStyle: Theme.of(context).textTheme.bodyMedium,
                   errorText: controller.text == "" ? errorText : null)
               : InputDecoration(
                   suffixIcon: suffixIcon,
@@ -134,8 +136,8 @@ class CustomTextField extends StatelessWidget {
                   contentPadding: const EdgeInsets.symmetric(
                       vertical: AppSizes.kDefaultPadding),
                   hintText: hintText ?? '',
-                  hintStyle: Theme.of(context).textTheme.bodyText2,
-                  labelStyle: Theme.of(context).textTheme.bodyText2,
+                  hintStyle: Theme.of(context).textTheme.bodyMedium,
+                  labelStyle: Theme.of(context).textTheme.bodyMedium,
                   errorText: controller.text == "" ? errorText : null),
         ),
       ],

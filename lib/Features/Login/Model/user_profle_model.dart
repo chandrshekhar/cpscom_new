@@ -8,7 +8,7 @@ class UserProfileModel {
   UserProfileModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 }
 
@@ -16,7 +16,7 @@ class Data {
   User? user;
   Data({this.user});
   Data.fromJson(Map<String, dynamic> json) {
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
   }
 }
 
@@ -31,6 +31,7 @@ class User {
   String? accountStatus;
   String? createdAt;
   int? iV;
+  String? image;
 
   User(
       {this.sId,
@@ -42,6 +43,7 @@ class User {
       this.userType,
       this.accountStatus,
       this.createdAt,
+      this.image,
       this.iV});
 
   User.fromJson(Map<String, dynamic> json) {
@@ -55,5 +57,6 @@ class User {
     accountStatus = json['accountStatus'];
     createdAt = json['createdAt'];
     iV = json['__v'];
+    image = json['image'] == null ? null : json['image'] as String?;
   }
 }

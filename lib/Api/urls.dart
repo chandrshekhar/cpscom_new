@@ -16,14 +16,15 @@ class Urls {
 }
 
 class ApiPath {
-  //static const String baseUrls = 'https://api.excellis.in/api/v1';
+  static const String baseUrls = 'https://api.excellis.in/api/v1';
 
-  static const String baseUrls = "https://tiny-spies-change.loca.lt/api/v1";
+  // static const String baseUrls = "https://tiny-spies-change.loca.lt/api/v1";
 
   //AUTH
   //Login Api
   static const String loginApi = "$baseUrls/users/sign-in";
   static const String getUserDAta = "$baseUrls/users/get-user";
+  static const String updateProfileDetails = "$baseUrls/users/update-user";
 
   //GROUP
   //group api path
@@ -36,4 +37,6 @@ class ApiPath {
   static const String craeteGroupApi = "$baseUrls/groups/create";
   //get group by id
   static const String getGroupById = "$baseUrls/groups/get-group-details/";
+  //update group details
+  static const String updateGroupDetails = "$baseUrls/groups/update-group";
 }

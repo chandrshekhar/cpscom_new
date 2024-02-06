@@ -1,8 +1,10 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../../../Api/urls.dart';
 
@@ -80,6 +82,59 @@ class GroupRepo {
         }
       }
       throw Exception("Faild to make api the request ");
+    }
+  }
+
+  Future<Map> updateGroupDetails({
+    required String groupId,
+    required String groupName,
+    required File groupImage,
+  }) async {
+    log("Update group details api calling....");
+    Response response;
+    var token = localStorage.getUserToken();
+    try {
+      dio.options.headers = {
+        'Content-Type': 'multipart/form-data',
+        'access-token': token
+      };
+      log("Token is $token");
+      FormData formData = FormData.fromMap({
+        "groupId": groupId,
+        "groupName": groupName,
+      });
+      if (groupImage.path.isNotEmpty) {
+        formData.files.add(MapEntry(
+          "file",
+          await MultipartFile.fromFile(groupImage.path,
+              filename: groupImage.path.split('/').last,
+              contentType: MediaType("images", "jpeg")),
+        ));
+      }
+
+      response = await dio.post(ApiPath.updateGroupDetails, data: formData);
+      log(response.data.toString());
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception("Faild to load data");
+      }
+    } catch (e) {
+      log(e.toString());
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          //TostWidget().errorToast(title: "Error!", message: e.toString());
+          throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          log(e.response.toString());
+          //TostWidget().errorToast(title: "Error!", message: e.toString());
+          throw Exception("Faild to load data");
+        }
+      }
+      throw Exception("Faild to make api the request : $e");
     }
   }
 }

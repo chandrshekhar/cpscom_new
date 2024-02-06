@@ -48,6 +48,7 @@ class _BuildMobileViewState extends State<BuildMobileView> {
                             onPressed: () {
                               context.push(const AddMembersScreen(
                                 isCameFromHomeScreen: true,
+                                groupId: "",
                               ));
                               //context.push(AddParticipantsScreen());
                             },

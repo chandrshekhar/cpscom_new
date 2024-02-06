@@ -1,12 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpscom_admin/Api/firebase_provider.dart';
+import 'dart:io';
+
 import 'package:cpscom_admin/Commons/commons.dart';
-import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_text_field.dart';
-import 'package:cpscom_admin/Widgets/full_button.dart';
 import 'package:flutter/material.dart';
-import '../../Presentation/group_info_screen.dart';
+import 'package:get/get.dart';
+
+import '../../../../Widgets/full_button.dart';
+import '../../../AddMembers/Controller/group_create_controller.dart';
+import '../../../Chat/Controller/chat_controller.dart';
 
 class ChangeGroupDescription extends StatefulWidget {
   final String groupId;
@@ -21,11 +23,28 @@ class ChangeGroupDescription extends StatefulWidget {
 class _ChangeGroupDescriptionState extends State<ChangeGroupDescription> {
   final TextEditingController descController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final chatController = Get.put(ChatController());
+  final memberController = Get.put(MemeberlistController());
 
   @override
   void initState() {
     //descController.text = widget.groupId['group_description'];
     super.initState();
+    getDetails();
+  }
+
+  getDetails() async {
+    await Future.delayed(const Duration(milliseconds: 200), () {
+      chatController.getGroupDetailsById(groupId: widget.groupId);
+      chatController.setControllerValue();
+      // for (var element in chatController.groupModel.value.currentUsers!) {
+      //   memberController.memberList.add(MemberListMdoel(
+      //       sId: element.sId ?? "",
+      //       name: element.name ?? "",
+      //       phone: element.phone ?? "",
+      //       image: element.image ?? ""));
+      // }
+    });
   }
 
   @override
@@ -37,105 +56,65 @@ class _ChangeGroupDescriptionState extends State<ChangeGroupDescription> {
         appBar: const CustomAppBar(
           title: 'Group Description',
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
-              color: AppColors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Add Group Description',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText2!
-                        .copyWith(color: AppColors.black),
-                  ),
-                  const SizedBox(
-                    height: AppSizes.kDefaultPadding,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(
-                        AppSizes.kDefaultPadding / 2,
-                        AppSizes.kDefaultPadding / 6,
-                        AppSizes.kDefaultPadding / 2,
-                        0),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                            AppSizes.cardCornerRadius / 2),
-                        border:
-                            Border.all(width: 1, color: AppColors.lightGrey)),
-                    child: StreamBuilder(
-                        stream: FirebaseProvider.getGroupDescription(
-                            widget.groupId),
-                        builder: (context,
-                            AsyncSnapshot<DocumentSnapshot> snapshot) {
-                          switch (snapshot.connectionState) {
-                            case ConnectionState.none:
-                            case ConnectionState.waiting:
-                            case ConnectionState.active:
-                            case ConnectionState.done:
-                              if (snapshot.hasData) {
-                                descController.text =
-                                    snapshot.data?['group_description'];
-                                return CustomTextField(
-                                  controller: descController,
-                                  hintText: 'Enter Group Description Here...',
-                                  minLines: 8,
-                                  maxLines: 10,
-                                  autoFocus: true,
-                                  isBorder: false,
-                                );
-                              }
-                          }
-                          return const SizedBox();
-                        }),
-                  )
-                ],
-              ),
-            ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.kDefaultPadding * 2),
+        body: Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20),
+          child: Column(
+            children: [
+              Expanded(
                 child: Column(
                   children: [
-                    FullButton(
-                        label: 'Ok'.toUpperCase(),
-                        onPressed: () {
-                          FirebaseProvider.updateGroupDescription(
-                              widget.groupId, descController.text);
-                          customSnackBar(
-                            context,
-                            'Group Description Updated Successfully',
-                          );
-                          context.pop(GroupInfoScreen(groupId: widget.groupId),
-                              descController.text);
-                        }),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     Container(
-                      alignment: Alignment.center,
-                      child: TextButton(
-                          style: TextButton.styleFrom(
-                              maximumSize:
-                                  const Size.fromHeight(AppSizes.buttonHeight)),
-                          onPressed: () {
-                            context.pop(GroupInfoScreen(
-                              groupId: widget.groupId,
-                            ));
-                          },
-                          child: Text(
-                            'Cancel',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyText1,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white),
+                      padding: const EdgeInsets.only(
+                          top: 20, bottom: 20, right: 10, left: 10),
+                      child: Obx(() => CustomTextField(
+                            controller: chatController.titleController.value,
+                            maxLines: 1,
+                            labelText: "Add Title",
                           )),
-                    )
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Obx(() => chatController.isUpdateLoading.value
+                  ? const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    )
+                  : FullButton(
+                      label: 'Ok'.toUpperCase(),
+                      onPressed: () {
+                        chatController.updateGroup(
+                            context: context,
+                            groupId: widget.groupId,
+                            groupName: chatController.titleController.value.text
+                                .toString(),
+                            groupImage: File(""));
+                      })),
+              Container(
+                alignment: Alignment.center,
+                child: TextButton(
+                    style: TextButton.styleFrom(
+                        maximumSize:
+                            const Size.fromHeight(AppSizes.buttonHeight)),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'Cancel',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    )),
+              ),
+              const SizedBox(
+                height: 20,
+              )
+            ],
+          ),
         ),
       ),
     );

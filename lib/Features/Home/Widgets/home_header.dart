@@ -53,7 +53,9 @@ class _HomeHeaderState extends State<HomeHeader> {
                   width: 34,
                   height: 34,
                   fit: BoxFit.cover,
-                  imageUrl: loginController.userModel!.value!.name ?? "",
+                  imageUrl: loginController.userModel.value.image != null
+                      ? loginController.userModel.value.image.toString()
+                      : "",
                   placeholder: (context, url) => const CircleAvatar(
                         radius: 16,
                         backgroundColor: AppColors.bg,
@@ -62,7 +64,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                         radius: 16,
                         backgroundColor: AppColors.bg,
                         child: Text(
-                          loginController.userModel!.value!.name
+                          loginController.userModel.value.name
                               .toString()[0]
                               .toUpperCase(),
                           style: Theme.of(context)

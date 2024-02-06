@@ -45,6 +45,8 @@ class GroupModel {
 
   GroupModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
+    groupImage =
+        json['groupImage'] == null ? null : json['groupImage'] as String?;
     groupName = json['groupName'];
     if (json['currentUsers'] != null) {
       currentUsers = <CurrentUsers>[];

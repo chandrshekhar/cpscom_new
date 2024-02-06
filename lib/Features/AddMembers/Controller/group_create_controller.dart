@@ -87,7 +87,7 @@ class MemeberlistController extends GetxController {
       isGroupCreateLoading(true);
       var res = await memebrListRepo.createGroup(reqModel: reqModel);
       if (res['success'] == true) {
-        TostWidget().successToast(title: "Error", message: res['message']);
+        TostWidget().successToast(title: "Success", message: res['message']);
         await groupListController.getGroupList();
         isGroupCreateLoading(false);
         dataClearAfterAdd();
