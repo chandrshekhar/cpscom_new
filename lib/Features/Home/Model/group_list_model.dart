@@ -154,6 +154,29 @@ class LastMessage {
     iV = json['__v'];
     id = json['id'];
   }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['groupId'] = groupId;
+    data['senderId'] = senderId;
+    data['senderName'] = senderName;
+    data['message'] = message;
+    data['messageType'] = messageType;
+    data['forwarded'] = forwarded;
+    // if (this.deliveredTo != null) {
+    //   data['deliveredTo'] = this.deliveredTo!.map((v) => v.toJson()).toList();
+    // }
+    // if (this.readBy != null) {
+    //   data['readBy'] = this.readBy!.map((v) => v.toJson()).toList();
+    // }
+    data['deletedBy'] = deletedBy;
+    data['timestamp'] = timestamp;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    data['id'] = id;
+    return data;
+  }
 }
 
 class ReadBy {

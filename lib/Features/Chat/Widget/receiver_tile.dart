@@ -1,18 +1,14 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/route.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
-import 'package:cpscom_admin/Features/Chat/Presentation/chat_screen.dart';
 import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:linkable/linkable.dart';
+
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
 import 'show_image_widget.dart';
-import 'show_pdf_viewer.dart';
 
 class ReceiverTile extends StatelessWidget {
   final String message;
@@ -23,12 +19,14 @@ class ReceiverTile extends StatelessWidget {
   final String groupCreatedBy;
   final ValueChanged<Map<String, dynamic>> onSwipedMessage;
   ChatController chatController;
+  final String fileName;
 
   ReceiverTile(
       {Key? key,
       required this.message,
       required this.messageType,
       required this.sentTime,
+      required this.fileName,
       required this.sentByName,
       this.sentByImageUrl = '',
       required this.groupCreatedBy,
@@ -38,7 +36,6 @@ class ReceiverTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("kk" + messageType);
     return messageType == 'notify'
         ? Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -77,20 +74,21 @@ class ReceiverTile extends StatelessWidget {
                     children: [
                       Text(
                         sentByName,
-                        style: Theme.of(context).textTheme.caption!.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                       Text(
                         ', $sentTime',
                         style: Theme.of(context)
                             .textTheme
-                            .caption!
+                            .bodySmall!
                             .copyWith(fontSize: 12),
                       ),
                     ],
                   ),
                 ),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
                       borderRadius:
@@ -127,13 +125,13 @@ class ReceiverTile extends StatelessWidget {
                         bottom: AppSizes.kDefaultPadding * 2,
                       ),
                       child: ChatBubble(
-                        padding: messageType == 'img' ||
-                                messageType == 'pdf' ||
-                                messageType == 'docx' ||
-                                messageType == 'doc' ||
-                                messageType == 'mp4'
-                            ? EdgeInsets.zero
-                            : null,
+                        // padding: messageType == 'image' ||
+                        //         messageType == 'pdf' ||
+                        //         messageType == 'docx' ||
+                        //         messageType == 'doc' ||
+                        //         messageType == 'mp4'
+                        //     ? EdgeInsets.zero
+                        //     : null,
                         clipper:
                             ChatBubbleClipper3(type: BubbleType.receiverBubble),
                         backGroundColor: AppColors.lightGrey,
@@ -145,7 +143,7 @@ class ReceiverTile extends StatelessWidget {
                           constraints: BoxConstraints(
                               maxWidth:
                                   MediaQuery.of(context).size.width * 0.65),
-                          child: messageType == 'img'
+                          child: messageType == 'image'
                               ? GestureDetector(
                                   onTap: () {
                                     context.push(ShowImage(imageUrl: message));
@@ -170,74 +168,59 @@ class ReceiverTile extends StatelessWidget {
                                       text: message,
                                       linkColor: Colors.blue,
                                     )
-                                  : messageType == 'pdf'
-                                      ? message.isNotEmpty
-                                          ? Stack(
-                                              children: [
-                                                ClipRRect(
-                                                  borderRadius: BorderRadius
-                                                      .circular(AppSizes
-                                                          .cardCornerRadius),
-                                                  child: Container(
-                                                    constraints: BoxConstraints(
-                                                        maxWidth: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.45,
-                                                        maxHeight:
-                                                            MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.30),
-                                                    child: const PDF()
-                                                        .cachedFromUrl(
-                                                      message,
-                                                      maxAgeCacheObject:
-                                                          const Duration(
-                                                              days: 30),
-                                                      //duration of cache
-                                                      placeholder: (progress) =>
-                                                          Center(
-                                                              child: Text(
-                                                                  '$progress %')),
-                                                      errorWidget: (error) =>
-                                                          const Center(
-                                                              child: Text(
-                                                                  'Loading...')),
-                                                    ),
+                                  : messageType == 'doc'
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                              AppSizes.cardCornerRadius),
+                                          child: Container(
+                                            constraints: BoxConstraints(
+                                                maxWidth: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.45,
+                                                maxHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.40),
+                                            child: SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.40,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.45,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.download_for_offline,
+                                                    size: 35,
                                                   ),
-                                                ),
-                                                message != null
-                                                    ? GestureDetector(
-                                                        onTap: () {
-                                                          context.push(ShowPdf(
-                                                            pdfPath: message,
-                                                          ));
-                                                        },
-                                                        child: Container(
-                                                          color: AppColors
-                                                              .transparent,
-                                                          constraints: BoxConstraints(
-                                                              maxWidth: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width *
-                                                                  0.45,
-                                                              maxHeight:
-                                                                  MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      0.30),
-                                                        ),
-                                                      )
-                                                    : const SizedBox(),
-                                              ],
-                                            )
-                                          : const SizedBox()
-                                      : messageType == "mp4"
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 10,
+                                                            left: 10,
+                                                            right: 10),
+                                                    child: Text(
+                                                      fileName,
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                          fontSize: 18),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : messageType == "video"
                                           ? GestureDetector(
                                               onTap: () {
                                                 Navigator.push(

@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: CustomTextField(
                     controller: loginController.emailController.value,
-                    hintText: 'Email Address',
+                    labelText: 'Email Address',
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (!value!.isEmail) {
@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: CustomTextField(
                       controller: loginController.passwordController.value,
-                      hintText: 'Password',
+                      labelText: 'Password',
                       obscureText: loginController.isPasswordVisible.value,
                       keyboardType: TextInputType.visiblePassword,
                       suffixIcon: InkWell(

@@ -1,6 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpscom_admin/Api/firebase_provider.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
@@ -9,8 +7,10 @@ import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.d
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/ReportScreen/report_screen.dart';
 import 'package:cpscom_admin/Utils/app_helper.dart';
+import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../Widget/send_message_widget.dart';
@@ -374,7 +374,9 @@ class _ChatScreenState extends State<ChatScreen> {
     //updateIsSeenField(widget.groupId, true);
     msgController = TextEditingController();
     chatController.groupModel.value = GroupModel();
+    chatController.getAllChatByGroupId(groupId: widget.groupId);
     chatController.getGroupDetailsById(groupId: widget.groupId);
+    chatController.groupId.value = widget.groupId;
   }
 
   //final queue = Queue<int>();
@@ -447,7 +449,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("ghsfadghsfdghsf ${chatController.groupModel.value.groupName}");
     return Scaffold(
         appBar: AppBar(
           elevation: 1,
@@ -564,56 +565,62 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Column(
             children: [
               Expanded(
-                child: StreamBuilder(
-                    stream: FirebaseProvider.getChatsMessages(
-                        widget.groupId.toString()),
-                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasData) {
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                  itemCount: 3,
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                  controller: _scrollController,
-                                  shrinkWrap: true,
-                                  reverse: true,
-                                  padding: const EdgeInsets.only(
-                                      bottom: AppSizes.kDefaultPadding * 2),
-                                  itemBuilder: (context, index) {
-                                    return index.isEven
-                                        ? ReceiverTile(
-                                            chatController: chatController,
-                                            onSwipedMessage: (chatMap) {
-                                              //replyToMessage(chatMap);
-                                            },
-                                            message: "Message",
-                                            messageType: 'text',
-                                            sentTime: "12:40 PM",
-                                            sentByName: 'sendBy',
-                                            sentByImageUrl: "",
-                                            groupCreatedBy: "Pandey",
-                                          )
-                                        : SenderTile(
-                                            message: "Sender message",
-                                            messageType: "text",
-                                            sentTime: "12:44AM",
-                                            groupCreatedBy: "Pamndey",
-                                            read: "value");
-                                    //             chatMap['isDelivered'])
-                                    //         :
-                                  }),
-                            ),
-                          ],
-                        );
-                      }
-                      return const SizedBox();
-
-                      // return const SizedBox();
-                    }),
-              ),
+                  child: Column(
+                children: [
+                  Expanded(
+                      child: Obx(
+                    () => chatController.isChatLoading.value
+                        ? const Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          )
+                        : chatController.chatList.isNotEmpty
+                            ? ListView.builder(
+                                itemCount: chatController.chatList.length,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                controller: _scrollController,
+                                shrinkWrap: true,
+                                reverse: true,
+                                padding: const EdgeInsets.only(
+                                    bottom: AppSizes.kDefaultPadding * 2),
+                                itemBuilder: (context, index) {
+                                  var item = chatController.chatList.reversed
+                                      .toList()[index];
+                                  return item.senderId.toString() ==
+                                          LocalStorage().getUserId().toString()
+                                      ? SenderTile(
+                                          fileName: item.fileName ?? "",
+                                          message: item.message ?? "",
+                                          messageType:
+                                              item.messageType.toString(),
+                                          sentTime: DateFormat('hh:mm a')
+                                              .format(DateTime.parse(
+                                                  item.timestamp ?? "")),
+                                          groupCreatedBy: "",
+                                          read: "value")
+                                      : ReceiverTile(
+                                          fileName: item.fileName ?? "",
+                                          chatController: chatController,
+                                          onSwipedMessage: (chatMap) {
+                                            //replyToMessage(chatMap);
+                                          },
+                                          message: item.message ?? "",
+                                          messageType: item.messageType ?? "",
+                                          sentTime: DateFormat('hh:mm a')
+                                              .format(DateTime.parse(
+                                                  item.timestamp ?? "")),
+                                          sentByName: item.senderName ?? "",
+                                          sentByImageUrl: item.message ?? "",
+                                          groupCreatedBy: "Pandey",
+                                        );
+                                  //             chatMap['isDelivered'])
+                                  //         :
+                                })
+                            : const SizedBox.shrink(),
+                  )),
+                ],
+              )),
               SendMessageWidget(
+                groupId: widget.groupId,
                 msgController: msgController,
                 scrollController: _scrollController,
               )

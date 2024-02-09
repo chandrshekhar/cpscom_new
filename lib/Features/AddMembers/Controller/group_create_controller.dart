@@ -5,7 +5,6 @@ import 'package:cpscom_admin/Features/AddMembers/Repo/member_repo.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/home_screen.dart';
 import 'package:cpscom_admin/Utils/navigator.dart';
-import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/toast_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -77,8 +76,6 @@ class MemeberlistController extends GetxController {
   RxBool isGroupCreateLoading = false.obs;
   //method for create group
   createGroup(BuildContext context) async {
-    var ownUserId = LocalStorage().getUserId();
-    memberId.add(ownUserId);
     try {
       Map<String, dynamic> reqModel = {
         "groupName": grpNameController.value.text,

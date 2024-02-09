@@ -1,13 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Utils/open_any_file.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:linkable/linkable.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'show_image_widget.dart';
-import 'show_pdf_viewer.dart';
 
 class SenderTile extends StatelessWidget {
   final String message;
@@ -18,11 +17,13 @@ class SenderTile extends StatelessWidget {
   final VoidCallback? onTap;
   bool? isSeen;
   bool? isDelivered;
+  String? fileName;
 
   SenderTile(
       {Key? key,
       required this.message,
       required this.messageType,
+      this.fileName,
       required this.sentTime,
       required this.groupCreatedBy,
       required this.read,
@@ -81,82 +82,46 @@ class SenderTile extends StatelessWidget {
               elevation: 0,
               margin: const EdgeInsets.only(top: AppSizes.kDefaultPadding / 4),
               child: Container(
-                constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.65),
-                child: messageType == 'img'
-                    ? GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      ShowImage(imageUrl: message)));
-                        },
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(AppSizes.cardCornerRadius),
-                          child: CachedNetworkImage(
-                            imageUrl: message,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator.adaptive(),
-                            errorWidget: (context, url, error) =>
-                                const CircularProgressIndicator.adaptive(),
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.65),
+                  child: messageType == 'image'
+                      ? GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        ShowImage(imageUrl: message)));
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                AppSizes.cardCornerRadius),
+                            child: CachedNetworkImage(
+                              imageUrl: message,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator.adaptive(),
+                              errorWidget: (context, url, error) =>
+                                  const CircularProgressIndicator.adaptive(),
+                            ),
                           ),
-                        ),
-                      )
-                    : messageType == 'text'
-                        ? Linkable(
-                            text: message.trim(),
-                            linkColor: Colors.blue,
-                          )
-                        : messageType == 'pdf'
-                            ? Stack(
-                                children: [
-                                  ClipRRect(
+                        )
+                      : messageType == 'text'
+                          ? Linkable(
+                              text: message.trim(),
+                              linkColor: Colors.blue,
+                            )
+                          : messageType == 'doc'
+                              ? InkWell(
+                                  onTap: () {
+                                    openPDF(
+                                        fileUrl: message,
+                                        fileName: fileName ?? "");
+                                  },
+                                  child: ClipRRect(
                                     borderRadius: BorderRadius.circular(
                                         AppSizes.cardCornerRadius),
                                     child: Container(
-                                        constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.45,
-                                            maxHeight: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.30),
-                                        child: const PDF().cachedFromUrl(
-                                          message,
-                                          maxAgeCacheObject:
-                                              const Duration(days: 30),
-                                          //duration of cache
-                                          placeholder: (progress) => Center(
-                                              child: Text('$progress %')),
-                                          errorWidget: (error) => const Center(
-                                              child: Text('Loading...')),
-                                        )
-                                        // SfPdfViewer.network(
-                                        //   message,
-                                        //   canShowPaginationDialog: false,
-                                        //   enableHyperlinkNavigation: false,
-                                        //   canShowScrollHead: false,
-                                        //   enableDoubleTapZooming: false,
-                                        //   canShowScrollStatus: false,
-                                        //   pageLayoutMode:
-                                        //       PdfPageLayoutMode.single,
-                                        //   canShowPasswordDialog: false,
-                                        // ),
-                                        ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.push(ShowPdf(
-                                        pdfPath: message,
-                                      ));
-                                    },
-                                    child: Container(
-                                      color: AppColors.transparent,
                                       constraints: BoxConstraints(
                                           maxWidth: MediaQuery.of(context)
                                                   .size
@@ -166,12 +131,39 @@ class SenderTile extends StatelessWidget {
                                                   .size
                                                   .width *
                                               0.30),
+                                      child: SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.width *
+                                                0.30,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.45,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.download_for_offline,
+                                              size: 40,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10, left: 10, right: 10),
+                                              child: Text(
+                                                fileName ?? "",
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ],
-                              )
-                            : const SizedBox(),
-              ),
+                                )
+                              : const SizedBox()),
             ),
           ],
         ),

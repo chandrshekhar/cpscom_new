@@ -1,10 +1,11 @@
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
+import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../Commons/app_colors.dart';
 import '../../../Utils/custom_bottom_modal_sheet.dart';
@@ -15,9 +16,13 @@ import '../../GroupInfo/Model/image_picker_model.dart';
 class SendMessageWidget extends StatefulWidget {
   final TextEditingController msgController;
   final ScrollController scrollController;
+  final String groupId;
 
   const SendMessageWidget(
-      {super.key, required this.msgController, required this.scrollController});
+      {super.key,
+      required this.msgController,
+      required this.scrollController,
+      required this.groupId});
 
   @override
   State<SendMessageWidget> createState() => _SendMessageWidgetState();
@@ -25,6 +30,14 @@ class SendMessageWidget extends StatefulWidget {
 
 class _SendMessageWidgetState extends State<SendMessageWidget> {
   final chatController = Get.put(ChatController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    chatController.getGroupDetailsById(groupId: widget.groupId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -150,7 +163,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                             minLines: 1,
                             onChanged: (value) {
                               chatController.mentionMember(value!);
-                              return null;
+                              return;
                             },
                             isBorder: false,
                             //onCancelReply: onCancelReply,
@@ -174,15 +187,40 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                     itemBuilder: (context, index) {
                                       return GestureDetector(
                                         onTap: () {
+                                          var ownId =
+                                              LocalStorage().getUserId();
+                                          List<String> userIds = chatController
+                                              .groupModel.value.currentUsers!
+                                              .map((user) => user.sId!)
+                                              .where(
+                                                  (userId) => userId != ownId)
+                                              .toList();
+
                                           switch (index) {
                                             case 0:
-                                              // pickFile();
+                                              chatController.pickFile(
+                                                
+                                                  groupId: widget.groupId,
+                                                  receiverId: userIds,
+                                                  context: context);
                                               break;
                                             case 1:
-                                              // pickImageFromGallery();
+                                              chatController
+                                                  .pickImageForSendSms(
+                                                      imageSource:
+                                                          ImageSource.gallery,
+                                                      groupId: widget.groupId,
+                                                      receiverId: userIds,
+                                                      context: context);
                                               break;
                                             case 2:
-                                              // pickImageFromCamera();
+                                              chatController
+                                                  .pickImageForSendSms(
+                                                      imageSource:
+                                                          ImageSource.camera,
+                                                      groupId: widget.groupId,
+                                                      receiverId: userIds,
+                                                      context: context);
                                               break;
                                           }
                                           Navigator.pop(context);
@@ -241,19 +279,22 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
               ),
               GestureDetector(
                 onTap: () async {
-                  // await onSendMessages(
-                  //   widget.groupId,
-                  //   msgController.text,
-                  //   profilePicture,
-                  //   '${_auth.currentUser!.displayName}',
-                  // );
-                  widget.msgController.clear();
-
-                  SchedulerBinding.instance.addPostFrameCallback((_) {
-                    widget.scrollController.animateTo(0.0,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut);
-                  });
+                  if (widget.msgController.text.isNotEmpty) {
+                    chatController.msgText.value =
+                        widget.msgController.text.toString();
+                    widget.msgController.clear();
+                    var ownId = LocalStorage().getUserId();
+                    List<String> userIds = chatController
+                        .groupModel.value.currentUsers!
+                        .map((user) => user.sId!)
+                        .where((userId) => userId != ownId)
+                        .toList();
+                    await chatController.sendMsg(
+                        msg: chatController.msgText.value,
+                        reciverId: userIds,
+                        groupId: widget.groupId,
+                        msgType: "text");
+                  } else {}
                 },
                 child: Container(
                   width: 36,

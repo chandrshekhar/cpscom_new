@@ -1,22 +1,57 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
+import 'package:cpscom_admin/Features/Chat/Repo/chat_repo.dart';
+import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/Home/Repository/group_repo.dart';
+import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/toast_widget.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../Home/Controller/group_list_controller.dart';
 
 class ChatController extends GetxController {
   final GroupRepo _groupRepo = GroupRepo();
+  final _chatRepo = ChatRepo();
   RxBool isReply = false.obs;
   RxBool isMemberSuggestion = false.obs;
   var chatMap = <AsyncSnapshot>{}.obs;
   var groupModel = GroupModel().obs;
   var descriptionController = TextEditingController().obs;
   var titleController = TextEditingController().obs;
+  RxList<ChatModel> chatList = <ChatModel>[].obs;
+  RxString groupId = "".obs;
+
+  RxBool isChatLoading = false.obs;
+
+  getAllChatByGroupId({required String groupId}) async {
+    try {
+      isChatLoading(true);
+      Map<String, dynamic> reqModel = {
+        "id": groupId,
+        "timestamp": DateTime.now().toString(),
+        "offset": 0,
+        "limit": 1000
+      };
+      var res = await _chatRepo.getChatListApi(reqModel: reqModel);
+      if (res.success == true) {
+        chatList.clear();
+        chatList.addAll(res.chat!);
+        isChatLoading(false);
+      } else {
+        chatList.value = [];
+      }
+    } catch (e) {
+      chatList.value = [];
+      isChatLoading(false);
+    }
+  }
 
   Future<void> pickImage(
       {required ImageSource imageSource,
@@ -125,4 +160,93 @@ class ChatController extends GetxController {
       isUpdateLoading(false);
     }
   }
+
+  RxBool isSendSmsLoading = false.obs;
+  RxString msgText = "demo".obs;
+  sendMsg(
+      {required String groupId,
+      required String msgType,
+      required String msg,
+      File? file,
+      required List<String> reciverId}) async {
+    try {
+      isSendSmsLoading(true);
+      final socketController = Get.put(SocketController());
+      var res = await _chatRepo.sendMessage(
+          groupId: groupId,
+          message: msg,
+          file: file,
+          messageType: msgType,
+          senderName: "Azhar");
+      Map<String, dynamic> reqModeSocket = {
+        "_id": res['data']['data']['id'],
+        "receiverId": reciverId,
+        "senderId": LocalStorage().getUserId(),
+        "time": DateFormat('hh:mm a').format(DateTime.now()),
+      };
+      socketController.socket!.emit("message", reqModeSocket);
+      msgText.value = "";
+      isSendSmsLoading(false);
+    } catch (e) {}
+  }
+
+  Future<void> pickImageForSendSms(
+      {required ImageSource imageSource,
+      required String groupId,
+      required List<String> receiverId,
+      required BuildContext context}) async {
+    try {
+      final selected =
+          await ImagePicker().pickImage(imageQuality: 50, source: imageSource);
+      if (selected != null) {
+        File groupImages = File(selected.path);
+        // ignore: use_build_context_synchronously
+        await sendMsg(
+            msg: "text",
+            groupId: groupId,
+            file: groupImages,
+            msgType: "image",
+            reciverId: receiverId);
+      } else {}
+    } on Exception catch (e) {
+      log("image uplaod faild ${e.toString()}");
+    }
+  }
+
+  Future<void> pickFile(
+      {required String groupId,
+      required List<String> receiverId,
+      required BuildContext context}) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'mp4'],
+    );
+    if (result != null) {
+      PlatformFile file = result.files.first;
+      //var extension = file.extension;
+      // debugPrint("file extension--> $extension");
+      File files = File(file.path.toString());
+      // List<File> files =
+      //     result.paths.map((path) => File(path.toString())).toList();
+      String extension = files.path.split(".").last;
+      await sendMsg(
+          msg: "text",
+          groupId: groupId,
+          file: files,
+          msgType:
+              extension == "pdf" || extension == "doc" || extension == "docx"
+                  ? "doc"
+                  : "video",
+          reciverId: receiverId);
+      // for (var i in files) {
+      //   String extension = i.path.split(".").last;
+
+      // }
+    } else {
+      // User canceled the picker
+    }
+  }
+
+ 
 }

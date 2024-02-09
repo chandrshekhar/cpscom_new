@@ -3,6 +3,7 @@ import 'package:cpscom_admin/Commons/app_colors.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Commons/route.dart';
 import 'package:cpscom_admin/Features/Home/Controller/home_controller.dart';
+import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
 import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
 import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_status_screen.dart';
@@ -31,6 +32,7 @@ class MyProfileScreen extends StatefulWidget {
 class _MyProfileScreenState extends State<MyProfileScreen> {
   final homeController = Get.put(HomeController());
   final loginController = Get.put(LoginController());
+  final socketController = Get.put(SocketController());
   @override
   void initState() {
     loginController.getUserProfile();
@@ -54,7 +56,15 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             body: 'Are you sure you want to logout?',
                             positiveButtonLabel: 'Logout',
                             negativeButtonLabel: 'Cancel',
-                            onPressedPositiveButton: () async {
+                            onPressedPositiveButton: () {
+                              socketController.socket?.clearListeners();
+                              socketController.socket?.destroy();
+                              socketController.socket?.dispose();
+                              socketController.socket?.disconnect();
+                              socketController.socket?.io.disconnect();
+                              socketController.socket?.io.close();
+                              socketController.socket?.io
+                                  .destroy(socketController.socket);
                               LocalStorage().deleteAllLocalData();
                               context.pushAndRemoveUntil(const LoginScreen());
                             });

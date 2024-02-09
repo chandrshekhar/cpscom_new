@@ -39,4 +39,9 @@ class ApiPath {
   static const String getGroupById = "$baseUrls/groups/get-group-details/";
   //update group details
   static const String updateGroupDetails = "$baseUrls/groups/update-group";
+
+  //CHAT
+  // get al chat 
+  static const String getAlChat = "$baseUrls/groups/getonegroup";
+  static const String sendSmsApi = "$baseUrls/groups/addnewmsg";
 }

@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_chat_card.dart';
@@ -57,19 +59,24 @@ class _BuildChatListState extends State<BuildChatList> {
   final TextEditingController searchController = TextEditingController();
   final groupListController = Get.put(GroupListController());
   final loginController = Get.put(LoginController());
+  final chatController = Get.put(ChatController());
+  final socketController = Get.put(SocketController());
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
   @override
   void initState() {
     groupListController.limit.value = 20;
     loginController.getUserProfile();
     groupListController.getGroupList();
-
+    socketController.socketConnection();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    socketController.dispose();
+    socketController.socket?.disconnect();
+    super.dispose();
   }
 
   final RefreshController _refreshController =

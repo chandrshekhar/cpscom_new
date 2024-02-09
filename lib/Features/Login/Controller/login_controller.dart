@@ -29,7 +29,7 @@ class LoginController extends GetxController {
     try {
       isLoginLaoding(true);
       Map<String, dynamic> reqModel = {
-        "id": emailController.value.text.toString(),
+        "id": emailController.value.text.toString().toLowerCase(),
         "password": passwordController.value.text.toString()
       };
       log("Login request model ${reqModel.toString()}");
@@ -70,9 +70,7 @@ class LoginController extends GetxController {
   }
 
   Future<void> pickImage(
-      {required ImageSource imageSource,
-    
-      required BuildContext context}) async {
+      {required ImageSource imageSource, required BuildContext context}) async {
     try {
       final selected =
           await ImagePicker().pickImage(imageQuality: 50, source: imageSource);
