@@ -32,6 +32,8 @@ class ChatModel {
   String? fileName;
   int? iV;
   String? id;
+  ReplyOf? replyOf;
+  List<CurrentUsers>? currentUsers;
 
   ChatModel(
       {this.sId,
@@ -49,7 +51,9 @@ class ChatModel {
       this.createdAt,
       this.updatedAt,
       this.iV,
-      this.id});
+      this.id,
+      this.replyOf,
+      this.currentUsers});
 
   ChatModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -60,6 +64,14 @@ class ChatModel {
     messageType = json['messageType'];
     forwarded = json['forwarded'];
     fileName = json['fileName'];
+
+    if (json['currentUsers'] != null) {
+      currentUsers = <CurrentUsers>[];
+      json['currentUsers'].forEach((v) {
+        currentUsers!.add(CurrentUsers.fromJson(v));
+      });
+    }
+
     deletedBy =
         json['deletedBy'] == null ? null : json['deletedBy'] as List<dynamic>?;
     if (json['deliveredTo'] != null) {
@@ -74,6 +86,9 @@ class ChatModel {
         readBy!.add(ReadBy.fromJson(v));
       });
     }
+
+    replyOf =
+        json['replyOf'] != null ? ReplyOf.fromJson(json['replyOf']) : null;
 
     timestamp = json['timestamp'];
     createdAt = json['createdAt'];
@@ -125,6 +140,38 @@ class User {
   User.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     name = json['name'];
+    image = json['image'];
+  }
+}
+
+class ReplyOf {
+  String? msgId;
+  String? sender;
+  String? msg;
+  String? msgType;
+
+  ReplyOf({this.msgId, this.sender, this.msg, this.msgType});
+
+  ReplyOf.fromJson(Map<String, dynamic> json) {
+    msgId = json['msgId'];
+    sender = json['sender'];
+    msg = json['msg'];
+    msgType = json['msgType'];
+  }
+}
+
+class CurrentUsers {
+  String? sId;
+  String? name;
+  String? phone;
+  String? image;
+
+  CurrentUsers({this.sId, this.name, this.phone, this.image});
+
+  CurrentUsers.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    name = json['name'];
+    phone = json['phone'];
     image = json['image'];
   }
 }

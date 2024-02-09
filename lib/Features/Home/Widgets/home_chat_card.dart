@@ -15,20 +15,22 @@ class HomeChatCard extends StatelessWidget {
   final String groupId;
   final Widget child;
   final String? sendBy;
+  final String? messageType;
 
-  HomeChatCard({
-    Key? key,
-    required this.groupId,
-    required this.groupName,
-    required this.child,
-    required this.sentTime,
-    this.sendBy = '',
-    required this.onPressed,
-    this.groupDesc = '',
-    this.imageUrl = '',
-    this.lastMsg = '',
-    this.unseenMsgCount,
-  }) : super(key: key);
+  HomeChatCard(
+      {Key? key,
+      required this.groupId,
+      required this.groupName,
+      required this.child,
+      required this.sentTime,
+      this.sendBy = '',
+      required this.onPressed,
+      this.groupDesc = '',
+      this.imageUrl = '',
+      this.lastMsg = '',
+      this.unseenMsgCount,
+      this.messageType})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,37 +102,70 @@ class HomeChatCard extends StatelessWidget {
                             )
                           ],
                         ),
-                        const SizedBox(
-                          height: AppSizes.kDefaultPadding / 3,
-                        ),
+                        const SizedBox(height: AppSizes.kDefaultPadding / 3),
                         lastMsg!.isEmpty && sendBy!.isEmpty
                             ? const SizedBox()
-                            : RichText(
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                    text: sendBy,
+                            : Row(children: [
+                                Text("$sendBy : ",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall!
                                         .copyWith(
                                           fontWeight: FontWeight.w500,
+                                        )),
+                                messageType == 'text'
+                                    ? Expanded(
+                                        child: Text(
+                                          lastMsg ?? "",
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall!,
                                         ),
-                                    children: [
-                                      "text" == 'text'
-                                          ? TextSpan(
-                                              text: ': $lastMsg',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall!,
-                                            )
-                                          : TextSpan(
-                                              text: lastMsg,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall),
-                                      //TextSpan(),
-                                    ])),
+                                      )
+                                    : messageType == 'video'
+                                        ? const Icon(
+                                            Icons.movie_outlined,
+                                            size: 13,
+                                          )
+                                        : messageType == 'doc'
+                                            ? const Icon(
+                                                Icons.description_outlined,
+                                                size: 13,
+                                              )
+                                            : const Icon(
+                                                Icons.image_outlined,
+                                                size: 13,
+                                              ),
+                              ]),
+
+                        // RichText(
+                        //     maxLines: 2,
+                        //     overflow: TextOverflow.ellipsis,
+                        //     text: TextSpan(
+                        //         text: sendBy,
+                        //         style: Theme.of(context)
+                        //             .textTheme
+                        //             .bodySmall!
+                        //             .copyWith(
+                        //               fontWeight: FontWeight.w500,
+                        //             ),
+                        //         children: [
+                        //           messageType == 'text'
+                        //               ? TextSpan(
+                        //                   text: ': $lastMsg',
+                        //                   style: Theme.of(context)
+                        //                       .textTheme
+                        //                       .bodySmall!,
+                        //                 )
+                        //               : TextSpan(
+                        //                   text: ': $messageType',
+                        //                   style: Theme.of(context)
+                        //                       .textTheme
+                        //                       .bodySmall),
+                        //           //TextSpan(),
+                        //         ])),
                         const SizedBox(
                           height: AppSizes.kDefaultPadding / 2,
                         ),

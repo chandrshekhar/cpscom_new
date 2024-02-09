@@ -1,9 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoMessage extends StatefulWidget {
   final String videoUrl;
-  const VideoMessage({required this.videoUrl});
+  const VideoMessage({super.key, required this.videoUrl});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -26,12 +28,26 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: _videoPlayerController.value.isInitialized
-          ? AspectRatio(
-              aspectRatio: _videoPlayerController.value.aspectRatio,
-              child: VideoPlayer(_videoPlayerController))
-          : const Scaffold(body: Center(child: CircularProgressIndicator.adaptive(),),),
+    log(widget.videoUrl);
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back_ios)),
+      ),
+      body: Center(
+        child: _videoPlayerController.value.isInitialized
+            ? AspectRatio(
+                aspectRatio: _videoPlayerController.value.aspectRatio,
+                child: VideoPlayer(_videoPlayerController))
+            : const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
+              ),
+      ),
     );
   }
 

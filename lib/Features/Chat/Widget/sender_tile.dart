@@ -1,9 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
+import 'package:cpscom_admin/Features/Chat/Widget/sender_reply_widget.dart';
 import 'package:cpscom_admin/Utils/open_any_file.dart';
+import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:linkable/linkable.dart';
+import 'package:swipe_to/swipe_to.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'show_image_widget.dart';
@@ -18,6 +22,8 @@ class SenderTile extends StatelessWidget {
   bool? isSeen;
   bool? isDelivered;
   String? fileName;
+  void Function()? onLeftSwipe;
+  final ReplyOf? replyOf;
 
   SenderTile(
       {Key? key,
@@ -29,17 +35,19 @@ class SenderTile extends StatelessWidget {
       required this.read,
       this.isSeen = false,
       this.isDelivered = true,
-      this.onTap})
+      this.onTap,
+      this.onLeftSwipe,
+      this.replyOf})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
-    return GestureDetector(
-      onHorizontalDragEnd: (DragEndDetails) => onTap,
-      child: Padding(
-        padding: const EdgeInsets.only(
-            right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),
+    return Padding(
+      padding: const EdgeInsets.only(
+          right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),
+      child: SwipeTo(
+        onLeftSwipe: onLeftSwipe,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -75,6 +83,12 @@ class SenderTile extends StatelessWidget {
                 ],
               ),
             ),
+            replyOf != null
+                ? SenderMsgReplyWidget(
+                    replyMsg: replyOf?.msg ?? "",
+                    senderName: replyOf?.sender ?? "",
+                  )
+                : const SizedBox(),
             ChatBubble(
               clipper: ChatBubbleClipper3(type: BubbleType.sendBubble),
               backGroundColor: AppColors.secondary.withOpacity(0.3),
@@ -163,7 +177,48 @@ class SenderTile extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                              : const SizedBox()),
+                              : messageType == "video"
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  VideoMessage(
+                                                videoUrl: message,
+                                              ),
+                                            ));
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        constraints: BoxConstraints(
+                                            maxWidth: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.35,
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.20),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                              AppSizes.cardCornerRadius),
+                                          child: CachedNetworkImage(
+                                            imageUrl: message.isNotEmpty
+                                                ? message
+                                                : '',
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const CircularProgressIndicator
+                                                    .adaptive(),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                const Icon(Icons.play_arrow),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox()),
             ),
           ],
         ),

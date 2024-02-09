@@ -18,11 +18,12 @@ class SendMessageWidget extends StatefulWidget {
   final ScrollController scrollController;
   final String groupId;
 
-  const SendMessageWidget(
-      {super.key,
-      required this.msgController,
-      required this.scrollController,
-      required this.groupId});
+  const SendMessageWidget({
+    super.key,
+    required this.msgController,
+    required this.scrollController,
+    required this.groupId,
+  });
 
   @override
   State<SendMessageWidget> createState() => _SendMessageWidgetState();
@@ -97,7 +98,8 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                               Flexible(
                                                 flex: 1,
                                                 child: Text(
-                                                  "",
+                                                  chatController
+                                                      .replyOf['sender'],
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -119,7 +121,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                               Flexible(
                                                 flex: 1,
                                                 child: Text(
-                                                  "",
+                                                  chatController.replyOf['msg'],
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -137,8 +139,8 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                       ),
                                       IconButton(
                                           onPressed: () {
-                                            chatController
-                                                .isRelayFunction(false);
+                                            chatController.isRelayFunction(
+                                                isRep: false);
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -149,7 +151,10 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                     ],
                                   ),
                                 )
+                            
+                            
                               : const SizedBox(),
+                        
                           chatController.isReply.value == true
                               ? const CustomDivider()
                               : const SizedBox(),
@@ -199,7 +204,6 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                           switch (index) {
                                             case 0:
                                               chatController.pickFile(
-                                                
                                                   groupId: widget.groupId,
                                                   receiverId: userIds,
                                                   context: context);
@@ -221,7 +225,13 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                                       groupId: widget.groupId,
                                                       receiverId: userIds,
                                                       context: context);
+
                                               break;
+                                            case 3:
+                                              chatController
+                                                  .pickVideoFromCameraAndSendMsg(
+                                                      groupId: widget.groupId,
+                                                      receiverId: userIds);
                                           }
                                           Navigator.pop(context);
                                         },
@@ -290,10 +300,16 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                         .where((userId) => userId != ownId)
                         .toList();
                     await chatController.sendMsg(
+                        replyOf: chatController.isReply.value == true
+                            ? chatController.replyOf
+                            : null,
                         msg: chatController.msgText.value,
                         reciverId: userIds,
                         groupId: widget.groupId,
                         msgType: "text");
+                    chatController.isRelayFunction(
+                      isRep: false,
+                    );
                   } else {}
                 },
                 child: Container(

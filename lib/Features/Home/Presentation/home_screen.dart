@@ -13,7 +13,6 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
 import '../../../Utils/date_format.dart';
 import '../../../Widgets/custom_smartrefresher_fotter.dart';
 import '../../../Widgets/custom_text_field.dart';
@@ -39,6 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
   }
+
+  bool commingFromChat = false;
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +190,9 @@ class _BuildChatListState extends State<BuildChatList> {
                                       ? item.lastMessage?.message ?? ""
                                       : "",
                                   imageUrl: item.groupImage ?? "",
+                                  messageType: item.lastMessage != null
+                                      ? item.lastMessage?.messageType ?? ""
+                                      : "",
                                   child: memberWidget(item.currentUsers ?? []));
                             },
                           ),

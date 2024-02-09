@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -52,6 +53,7 @@ class ChatRepo {
       required String senderName,
       required String message,
       required String messageType,
+      required Map<String, dynamic>? replyOf,
       File? file
       // required File groupImage,
       }) async {
@@ -66,6 +68,7 @@ class ChatRepo {
       };
 
       FormData formData = FormData.fromMap({
+        "replyOf": jsonEncode(replyOf),
         "groupId": groupId,
         "senderName": senderName,
         "senderId": senderId,

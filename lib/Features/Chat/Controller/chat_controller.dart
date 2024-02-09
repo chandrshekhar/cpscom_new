@@ -9,7 +9,9 @@ import 'package:cpscom_admin/Features/Home/Repository/group_repo.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/toast_widget.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +23,13 @@ class ChatController extends GetxController {
   final _chatRepo = ChatRepo();
   RxBool isReply = false.obs;
   RxBool isMemberSuggestion = false.obs;
+  final msgController = TextEditingController().obs;
+  final RxMap<String, dynamic> replyOf = <String, dynamic>{
+    "msgId": '',
+    "sender": '',
+    "msg": '',
+    "msgType": '',
+  }.obs;
   var chatMap = <AsyncSnapshot>{}.obs;
   var groupModel = GroupModel().obs;
   var descriptionController = TextEditingController().obs;
@@ -29,6 +38,12 @@ class ChatController extends GetxController {
   RxString groupId = "".obs;
 
   RxBool isChatLoading = false.obs;
+
+  void addNameInMsgText({String? mentionname}) {
+    msgController.value.text = msgController.value.text + mentionname!;
+    msgController.value.selection = TextSelection.fromPosition(
+        TextPosition(offset: msgController.value.text.length));
+  }
 
   getAllChatByGroupId({required String groupId}) async {
     try {
@@ -69,10 +84,19 @@ class ChatController extends GetxController {
             groupImage: groupImages,
             context: context);
       } else {}
-    } on Exception catch (e) {}
+    } on Exception {}
   }
 
-  isRelayFunction(bool isRep) {
+  isRelayFunction(
+      {required bool isRep,
+      String? msg,
+      String? senderName,
+      String? msgId,
+      String? msgType}) {
+    replyOf['msgId'] = msgId;
+    replyOf['sender'] = senderName;
+    replyOf['msg'] = msg;
+    replyOf['msgType'] = msgType;
     isReply(isRep);
   }
 
@@ -168,22 +192,26 @@ class ChatController extends GetxController {
       required String msgType,
       required String msg,
       File? file,
+      Map<String, dynamic>? replyOf,
       required List<String> reciverId}) async {
     try {
       isSendSmsLoading(true);
       final socketController = Get.put(SocketController());
       var res = await _chatRepo.sendMessage(
+          replyOf: replyOf,
           groupId: groupId,
           message: msg,
           file: file,
           messageType: msgType,
           senderName: "Azhar");
       Map<String, dynamic> reqModeSocket = {
+        "replyOf": replyOf,
         "_id": res['data']['data']['id'],
         "receiverId": reciverId,
         "senderId": LocalStorage().getUserId(),
         "time": DateFormat('hh:mm a').format(DateTime.now()),
       };
+      log("req---> $reqModeSocket");
       socketController.socket!.emit("message", reqModeSocket);
       msgText.value = "";
       isSendSmsLoading(false);
@@ -210,6 +238,27 @@ class ChatController extends GetxController {
       } else {}
     } on Exception catch (e) {
       log("image uplaod faild ${e.toString()}");
+    }
+  }
+
+  // record video
+  Future pickVideoFromCameraAndSendMsg(
+      {required String groupId, required List<String> receiverId}) async {
+    try {
+      final video = await ImagePicker().pickVideo(
+          source: ImageSource.camera, maxDuration: const Duration(seconds: 30));
+      if (video == null) return;
+      // final extension = video.path.split(".").last;
+      await sendMsg(
+          msg: "text",
+          groupId: groupId,
+          file: File(video.path),
+          msgType: "video",
+          reciverId: receiverId);
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        log('Failed to pick image: $e');
+      }
     }
   }
 
@@ -247,6 +296,4 @@ class ChatController extends GetxController {
       // User canceled the picker
     }
   }
-
- 
 }
