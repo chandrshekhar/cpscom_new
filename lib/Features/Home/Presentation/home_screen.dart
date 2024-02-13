@@ -12,8 +12,9 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import '../../../Utils/date_format.dart';
+
 import '../../../Widgets/custom_smartrefresher_fotter.dart';
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/responsive.dart';
@@ -67,16 +68,19 @@ class _BuildChatListState extends State<BuildChatList> {
   @override
   void initState() {
     groupListController.limit.value = 20;
-    loginController.getUserProfile();
-    groupListController.getGroupList();
-    socketController.socketConnection();
+    callAfterDelay();
     super.initState();
+  }
+
+  callAfterDelay() async {
+    await Future.delayed(const Duration(milliseconds: 200), () {
+      loginController.getUserProfile();
+      groupListController.getGroupList();
+    });
   }
 
   @override
   void dispose() {
-    socketController.dispose();
-    socketController.socket?.disconnect();
     super.dispose();
   }
 
@@ -156,46 +160,49 @@ class _BuildChatListState extends State<BuildChatList> {
                             _refreshController.loadComplete();
                           },
                           footer: const CustomFooterWidget(),
-                          child: ListView.builder(
-                            itemCount: groupListController.groupList.length,
-                            shrinkWrap: true,
-                            // padding: const EdgeInsets.only(
-                            //     top: AppSizes.kDefaultPadding / 2),
-                            itemBuilder: (context, index) {
-                              var item = groupListController.groupList[index];
-                              return HomeChatCard(
-                                  groupId: "Group id",
-                                  onPressed: () {
-                                    context.push(ChatScreen(
-                                      groupId: item.sId.toString(),
-                                      isAdmin: widget.isAdmin,
-                                      groupModel: item,
-                                    ));
-                                  },
-                                  groupName: item.groupName ?? "",
-                                  groupDesc: item.createdAt ?? "",
-                                  sentTime: item.lastMessage != null &&
-                                          item.lastMessage!.createdAt!
-                                              .isNotEmpty
-                                      ? dateFromatter(
-                                          dateFormat: "h:mm a",
-                                          dateTimeAsString: item
-                                              .lastMessage!.timestamp
-                                              .toString())
-                                      : "",
-                                  sendBy: item.lastMessage != null
-                                      ? item.lastMessage!.senderName ?? ""
-                                      : "",
-                                  lastMsg: item.lastMessage != null
-                                      ? item.lastMessage?.message ?? ""
-                                      : "",
-                                  imageUrl: item.groupImage ?? "",
-                                  messageType: item.lastMessage != null
-                                      ? item.lastMessage?.messageType ?? ""
-                                      : "",
-                                  child: memberWidget(item.currentUsers ?? []));
-                            },
-                          ),
+                          child: Obx(() => ListView.builder(
+                                itemCount:
+                                    groupListController.groupList.value.length,
+                                shrinkWrap: false,
+                                // padding: const EdgeInsets.only(
+                                //     top: AppSizes.kDefaultPadding / 2),
+                                itemBuilder: (context, index) {
+                                  var item = groupListController
+                                      .groupList.value[index];
+                                  return HomeChatCard(
+                                      groupId: "Group id",
+                                      onPressed: () {
+                                        context.push(ChatScreen(
+                                          groupId: item.sId.toString(),
+                                          isAdmin: widget.isAdmin,
+                                          groupModel: item,
+                                        ));
+                                      },
+                                      groupName: item.groupName ?? "",
+                                      groupDesc: item.createdAt ?? "",
+                                      sentTime: item.lastMessage != null &&
+                                              item.lastMessage!.createdAt!
+                                                  .isNotEmpty
+                                          ? DateFormat('hh:mm a').format(
+                                              DateTime.parse(item.lastMessage
+                                                          ?.timestamp ??
+                                                      "")
+                                                  .toLocal())
+                                          : "",
+                                      sendBy: item.lastMessage != null
+                                          ? item.lastMessage!.senderName ?? ""
+                                          : "",
+                                      lastMsg: item.lastMessage != null
+                                          ? item.lastMessage?.message ?? ""
+                                          : "",
+                                      imageUrl: item.groupImage ?? "",
+                                      messageType: item.lastMessage != null
+                                          ? item.lastMessage?.messageType ?? ""
+                                          : "",
+                                      child:
+                                          memberWidget(item.currentUsers ?? []));
+                                },
+                              )),
                         )
                       : const Center(
                           child: Text("No group found"),

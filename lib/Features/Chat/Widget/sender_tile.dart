@@ -1,18 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_reply_widget.dart';
-import 'package:cpscom_admin/Utils/open_any_file.dart';
 import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:get/get.dart';
 import 'package:linkable/linkable.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'show_image_widget.dart';
 
-class SenderTile extends StatelessWidget {
+class SenderTile extends StatefulWidget {
   final String message;
   final String messageType;
   final String sentTime;
@@ -24,6 +25,7 @@ class SenderTile extends StatelessWidget {
   String? fileName;
   void Function()? onLeftSwipe;
   final ReplyOf? replyOf;
+  final int index;
 
   SenderTile(
       {Key? key,
@@ -33,6 +35,7 @@ class SenderTile extends StatelessWidget {
       required this.sentTime,
       required this.groupCreatedBy,
       required this.read,
+      required this.index,
       this.isSeen = false,
       this.isDelivered = true,
       this.onTap,
@@ -41,13 +44,19 @@ class SenderTile extends StatelessWidget {
       : super(key: key);
 
   @override
+  State<SenderTile> createState() => _SenderTileState();
+}
+
+class _SenderTileState extends State<SenderTile> {
+  final chatController = Get.put(ChatController());
+  @override
   Widget build(BuildContext context) {
     final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
     return Padding(
       padding: const EdgeInsets.only(
           right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),
       child: SwipeTo(
-        onLeftSwipe: onLeftSwipe,
+        onLeftSwipe: widget.onLeftSwipe,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -58,7 +67,7 @@ class SenderTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    sentTime,
+                    widget.sentTime,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall!
@@ -67,11 +76,11 @@ class SenderTile extends StatelessWidget {
                   const SizedBox(
                     width: AppSizes.kDefaultPadding / 2,
                   ),
-                  isDelivered == true
+                  widget.isDelivered == true
                       ? Icon(
                           Icons.done_all_rounded,
                           size: 16,
-                          color: isSeen == true
+                          color: widget.isSeen == true
                               ? AppColors.primary
                               : AppColors.grey,
                         )
@@ -83,10 +92,10 @@ class SenderTile extends StatelessWidget {
                 ],
               ),
             ),
-            replyOf != null
+            widget.replyOf != null
                 ? SenderMsgReplyWidget(
-                    replyMsg: replyOf?.msg ?? "",
-                    senderName: replyOf?.sender ?? "",
+                    replyMsg: widget.replyOf?.msg ?? "",
+                    senderName: widget.replyOf?.sender ?? "",
                   )
                 : const SizedBox(),
             ChatBubble(
@@ -98,20 +107,20 @@ class SenderTile extends StatelessWidget {
               child: Container(
                   constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.65),
-                  child: messageType == 'image'
+                  child: widget.messageType == 'image'
                       ? GestureDetector(
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (_) =>
-                                        ShowImage(imageUrl: message)));
+                                        ShowImage(imageUrl: widget.message)));
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(
                                 AppSizes.cardCornerRadius),
                             child: CachedNetworkImage(
-                              imageUrl: message,
+                              imageUrl: widget.message,
                               fit: BoxFit.cover,
                               placeholder: (context, url) =>
                                   const CircularProgressIndicator.adaptive(),
@@ -120,17 +129,18 @@ class SenderTile extends StatelessWidget {
                             ),
                           ),
                         )
-                      : messageType == 'text'
+                      : widget.messageType == 'text'
                           ? Linkable(
-                              text: message.trim(),
+                              text: widget.message.trim(),
                               linkColor: Colors.blue,
                             )
-                          : messageType == 'doc'
+                          : widget.messageType == 'doc'
                               ? InkWell(
                                   onTap: () {
-                                    openPDF(
-                                        fileUrl: message,
-                                        fileName: fileName ?? "");
+                                    chatController.openFileAfterDownload(
+                                        widget.message,
+                                        widget.fileName ?? "",
+                                        context);
                                   },
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(
@@ -157,14 +167,14 @@ class SenderTile extends StatelessWidget {
                                               MainAxisAlignment.center,
                                           children: [
                                             const Icon(
-                                              Icons.download_for_offline,
+                                              Icons.cloud_download,
                                               size: 40,
                                             ),
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 10, left: 10, right: 10),
                                               child: Text(
-                                                fileName ?? "",
+                                                widget.fileName ?? "",
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
@@ -177,7 +187,7 @@ class SenderTile extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                              : messageType == "video"
+                              : widget.messageType == "video"
                                   ? GestureDetector(
                                       onTap: () {
                                         Navigator.push(
@@ -185,7 +195,7 @@ class SenderTile extends StatelessWidget {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   VideoMessage(
-                                                videoUrl: message,
+                                                videoUrl: widget.message,
                                               ),
                                             ));
                                       },
@@ -204,8 +214,8 @@ class SenderTile extends StatelessWidget {
                                           borderRadius: BorderRadius.circular(
                                               AppSizes.cardCornerRadius),
                                           child: CachedNetworkImage(
-                                            imageUrl: message.isNotEmpty
-                                                ? message
+                                            imageUrl: widget.message.isNotEmpty
+                                                ? widget.message
                                                 : '',
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>

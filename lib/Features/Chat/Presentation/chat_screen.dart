@@ -446,8 +446,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        groupListController.isCommingFromChat.value = true;
-        await groupListController.getGroupList();
+        await groupListController
+            .getGroupList(isLoadingShow: true)
+            .then((value) => Navigator.pop(context));
+
         // Navigator.pop(context, true);
         return true;
       },
@@ -456,9 +458,9 @@ class _ChatScreenState extends State<ChatScreen> {
             elevation: 1,
             leading: InkWell(
               onTap: () async {
-                groupListController.isCommingFromChat.value = true;
-                Navigator.pop(context, true);
-                await groupListController.getGroupList();
+                Navigator.pop(context);
+                await groupListController.getGroupList(isLoadingShow: true);
+
                 // <-- The target method
               },
               child: const Icon(
@@ -498,8 +500,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           highlightColor: Colors.grey[100]!,
                           child: const CircleAvatar(
                             radius: 50.0,
-                            backgroundImage:
-                                AssetImage('assets/your_avatar_image.jpg'),
                           ),
                         ),
                         errorWidget: (context, url, error) => CircleAvatar(
@@ -592,51 +592,65 @@ class _ChatScreenState extends State<ChatScreen> {
                                       .toList()[index];
                                   return item.senderId.toString() ==
                                           LocalStorage().getUserId().toString()
-                                      ? SenderTile(
-                                          fileName: item.fileName ?? "",
-                                          message: item.message ?? "",
-                                          messageType:
-                                              item.messageType.toString(),
-                                          sentTime: DateFormat('hh:mm a')
-                                              .format(DateTime.parse(
-                                                      item.timestamp ?? "")
-                                                  .toLocal()),
-                                          groupCreatedBy: "",
-                                          read: "value",
-                                          onLeftSwipe: () {
-                                            chatController.isRelayFunction(
-                                                isRep: true,
-                                                msgId: item.sId,
-                                                msgType: item.messageType,
-                                                msg: item.message,
-                                                senderName: item.senderName);
-                                            log(chatController.replyOf
-                                                .toString());
+                                      ? InkWell(
+                                          onTap: () {
+                                            chatController.selectedIndex.value =
+                                                index;
                                           },
-                                          replyOf: item.replyOf,
+                                          child: SenderTile(
+                                            index: index,
+                                            fileName: item.fileName ?? "",
+                                            message: item.message ?? "",
+                                            messageType:
+                                                item.messageType.toString(),
+                                            sentTime: DateFormat('hh:mm a')
+                                                .format(DateTime.parse(
+                                                        item.timestamp ?? "")
+                                                    .toLocal()),
+                                            groupCreatedBy: "",
+                                            read: "value",
+                                            onLeftSwipe: () {
+                                              chatController.isRelayFunction(
+                                                  isRep: true,
+                                                  msgId: item.sId,
+                                                  msgType: item.messageType,
+                                                  msg: item.message,
+                                                  senderName: item.senderName);
+                                              log(chatController.replyOf
+                                                  .toString());
+                                            },
+                                            replyOf: item.replyOf,
+                                          ),
                                         )
-                                      : ReceiverTile(
-                                          replyOf: item.replyOf,
-                                          fileName: item.fileName ?? "",
-                                          chatController: chatController,
-                                          onSwipedMessage: () {
-                                            chatController.isRelayFunction(
-                                                isRep: true,
-                                                msgId: item.id,
-                                                msgType: item.messageType,
-                                                msg: item.message,
-                                                senderName: item.senderName);
-                                            // replyToMessage(chatMap);
+                                      : InkWell(
+                                          onTap: () {
+                                            chatController.selectedIndex.value =
+                                                index;
                                           },
-                                          message: item.message ?? "",
-                                          messageType: item.messageType ?? "",
-                                          sentTime: DateFormat('hh:mm a')
-                                              .format(DateTime.parse(
-                                                      item.timestamp ?? "")
-                                                  .toLocal()),
-                                          sentByName: item.senderName ?? "",
-                                          sentByImageUrl: item.message ?? "",
-                                          groupCreatedBy: "Pandey",
+                                          child: ReceiverTile(
+                                            index: index,
+                                            replyOf: item.replyOf,
+                                            fileName: item.fileName ?? "",
+                                            chatController: chatController,
+                                            onSwipedMessage: () {
+                                              chatController.isRelayFunction(
+                                                  isRep: true,
+                                                  msgId: item.id,
+                                                  msgType: item.messageType,
+                                                  msg: item.message,
+                                                  senderName: item.senderName);
+                                              // replyToMessage(chatMap);
+                                            },
+                                            message: item.message ?? "",
+                                            messageType: item.messageType ?? "",
+                                            sentTime: DateFormat('hh:mm a')
+                                                .format(DateTime.parse(
+                                                        item.timestamp ?? "")
+                                                    .toLocal()),
+                                            sentByName: item.senderName ?? "",
+                                            sentByImageUrl: item.message ?? "",
+                                            groupCreatedBy: "Pandey",
+                                          ),
                                         );
                                   //             chatMap['isDelivered'])
                                   //         :

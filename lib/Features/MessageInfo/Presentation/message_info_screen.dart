@@ -43,6 +43,7 @@ class _MessageInfoScreenState extends State<MessageInfoScreen> {
       body: ListView(
         children: [
           SenderTile(
+            index: 1,
             message: widget.chatMap['message'],
             messageType: widget.chatMap['type'],
             sentTime: '',

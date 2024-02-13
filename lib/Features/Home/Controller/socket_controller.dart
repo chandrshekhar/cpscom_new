@@ -22,17 +22,40 @@ class SocketController extends GetxController {
       //log("Socket is connect status ${socket!.connected.toString()}");
       socket?.emit("joinSelf", LocalStorage().getUserId().toString());
       socket?.emit("deliver", {
-        "userId": LocalStorage().getUserId().toString,
-        "timestamp": DateTime.now()
+        "userId": LocalStorage().getUserId().toString(),
+        "timestamp": DateTime.now().toString(),
       });
       socket?.on('message', (data) {
-        log("All smsshgfjhsgfjshfgjhg ${data.toString()}");
+        log("All smsshgfjhsgfjshfgjhg ${data['data']}");
+        var ownId = LocalStorage().getUserId();
+        List<String> reciverId = List<String>.from(data['data']
+            ['allRecipients']); // Creating a copy of the original list
+        reciverId.removeWhere(
+            (id) => id == ownId); // Remove the user id from the new list
+        socket?.emit("deliver", {
+          "msgId": data['data']['_id'],
+          "userId": LocalStorage().getUserId().toString(),
+          "timestamp": DateTime.now().toString(),
+          "receiverId": reciverId
+        });
         if (chatController.groupId.value == data['data']['groupId']) {
           chatController.chatList.add(ChatModel.fromJson(data['data']));
+          socket?.emit("read", {
+            "msgId": data['data']['_id'],
+            "userId": LocalStorage().getUserId().toString(),
+            "timestamp": DateTime.now().toString(),
+            "receiverId": reciverId
+          });
         }
       });
     } catch (e) {
       print("pandey: $e");
     }
+  }
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    super.onInit();
+    socketConnection();
   }
 }

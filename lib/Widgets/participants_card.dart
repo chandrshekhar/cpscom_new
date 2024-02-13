@@ -51,7 +51,6 @@ class ParticipantsCardWidget extends StatelessWidget {
           ),
         ),
       ),
-
       title: Text(
         member.name ?? "",
         style: Theme.of(context)
@@ -63,22 +62,7 @@ class ParticipantsCardWidget extends StatelessWidget {
         member.email ?? "",
         style: Theme.of(context).textTheme.bodySmall,
       ),
-      // Text(
-      //         'Admin',
-      //         style: Theme.of(context).textTheme.bodySmall!.copyWith(
-      //             color: AppColors.darkGrey, fontWeight: FontWeight.w400),
-      //       )
-      //     : (creatorId == FirebaseProvider.auth.currentUser!.uid ||
-      //             isUserSuperAdmin == true)
-      //         ? IconButton(
-      //             onPressed: () => onDeleteButtonPressed.call(),
-      //             icon: const Icon(
-      //               EvaIcons.trash2,
-      //               color: AppColors.grey,
-      //               size: 16,
-      //             ),
-      //           )
-      //         : const SizedBox(),
     );
+    
   }
 }

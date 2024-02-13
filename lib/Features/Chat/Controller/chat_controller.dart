@@ -6,6 +6,8 @@ import 'package:cpscom_admin/Features/Chat/Repo/chat_repo.dart';
 import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/Home/Repository/group_repo.dart';
+import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
+import 'package:cpscom_admin/Utils/open_any_file.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/toast_widget.dart';
 import 'package:file_picker/file_picker.dart';
@@ -22,6 +24,7 @@ class ChatController extends GetxController {
   final GroupRepo _groupRepo = GroupRepo();
   final _chatRepo = ChatRepo();
   RxBool isReply = false.obs;
+  RxInt selectedIndex = (-1).obs;
   RxBool isMemberSuggestion = false.obs;
   final msgController = TextEditingController().obs;
   final RxMap<String, dynamic> replyOf = <String, dynamic>{
@@ -187,23 +190,25 @@ class ChatController extends GetxController {
 
   RxBool isSendSmsLoading = false.obs;
   RxString msgText = "demo".obs;
-  sendMsg(
-      {required String groupId,
-      required String msgType,
-      required String msg,
-      File? file,
-      Map<String, dynamic>? replyOf,
-      required List<String> reciverId}) async {
+  sendMsg({
+    required String groupId,
+    required String msgType,
+    required String msg,
+    File? file,
+    Map<String, dynamic>? replyOf,
+    required List<String> reciverId,
+  }) async {
     try {
       isSendSmsLoading(true);
       final socketController = Get.put(SocketController());
+      final userController = Get.put(LoginController());
       var res = await _chatRepo.sendMessage(
           replyOf: replyOf,
           groupId: groupId,
           message: msg,
           file: file,
           messageType: msgType,
-          senderName: "Azhar");
+          senderName: userController.userModel.value.name ?? "");
       Map<String, dynamic> reqModeSocket = {
         "replyOf": replyOf,
         "_id": res['data']['data']['id'],
@@ -294,6 +299,34 @@ class ChatController extends GetxController {
       // }
     } else {
       // User canceled the picker
+    }
+  }
+
+  openFileAfterDownload(
+      String message, String fileName, BuildContext context) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Downloading File...'),
+              ],
+            ),
+          );
+        },
+      );
+
+      await openPDF(fileUrl: message, fileName: fileName ?? "");
+
+      Navigator.pop(context);
+    } catch (e) {
+      Navigator.pop(context);
     }
   }
 }

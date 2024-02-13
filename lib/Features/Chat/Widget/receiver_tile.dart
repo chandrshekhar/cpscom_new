@@ -2,10 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/route.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
-import 'package:cpscom_admin/Utils/open_any_file.dart';
 import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:get/get.dart';
 import 'package:linkable/linkable.dart';
 import 'package:swipe_to/swipe_to.dart';
 
@@ -13,7 +13,7 @@ import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
 import 'show_image_widget.dart';
 
-class ReceiverTile extends StatelessWidget {
+class ReceiverTile extends StatefulWidget {
   final String message;
   final String messageType;
   final String sentTime;
@@ -24,6 +24,7 @@ class ReceiverTile extends StatelessWidget {
   ChatController chatController;
   final String fileName;
   ReplyOf? replyOf;
+  final int index;
 
   ReceiverTile(
       {Key? key,
@@ -36,12 +37,19 @@ class ReceiverTile extends StatelessWidget {
       this.sentByImageUrl = '',
       required this.groupCreatedBy,
       required this.onSwipedMessage,
-      required this.chatController})
+      required this.chatController,
+      required this.index})
       : super(key: key);
 
   @override
+  State<ReceiverTile> createState() => _ReceiverTileState();
+}
+
+class _ReceiverTileState extends State<ReceiverTile> {
+  final chatController = Get.put(ChatController());
+  @override
   Widget build(BuildContext context) {
-    return messageType == 'notify'
+    return widget.messageType == 'notify'
         ? Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -58,14 +66,14 @@ class ReceiverTile extends StatelessWidget {
                         BorderRadius.circular(AppSizes.cardCornerRadius / 2),
                     color: AppColors.shimmer),
                 child: Text(
-                  '$groupCreatedBy $message',
+                  '${widget.groupCreatedBy} ${widget.message}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
             ],
           )
         : SwipeTo(
-            onRightSwipe: onSwipedMessage,
+            onRightSwipe: widget.onSwipedMessage,
             child: Padding(
               padding: const EdgeInsets.only(left: 5),
               child: Row(
@@ -79,7 +87,7 @@ class ReceiverTile extends StatelessWidget {
                         width: 30,
                         height: 30,
                         fit: BoxFit.cover,
-                        imageUrl: sentByImageUrl,
+                        imageUrl: widget.sentByImageUrl,
                         placeholder: (context, url) => const CircleAvatar(
                               radius: 16,
                               backgroundColor: AppColors.bg,
@@ -88,7 +96,7 @@ class ReceiverTile extends StatelessWidget {
                               radius: 16,
                               backgroundColor: AppColors.bg,
                               child: Text(
-                                sentByName
+                                widget.sentByName
                                     .substring(0, 1)
                                     .toString()
                                     .toUpperCase(),
@@ -109,7 +117,7 @@ class ReceiverTile extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            sentByName,
+                            widget.sentByName,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall!
@@ -117,7 +125,7 @@ class ReceiverTile extends StatelessWidget {
                                     fontSize: 12, fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            ', $sentTime',
+                            ', ${widget.sentTime}',
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall!
@@ -148,17 +156,17 @@ class ReceiverTile extends StatelessWidget {
                             constraints: BoxConstraints(
                                 maxWidth:
                                     MediaQuery.of(context).size.width * 0.65),
-                            child: messageType == 'image'
+                            child: widget.messageType == 'image'
                                 ? GestureDetector(
                                     onTap: () {
-                                      context
-                                          .push(ShowImage(imageUrl: message));
+                                      context.push(
+                                          ShowImage(imageUrl: widget.message));
                                     },
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(
                                           AppSizes.cardCornerRadius),
                                       child: CachedNetworkImage(
-                                        imageUrl: message,
+                                        imageUrl: widget.message,
                                         fit: BoxFit.contain,
                                         placeholder: (context, url) =>
                                             const CircularProgressIndicator
@@ -169,17 +177,19 @@ class ReceiverTile extends StatelessWidget {
                                       ),
                                     ),
                                   )
-                                : messageType == 'text'
+                                : widget.messageType == 'text'
                                     ? Linkable(
-                                        text: message,
+                                        text: widget.message,
                                         linkColor: Colors.blue,
                                       )
-                                    : messageType == 'doc'
+                                    : widget.messageType == 'doc'
                                         ? InkWell(
-                                            onTap: () {
-                                              openPDF(
-                                                  fileUrl: message,
-                                                  fileName: fileName ?? "");
+                                            onTap: () async {
+                                              chatController
+                                                  .openFileAfterDownload(
+                                                      widget.message,
+                                                      widget.fileName,
+                                                      context);
                                             },
                                             child: ClipRRect(
                                               borderRadius:
@@ -224,7 +234,7 @@ class ReceiverTile extends StatelessWidget {
                                                                 left: 10,
                                                                 right: 10),
                                                         child: Text(
-                                                          fileName,
+                                                          widget.fileName,
                                                           maxLines: 2,
                                                           overflow: TextOverflow
                                                               .ellipsis,
@@ -239,7 +249,7 @@ class ReceiverTile extends StatelessWidget {
                                               ),
                                             ),
                                           )
-                                        : messageType == "video"
+                                        : widget.messageType == "video"
                                             ? GestureDetector(
                                                 onTap: () {
                                                   Navigator.push(
@@ -247,7 +257,8 @@ class ReceiverTile extends StatelessWidget {
                                                       MaterialPageRoute(
                                                         builder: (context) =>
                                                             VideoMessage(
-                                                          videoUrl: message,
+                                                          videoUrl:
+                                                              widget.message,
                                                         ),
                                                       ));
                                                 },
@@ -269,10 +280,10 @@ class ReceiverTile extends StatelessWidget {
                                                         .circular(AppSizes
                                                             .cardCornerRadius),
                                                     child: CachedNetworkImage(
-                                                      imageUrl:
-                                                          message.isNotEmpty
-                                                              ? message
-                                                              : '',
+                                                      imageUrl: widget.message
+                                                              .isNotEmpty
+                                                          ? widget.message
+                                                          : '',
                                                       fit: BoxFit.cover,
                                                       placeholder: (context,
                                                               url) =>

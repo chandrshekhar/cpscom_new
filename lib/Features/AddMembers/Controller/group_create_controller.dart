@@ -1,15 +1,18 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:cpscom_admin/Features/AddMembers/Model/members_model.dart';
 import 'package:cpscom_admin/Features/AddMembers/Repo/member_repo.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
-import 'package:cpscom_admin/Features/Home/Presentation/home_screen.dart';
-import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Widgets/toast_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../../Utils/navigator.dart';
+import '../../Home/Presentation/home_screen.dart';
 
 class MemeberlistController extends GetxController {
   var grpNameController = TextEditingController().obs;
@@ -18,15 +21,16 @@ class MemeberlistController extends GetxController {
   final groupListController = Get.put(GroupListController());
   //member list
   RxList<MemberListMdoel> memberList = <MemberListMdoel>[].obs;
+  RxList<MemberListMdoel> dataBaseMemberList = <MemberListMdoel>[].obs;
   RxList<String> memberId = <String>[].obs;
   RxList<MemberListMdoel> memberSelectedList = <MemberListMdoel>[].obs;
 
   //loading memeber list bvool
   RxBool isMemberListLoading = false.obs;
-
-  RxString images = "".obs;
   RxInt limit = 20.obs;
   RxString searchText = "".obs;
+  RxString images = "".obs;
+  Rx<File?> imageFile = Rx<File?>(null);
 
   Future<void> pickImage({required ImageSource imageSource}) async {
     try {
@@ -37,7 +41,9 @@ class MemeberlistController extends GetxController {
         imageQuality: 75,
       );
       if (image == null) return;
-      images.value = image.path.toString();
+      var fileImage = File(image.path);
+      imageFile.value = fileImage;
+      images.value = fileImage.path;
     } on PlatformException catch (e) {
       print("Error picking image: ${e.toString()}");
     }
@@ -77,12 +83,12 @@ class MemeberlistController extends GetxController {
   //method for create group
   createGroup(BuildContext context) async {
     try {
-      Map<String, dynamic> reqModel = {
-        "groupName": grpNameController.value.text,
-        "users": memberId
-      };
       isGroupCreateLoading(true);
-      var res = await memebrListRepo.createGroup(reqModel: reqModel);
+      var res = await memebrListRepo.createNewGroup(
+          groupName: grpNameController.value.text,
+          memberId: memberId,
+          groupDescription: grpDescController.value.text,
+          file: File(images.value));
       if (res['success'] == true) {
         TostWidget().successToast(title: "Success", message: res['message']);
         await groupListController.getGroupList();
@@ -105,6 +111,7 @@ class MemeberlistController extends GetxController {
     grpDescController.value.clear();
     memberId.clear();
     memberSelectedList.clear();
+    imageFile.value = null;
     images.value = "";
   }
 }

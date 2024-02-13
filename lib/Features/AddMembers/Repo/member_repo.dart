@@ -1,7 +1,9 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cpscom_admin/Features/AddMembers/Model/members_model.dart';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../../../Api/urls.dart';
 import '../../../Utils/storage_service.dart';
@@ -47,39 +49,96 @@ class MemberlistRepo {
     }
   }
 
-  Future<Map> createGroup({required Map<String, dynamic> reqModel}) async {
-    var token = localStorage.getUserToken();
+  Future<Map> createNewGroup(
+      {required String groupName,
+      required List memberId,
+      File? file,
+      String? groupDescription}) async {
     log("Craete group calling....");
     Response response;
+    var token = localStorage.getUserToken();
+    var senderId = localStorage.getUserId();
     try {
       dio.options.headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
         'access-token': token
       };
-      log("Req model for crating group ${reqModel.toString()}");
-      response = await dio.post(ApiPath.craeteGroupApi, data: reqModel);
-      log("Create group response ${response.data.toString()}");
-      if (response.statusCode == 200 || response.statusCode == 201) {
+
+      FormData formData = FormData.fromMap({
+        "groupName": groupName,
+        "users": memberId,
+        "groupDescription": groupDescription ?? ""
+      });
+      if (file != null && file.path.isNotEmpty) {
+        formData.files.add(MapEntry(
+          "file",
+          await MultipartFile.fromFile(
+            file.path,
+            // filename: file.path.split('/').last,
+            contentType: MediaType("images", "jpeg"),
+          ),
+        ));
+      }
+
+      response = await dio.post(ApiPath.craeteGroupApi, data: formData);
+      log("Create new group response ${response.data.toString()}");
+      if (response.statusCode == 200) {
         return response.data;
       } else {
-        return {};
+        throw Exception("Faild to load data");
       }
     } catch (e) {
-      log("Error for call Create group response ${e.toString()}");
+      log("Faild to fetch create group api ${e.toString()}");
       if (e is DioException) {
         if (e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.sendTimeout ||
             e.type == DioExceptionType.receiveTimeout ||
             e.type == DioExceptionType.unknown) {
-          // TostWidget().errorToast(title: "Error!", message: e.toString());
+          //TostWidget().errorToast(title: "Error!", message: e.toString());
           throw Exception("No Internet connection or network error");
         } else if (e.type == DioExceptionType.badResponse) {
-          // TostWidget().errorToast(title: "Error!", message: e.toString());
+          log(e.response.toString());
+          //TostWidget().errorToast(title: "Error!", message: e.toString());
           throw Exception("Faild to load data");
         }
       }
-      throw Exception("Faild to make api the request ");
+      throw Exception("Faild to make api the request : $e");
     }
   }
+
+  // Future<Map> createGroup({required Map<String, dynamic> reqModel}) async {
+  //   var token = localStorage.getUserToken();
+  //   log("Craete group calling....");
+  //   Response response;
+  //   try {
+  //     dio.options.headers = {
+  //       'Accept': 'application/json',
+  //       'Content-Type': 'application/json',
+  //       'access-token': token
+  //     };
+  //     log("Req model for crating group ${reqModel.toString()}");
+  //     response = await dio.post(ApiPath.craeteGroupApi, data: reqModel);
+  //     log("Create group response ${response.data.toString()}");
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       return response.data;
+  //     } else {
+  //       return {};
+  //     }
+  //   } catch (e) {
+  //     log("Error for call Create group response ${e.toString()}");
+  //     if (e is DioException) {
+  //       if (e.type == DioExceptionType.connectionTimeout ||
+  //           e.type == DioExceptionType.sendTimeout ||
+  //           e.type == DioExceptionType.receiveTimeout ||
+  //           e.type == DioExceptionType.unknown) {
+  //         // TostWidget().errorToast(title: "Error!", message: e.toString());
+  //         throw Exception("No Internet connection or network error");
+  //       } else if (e.type == DioExceptionType.badResponse) {
+  //         // TostWidget().errorToast(title: "Error!", message: e.toString());
+  //         throw Exception("Faild to load data");
+  //       }
+  //     }
+  //     throw Exception("Faild to make api the request ");
+  //   }
+  // }
 }

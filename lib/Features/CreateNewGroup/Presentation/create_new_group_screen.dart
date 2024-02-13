@@ -52,7 +52,7 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                       Obx(() => CircleAvatar(
                             radius: 56,
                             backgroundColor: AppColors.lightGrey,
-                            child: memberListController.images.isNotEmpty
+                            child: memberListController.images.value.isNotEmpty
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(
                                         AppSizes.cardCornerRadius * 10),

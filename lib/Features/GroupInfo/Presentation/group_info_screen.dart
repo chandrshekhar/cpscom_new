@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Controller/group_create_controller.dart';
@@ -40,7 +38,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    memberController.memberList.clear();
+    memberController.dataBaseMemberList.clear();
     memberController.memberId.clear();
     getDetails();
   }
@@ -49,11 +47,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     await Future.delayed(const Duration(milliseconds: 200), () {
       chatController.getGroupDetailsById(groupId: widget.groupId);
       for (var element in chatController.groupModel.value.currentUsers!) {
-        memberController.memberId.clear();
-        for (var element in chatController.groupModel.value.currentUsers!) {
-          memberController.memberId.add(element.sId.toString());
-        }
-        memberController.memberList.add(MemberListMdoel(
+        memberController.memberId.add(element.sId.toString());
+        memberController.dataBaseMemberList.add(MemberListMdoel(
             sId: element.sId ?? "",
             name: element.name ?? "",
             phone: element.phone ?? "",
@@ -64,7 +59,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    log("member id list is ${memberController.memberId.toString()}");
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: CustomAppBar(
@@ -249,7 +243,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     height: AppSizes.kDefaultPadding / 2,
                   ),
                   Obx(() => Text(
-                        'Group \u2022 ${memberController.memberList.value.length} People',
+                        'Group \u2022 ${memberController.dataBaseMemberList.value.length} People',
                         style: Theme.of(context).textTheme.bodySmall,
                       )),
                 ],
@@ -303,7 +297,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Obx(() => Text(
-                            '${memberController.memberList.value.length} Participants',
+                            '${memberController.dataBaseMemberList.value.length} Participants',
                             style: Theme.of(context).textTheme.bodyLarge,
                           )),
                       InkWell(
@@ -333,50 +327,32 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 CustomCard(
                   margin: const EdgeInsets.all(AppSizes.kDefaultPadding),
                   padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
-                  child: Obx(() => memberController.memberList.isNotEmpty
-                      ? ListView.separated(
-                          itemCount: memberController.memberList.value.length,
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          padding: EdgeInsets.zero,
-                          itemBuilder: (context, index) {
-                            bool isUserSuperAdmin = false;
-                            return ParticipantsCardWidget(
-                                member: memberController.memberList[index],
-                                creatorId: widget.groupId,
-                                isUserSuperAdmin: true,
-                                isUserAdmin: widget.isAdmin,
-                                onDeleteButtonPressed: () {
-                                  // widget.isAdmin == true
-                                  //     ? showDialog(
-                                  //         context: context,
-                                  //         barrierDismissible: false,
-                                  //         builder: (BuildContext context) {
-                                  //           return ConfirmationDialog(
-                                  //             title: 'Delete Member?',
-                                  //             body:
-                                  //                 'Are you sure you want to delete this member from this group?',
-                                  //             onPressedPositiveButton: () {
-                                  //               FirebaseProvider.deleteMember(
-                                  //                   widget.groupId, [], index);
-                                  //               context.pop(GroupInfoScreen(
-                                  //                 groupId: widget.groupId,
-                                  //                 isAdmin: true,
-                                  //               ));
-                                  //             },
-                                  //           );
-                                  //         })
-                                  //     : const SizedBox();
-                                });
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const Padding(
-                              padding: EdgeInsets.only(left: 42),
-                              child: CustomDivider(),
-                            );
-                          },
-                        )
-                      : const SizedBox.shrink()),
+                  child:
+                      Obx(() => memberController.dataBaseMemberList.isNotEmpty
+                          ? ListView.separated(
+                              itemCount:
+                                  memberController.dataBaseMemberList.length,
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              itemBuilder: (context, index) {
+                                return ParticipantsCardWidget(
+                                    member: memberController
+                                        .dataBaseMemberList[index],
+                                    creatorId: widget.groupId,
+                      
+                                    isUserAdmin: widget.isAdmin,
+                                    onDeleteButtonPressed: () {});
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return const Padding(
+                                  padding: EdgeInsets.only(left: 42),
+                                  child: CustomDivider(),
+                                );
+                              },
+                            )
+                          : const SizedBox.shrink()),
                 ),
               ],
             ),
