@@ -61,6 +61,7 @@ class ChatController extends GetxController {
       if (res.success == true) {
         chatList.clear();
         chatList.addAll(res.chat!);
+        chatList.refresh();
         isChatLoading(false);
       } else {
         chatList.value = [];

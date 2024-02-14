@@ -26,6 +26,7 @@ class ChatModel {
   List<DeliveredTo>? deliveredTo;
   List<ReadBy>? readBy;
   List<dynamic>? deletedBy;
+  List<dynamic>? allRecipients;
   String? timestamp;
   String? createdAt;
   String? updatedAt;
@@ -39,6 +40,7 @@ class ChatModel {
       {this.sId,
       this.groupId,
       this.senderId,
+      this.allRecipients,
       this.senderName,
       this.message,
       this.messageType,
@@ -64,7 +66,7 @@ class ChatModel {
     messageType = json['messageType'];
     forwarded = json['forwarded'];
     fileName = json['fileName'];
-
+    allRecipients = json['allRecipients'];
     if (json['currentUsers'] != null) {
       currentUsers = <CurrentUsers>[];
       json['currentUsers'].forEach((v) {

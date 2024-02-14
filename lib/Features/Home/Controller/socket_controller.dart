@@ -21,10 +21,10 @@ class SocketController extends GetxController {
       socket!.connect();
       //log("Socket is connect status ${socket!.connected.toString()}");
       socket?.emit("joinSelf", LocalStorage().getUserId().toString());
-      socket?.emit("deliver", {
-        "userId": LocalStorage().getUserId().toString(),
-        "timestamp": DateTime.now().toString(),
-      });
+      // socket?.emit("deliver", {
+      //   "userId": LocalStorage().getUserId().toString(),
+      //   "timestamp": DateTime.now().toString(),
+      // });
       socket?.on('message', (data) {
         log("All smsshgfjhsgfjshfgjhg ${data['data']}");
         var ownId = LocalStorage().getUserId();
@@ -40,6 +40,7 @@ class SocketController extends GetxController {
         });
         if (chatController.groupId.value == data['data']['groupId']) {
           chatController.chatList.add(ChatModel.fromJson(data['data']));
+          chatController.chatList.refresh();
           socket?.emit("read", {
             "msgId": data['data']['_id'],
             "userId": LocalStorage().getUserId().toString(),
@@ -52,6 +53,7 @@ class SocketController extends GetxController {
       print("pandey: $e");
     }
   }
+
   @override
   void onInit() {
     // TODO: implement onInit

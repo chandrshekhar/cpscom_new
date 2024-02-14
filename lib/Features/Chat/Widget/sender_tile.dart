@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
@@ -20,8 +22,8 @@ class SenderTile extends StatefulWidget {
   final String groupCreatedBy;
   final String read;
   final VoidCallback? onTap;
-  bool? isSeen;
-  bool? isDelivered;
+  RxBool isSeen = false.obs;
+  RxBool isDelivered = false.obs;
   String? fileName;
   void Function()? onLeftSwipe;
   final ReplyOf? replyOf;
@@ -36,8 +38,9 @@ class SenderTile extends StatefulWidget {
       required this.groupCreatedBy,
       required this.read,
       required this.index,
-      this.isSeen = false,
-      this.isDelivered = true,
+      required this.isSeen,
+      required this.isDelivered,
+    
       this.onTap,
       this.onLeftSwipe,
       this.replyOf})
@@ -52,6 +55,8 @@ class _SenderTileState extends State<SenderTile> {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
+    log("is delivery ${widget.isDelivered}");
+    log("is read ${widget.isSeen}");
     return Padding(
       padding: const EdgeInsets.only(
           right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),
@@ -76,11 +81,11 @@ class _SenderTileState extends State<SenderTile> {
                   const SizedBox(
                     width: AppSizes.kDefaultPadding / 2,
                   ),
-                  widget.isDelivered == true
+                  Obx(() => widget.isDelivered.value == true
                       ? Icon(
                           Icons.done_all_rounded,
                           size: 16,
-                          color: widget.isSeen == true
+                          color: widget.isSeen.value == true
                               ? AppColors.primary
                               : AppColors.grey,
                         )
@@ -88,7 +93,7 @@ class _SenderTileState extends State<SenderTile> {
                           Icons.check,
                           size: 16,
                           color: AppColors.grey,
-                        )
+                        ))
                 ],
               ),
             ),

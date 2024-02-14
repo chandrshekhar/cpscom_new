@@ -7,7 +7,7 @@ class GroupListController extends GetxController {
   final _groupListRepo = GroupRepo();
   RxList<GroupModel> groupList = <GroupModel>[].obs;
   RxBool isGroupLiastLoading = false.obs;
-  RxInt limit = 20.obs;
+  RxInt limit = 100.obs;
   RxString searchText = "".obs;
   Future<void> getGroupList({bool isLoadingShow = true}) async {
     try {
@@ -29,7 +29,8 @@ class GroupListController extends GetxController {
             return bUpdatedAt.compareTo(aUpdatedAt); // Descending order
           }
         });
-        groupList = listData;
+        groupList.clear();
+        groupList.addAll(listData);
         isGroupLiastLoading(false);
       } else {
         groupList.value = [];

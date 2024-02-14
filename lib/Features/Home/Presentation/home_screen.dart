@@ -67,7 +67,7 @@ class _BuildChatListState extends State<BuildChatList> {
   @override
   @override
   void initState() {
-    groupListController.limit.value = 20;
+    groupListController.limit.value = 100;
     callAfterDelay();
     super.initState();
   }
@@ -154,7 +154,7 @@ class _BuildChatListState extends State<BuildChatList> {
                           enablePullDown: false,
                           enablePullUp: true,
                           onLoading: () async {
-                            groupListController.limit.value += 20;
+                            groupListController.limit.value += 2;
                             groupListController.getGroupList(
                                 isLoadingShow: false);
                             _refreshController.loadComplete();

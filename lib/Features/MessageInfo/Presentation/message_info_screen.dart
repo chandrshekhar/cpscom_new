@@ -3,6 +3,7 @@ import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../Chat/Widget/sender_tile.dart';
 
@@ -24,11 +25,11 @@ class _MessageInfoScreenState extends State<MessageInfoScreen> {
   void initState() {
     super.initState();
     chatMembersList = widget.chatMap['members'];
-    for(var i = 0; i<chatMembersList.length;i++){
-      if(chatMembersList[i]['isSeen'] == true){
+    for (var i = 0; i < chatMembersList.length; i++) {
+      if (chatMembersList[i]['isSeen'] == true) {
         readByList.add(chatMembersList[i]);
       }
-      if(chatMembersList[i]['isDelivered'] == true){
+      if (chatMembersList[i]['isDelivered'] == true) {
         deliveredToList.add(chatMembersList[i]);
       }
     }
@@ -43,13 +44,14 @@ class _MessageInfoScreenState extends State<MessageInfoScreen> {
       body: ListView(
         children: [
           SenderTile(
+            isDelivered: false.obs,
             index: 1,
             message: widget.chatMap['message'],
             messageType: widget.chatMap['type'],
             sentTime: '',
             groupCreatedBy: '',
             read: '',
-            isSeen: widget.chatMap['isSeen'],
+            isSeen: false.obs,
           ),
           const SizedBox(
             height: AppSizes.kDefaultPadding,
@@ -92,9 +94,8 @@ class _MessageInfoScreenState extends State<MessageInfoScreen> {
                     CircleAvatar(
                       radius: 20,
                       backgroundColor: AppColors.shimmer,
-                      foregroundImage: NetworkImage(deliveredToList
-                              [index]['profile_picture']
-                          .toString()),
+                      foregroundImage: NetworkImage(
+                          deliveredToList[index]['profile_picture'].toString()),
                     ),
                     const SizedBox(
                       width: AppSizes.kDefaultPadding,
@@ -155,8 +156,8 @@ class _MessageInfoScreenState extends State<MessageInfoScreen> {
                       CircleAvatar(
                         radius: 20,
                         backgroundColor: AppColors.shimmer,
-                        foregroundImage: NetworkImage(readByList[index]['profile_picture']
-                            .toString()),
+                        foregroundImage: NetworkImage(
+                            readByList[index]['profile_picture'].toString()),
                       ),
                       const SizedBox(
                         width: AppSizes.kDefaultPadding,

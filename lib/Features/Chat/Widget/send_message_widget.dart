@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
@@ -151,10 +153,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                     ],
                                   ),
                                 )
-                            
-                            
                               : const SizedBox(),
-                        
                           chatController.isReply.value == true
                               ? const CustomDivider()
                               : const SizedBox(),
@@ -299,6 +298,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                         .map((user) => user.sId!)
                         .where((userId) => userId != ownId)
                         .toList();
+                    log("User id is for another persion $userIds");
                     await chatController.sendMsg(
                         replyOf: chatController.isReply.value == true
                             ? chatController.replyOf
