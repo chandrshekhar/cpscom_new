@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cpscom_admin/Api/urls.dart';
-import 'package:cpscom_admin/Features/GroupInfo/Model/response_image_upload.dart';
 import 'package:cpscom_admin/Features/ReportScreen/Model/user_report_model.dart';
 import 'package:cpscom_admin/Features/Splash/Model/get_started_response_model.dart';
 import 'package:cpscom_admin/Models/send_notification_model.dart';
@@ -77,6 +76,8 @@ class ApiProvider {
 
   Future<Map> forgetPassword(String email) async {
     Map<String, dynamic> reqModel = {"email": email.trim()};
+
+    log("req--> $reqModel");
     try {
       _dio.options.headers = {
         'Accept': 'application/json',
@@ -152,8 +153,9 @@ class ApiProvider {
       required String cnfPassword}) async {
     Map<String, dynamic> reqModel = {
       "email": email.trim(),
+      "slug":"",
       "password": password.trim(),
-      "confirm_password": cnfPassword.trim()
+      "confirmPassword": cnfPassword.trim()
     };
     log(reqModel.toString());
     try {

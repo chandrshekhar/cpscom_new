@@ -8,11 +8,11 @@ class Urls {
   static const String sendPushNotificationUrl =
       'https://fcm.googleapis.com/fcm/send';
   static const String forgetPasswordurl =
-      "https://excellis.co.in/derick-veliz-admin/api/v1/user/submit-forget-password";
+      "https://api.excellis.in/api/v1/users/forgot-password";
   static const String verifyOtp =
-      "https://excellis.co.in/derick-veliz-admin/api/v1/user/submit-otp";
+      "https://api.excellis.in/api/v1/users/verify-email-otp";
   static const String resetPassword =
-      "https://excellis.co.in/derick-veliz-admin/api/v1/user/reset-password";
+      "https://api.excellis.in/api/v1/users/reset-password";
 }
 
 class ApiPath {
@@ -41,7 +41,7 @@ class ApiPath {
   static const String updateGroupDetails = "$baseUrls/groups/update-group";
 
   //CHAT
-  // get al chat 
+  // get al chat
   static const String getAlChat = "$baseUrls/groups/getonegroup";
   static const String sendSmsApi = "$baseUrls/groups/addnewmsg";
 }

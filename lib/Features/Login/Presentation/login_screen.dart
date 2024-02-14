@@ -132,7 +132,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: InkWell(
                     onTap: () {
                       if (_formKeyEmail.currentState!.validate()) {
-                        // forgetpasswordController.sentOtp(context);
+                     
+                        forgetpasswordController.sentOtp(context);
                       }
                     },
                     child: Obx(

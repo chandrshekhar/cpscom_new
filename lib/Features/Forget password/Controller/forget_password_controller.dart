@@ -3,6 +3,7 @@ import 'package:cpscom_admin/Api/api_provider.dart';
 import 'package:cpscom_admin/Commons/route.dart';
 import 'package:cpscom_admin/Features/Forget%20password/presentation/forget_passrow.dart';
 import 'package:cpscom_admin/Features/Forget%20password/presentation/reset_password.dart';
+import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
 import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
 import 'package:cpscom_admin/Utils/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -17,14 +18,16 @@ class ForgetPasswordControler extends GetxController {
   RxBool isForgetPasswordLoading = false.obs;
   RxBool verifyingOtp = false.obs;
   RxBool isPasswordReseting = false.obs;
-  RxBool resetPasswordField = false.obs;
+
+  final loginController = Get.put(LoginController());
 
   void sentOtp(BuildContext context) async {
     isForgetPasswordLoading(true);
+    forgetemailController.value = loginController.emailController.value;
     var res =
         await apiProvider.forgetPassword(forgetemailController.value.text);
-    if (res['status'] == true) {
-      customSnackBar(context, res['message'].toString());
+    if (res['success'] == true) {
+      customSnackBar(context, res['data']['message'].toString());
       isForgetPasswordLoading(false);
       context.push(ForgetPasswordScreen());
     } else {
@@ -37,8 +40,7 @@ class ForgetPasswordControler extends GetxController {
     verifyingOtp(true);
     var res = await apiProvider.verifyOtp(
         email: forgetemailController.value.text, otp: otpController.value.text);
-    if (res['status'] == true) {
-      resetPasswordField(true);
+    if (res['success'] == true) {
       customSnackBar(context, res['message'].toString());
       context.push(ResetPasswordPasswordScreen());
       otpController.value.text = "";
@@ -46,7 +48,7 @@ class ForgetPasswordControler extends GetxController {
       password.value.text = "";
       cnfPassword.value.text = "";
     } else {
-      customSnackBar(context, res['message'].toString());
+      customSnackBar(context, res['error'].toString());
       verifyingOtp(false);
       password.value.text = "";
       cnfPassword.value.text = "";
@@ -59,12 +61,12 @@ class ForgetPasswordControler extends GetxController {
         email: forgetemailController.value.text,
         password: password.value.text,
         cnfPassword: cnfPassword.value.text);
-    if (res['status'] == true) {
+    if (res['success'] == true) {
       customSnackBar(context, res['message'].toString());
       context.pushAndRemoveUntil(const LoginScreen());
       otpController.value.text = "";
     } else {
-      customSnackBar(context, res['message'].toString());
+      customSnackBar(context, res['error'].toString());
     }
 
     isPasswordReseting(false);
