@@ -150,10 +150,10 @@ class ApiProvider {
   Future<Map> resetpassword(
       {required String email,
       required String password,
-      required String cnfPassword}) async {
+      required String cnfPassword, required String slug}) async {
     Map<String, dynamic> reqModel = {
       "email": email.trim(),
-      "slug":"",
+      "slug":slug,
       "password": password.trim(),
       "confirmPassword": cnfPassword.trim()
     };

@@ -2,6 +2,7 @@ import 'package:cpscom_admin/Widgets/custom_text_field.dart';
 import 'package:cpscom_admin/Widgets/full_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_icons.dart';
 import '../../../Commons/app_sizes.dart';
@@ -92,11 +93,12 @@ class ForgetPasswordScreen extends StatelessWidget {
                       child: CustomTextField(
                         controller:
                             forgetPasswordController.otpController.value,
-                        hintText: 'Enter otp',
+                        labelText: 'Enter otp',
+                        maxLength: 6,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'required';
+                          if (value!.toString().length < 6) {
+                            return 'OTP must have at least 6 characters';
                           }
                           return null;
                         },

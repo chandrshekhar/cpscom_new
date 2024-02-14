@@ -22,6 +22,7 @@ class CustomTextField extends StatelessWidget {
   final ValueChanged? onChanged;
   final Map<String, dynamic>? replyMessage;
   final VoidCallback? onCancelReply;
+  final int? maxLength;
 
   const CustomTextField({
     Key? key,
@@ -42,7 +43,7 @@ class CustomTextField extends StatelessWidget {
     this.focusNode,
     this.replyMessage,
     this.onCancelReply,
-    this.isReplying = false,
+    this.isReplying = false, this.maxLength,
   }) : super(key: key);
 
   @override
@@ -111,6 +112,7 @@ class CustomTextField extends StatelessWidget {
           cursorColor: AppColors.primary,
           controller: controller,
           onChanged: onChanged,
+          maxLength: maxLength,
           autofocus: autoFocus!,
           focusNode: focusNode,
           decoration: isBorder!

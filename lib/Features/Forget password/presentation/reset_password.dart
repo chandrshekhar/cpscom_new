@@ -2,6 +2,7 @@ import 'package:cpscom_admin/Widgets/custom_text_field.dart';
 import 'package:cpscom_admin/Widgets/full_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_icons.dart';
 import '../../../Commons/app_sizes.dart';
@@ -71,7 +72,9 @@ class ResetPasswordPasswordScreen extends StatelessWidget {
                       const SizedBox(height: AppSizes.kDefaultPadding * 5),
                       CustomTextField(
                         controller: forgetPasswordController.password.value,
-                        hintText: 'Enter password',
+                        labelText: 'Enter password',
+                        obscureText:
+                            forgetPasswordController.isPasswordVsible.value,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -85,7 +88,9 @@ class ResetPasswordPasswordScreen extends StatelessWidget {
                       ),
                       CustomTextField(
                         controller: forgetPasswordController.cnfPassword.value,
-                        hintText: 'Enter cnf password',
+                        labelText: 'Enter confirm password',
+                        obscureText:
+                            forgetPasswordController.isPasswordVsible.value,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -94,6 +99,18 @@ class ResetPasswordPasswordScreen extends StatelessWidget {
                           return null;
                         },
                       ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Obx(() => CheckboxListTile.adaptive(
+                            title: const Text("Show password"),
+                            value:
+                                forgetPasswordController.isPasswordVsible.value,
+                            onChanged: (v) {
+                              forgetPasswordController.isPasswordVsible.value =
+                                  v!;
+                            },
+                          ))
                     ],
                   ),
                 ),

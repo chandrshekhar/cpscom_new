@@ -18,14 +18,18 @@ class ForgetPasswordControler extends GetxController {
   RxBool isForgetPasswordLoading = false.obs;
   RxBool verifyingOtp = false.obs;
   RxBool isPasswordReseting = false.obs;
+  RxString slug = "".obs;
+  RxBool isPasswordVsible = true.obs;
+
+ 
 
   final loginController = Get.put(LoginController());
 
   void sentOtp(BuildContext context) async {
     isForgetPasswordLoading(true);
     forgetemailController.value = loginController.emailController.value;
-    var res =
-        await apiProvider.forgetPassword(forgetemailController.value.text);
+    var res = await apiProvider
+        .forgetPassword(forgetemailController.value.text.toLowerCase());
     if (res['success'] == true) {
       customSnackBar(context, res['data']['message'].toString());
       isForgetPasswordLoading(false);
@@ -39,8 +43,10 @@ class ForgetPasswordControler extends GetxController {
   void verifyOtp(BuildContext context) async {
     verifyingOtp(true);
     var res = await apiProvider.verifyOtp(
-        email: forgetemailController.value.text, otp: otpController.value.text);
+        email: forgetemailController.value.text.toLowerCase(),
+        otp: otpController.value.text);
     if (res['success'] == true) {
+      slug.value = res['data']['slug'];
       customSnackBar(context, res['message'].toString());
       context.push(ResetPasswordPasswordScreen());
       otpController.value.text = "";
@@ -58,7 +64,8 @@ class ForgetPasswordControler extends GetxController {
   void resetPassword(BuildContext context) async {
     isPasswordReseting(true);
     var res = await apiProvider.resetpassword(
-        email: forgetemailController.value.text,
+        slug: slug.value,
+        email: forgetemailController.value.text.toLowerCase(),
         password: password.value.text,
         cnfPassword: cnfPassword.value.text);
     if (res['success'] == true) {
