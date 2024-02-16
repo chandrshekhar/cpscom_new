@@ -98,7 +98,7 @@ class LastMessage {
   String? senderName;
   String? message;
   String? messageType;
-  bool? forwarded;
+  dynamic forwarded;
   List<DeliveredTo>? deliveredTo;
   List<ReadBy>? readBy;
   List<dynamic>? deletedBy;
@@ -133,6 +133,7 @@ class LastMessage {
     message = json['message'];
     messageType = json['messageType'];
     forwarded = json['forwarded'];
+    timestamp = json['timestamp'];
     if (json['deliveredTo'] != null) {
       deliveredTo = <DeliveredTo>[];
       json['deliveredTo'].forEach((v) {
@@ -148,7 +149,7 @@ class LastMessage {
 
     deletedBy =
         json['deletedBy'] == null ? null : json[deletedBy] as List<dynamic>?;
-    timestamp = json['timestamp'];
+
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];

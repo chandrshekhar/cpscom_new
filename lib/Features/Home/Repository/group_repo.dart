@@ -49,7 +49,7 @@ class GroupRepo {
     }
   }
 
-  Future<GroupModel> getGroupDetailsById({required String groupId}) async {
+  Future<GroupModel> getGroupDetailsById({required String groupId,}) async {
     var token = localStorage.getUserToken();
     log("Group details by id calling....");
     Response response;

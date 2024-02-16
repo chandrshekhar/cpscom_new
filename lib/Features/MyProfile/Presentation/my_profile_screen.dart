@@ -2,11 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/app_colors.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Commons/route.dart';
+import 'package:cpscom_admin/Features/Forget%20password/presentation/change_password_screen.dart';
 import 'package:cpscom_admin/Features/Home/Controller/home_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
 import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
 import 'package:cpscom_admin/Features/UpdateUserStatus/Presentation/update_user_status_screen.dart';
+import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
@@ -57,6 +59,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             positiveButtonLabel: 'Logout',
                             negativeButtonLabel: 'Cancel',
                             onPressedPositiveButton: () {
+                              Get.delete<SocketController>();
                               socketController.socket?.clearListeners();
                               socketController.socket?.destroy();
                               socketController.socket?.dispose();
@@ -346,6 +349,34 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   EvaIcons.arrowIosForward,
                   color: AppColors.grey,
                   size: 24,
+                ),
+              ),
+              const Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
+                child: CustomDivider(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                child: InkWell(
+                  onTap: () {
+                    doNavigator(
+                        route: const ChangePasswordScreen(), context: context);
+                  },
+                  child: ListTile(
+                    dense: true,
+                    horizontalTitleGap: 0,
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(
+                      EvaIcons.lock,
+                      color: AppColors.grey,
+                      size: 20,
+                    ),
+                    title: Text(
+                      'Change Password',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
                 ),
               ),
               const Padding(

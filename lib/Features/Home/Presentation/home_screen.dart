@@ -170,8 +170,11 @@ class _BuildChatListState extends State<BuildChatList> {
                                   var item = groupListController
                                       .groupList.value[index];
                                   return HomeChatCard(
-                                      groupId: "Group id",
+                                      groupId: item.sId.toString(),
                                       onPressed: () {
+                                        chatController.timeStamps.value =
+                                            DateTime.now()
+                                                .millisecondsSinceEpoch;
                                         context.push(ChatScreen(
                                           groupId: item.sId.toString(),
                                           isAdmin: widget.isAdmin,

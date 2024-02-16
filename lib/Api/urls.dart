@@ -18,13 +18,14 @@ class Urls {
 class ApiPath {
   static const String baseUrls = 'https://api.excellis.in/api/v1';
 
-  // static const String baseUrls = "https://tiny-spies-change.loca.lt/api/v1";
+  //static const String baseUrls = "https://slippery-lionfish-59.loca.lt/api/v1";
 
   //AUTH
   //Login Api
   static const String loginApi = "$baseUrls/users/sign-in";
   static const String getUserDAta = "$baseUrls/users/get-user";
   static const String updateProfileDetails = "$baseUrls/users/update-user";
+  static const String changePassword = "$baseUrls/users/change-password";
 
   //GROUP
   //group api path
@@ -44,4 +45,8 @@ class ApiPath {
   // get al chat
   static const String getAlChat = "$baseUrls/groups/getonegroup";
   static const String sendSmsApi = "$baseUrls/groups/addnewmsg";
+
+  //report
+  static const String groupReportApi = "$baseUrls/groups/report";
+  static const String messageReportApi = "$baseUrls/groups/report-message";
 }

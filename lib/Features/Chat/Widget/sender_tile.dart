@@ -54,9 +54,7 @@ class _SenderTileState extends State<SenderTile> {
   final chatController = Get.put(ChatController());
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
-    log("is delivery ${widget.isDelivered}");
-    log("is read ${widget.isSeen}");
+   
     return Padding(
       padding: const EdgeInsets.only(
           right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),

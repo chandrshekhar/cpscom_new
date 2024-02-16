@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
+import 'package:cpscom_admin/Features/Chat/Controller/report_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
-import 'package:cpscom_admin/Features/ReportScreen/report_screen.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,50 +36,28 @@ class _ChatScreenState extends State<ChatScreen> {
   final chatController = Get.put(ChatController());
   final groupListController = Get.put(GroupListController());
   final socketController = Get.put(SocketController());
+  final reportController = Get.put(ReportController());
 
   FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
-    chatController.groupModel.value = GroupModel();
-    chatController.getGroupDetailsById(groupId: widget.groupId);
-    chatController.groupId.value = widget.groupId;
     // var ownId = LocalStorage().getUserId();
-    List<String> reciverId =
-        widget.groupModel.currentUsers!.map((user) => user.sId!).toList();
-    log("User receiver id $reciverId");
 
-    // socketController.socket?.emitWithAck("read",  {
-    //   "groupId": widget.groupId,
-    //   "userId": LocalStorage().getUserId().toString(),
-    //   "timestamp": DateTime.now().toString(),
-    //   "receiverId": reciverId
-    // }, );
-    socketController.socket?.on('ack_read', (data) {
-      // Handle acknowledgment data
-      print('Acknowledgment received: $data');
+    chatController.getAllChatByGroupId(groupId: widget.groupId).then((value) {
+      List<String> reciverId =
+          widget.groupModel.currentUsers!.map((user) => user.sId!).toList();
+      socketController.socket?.emit("read", {
+        "groupId": widget.groupId,
+        "userId": LocalStorage().getUserId().toString(),
+        "timestamp": chatController.timeStamps.value,
+        "receiverId": reciverId
+      });
     });
-
-// Emit the 'read' event
-    socketController.socket?.emitWithAck('read', {
-      "groupId": widget.groupId,
-      "userId": LocalStorage().getUserId().toString(),
-      "timestamp": DateTime.now().toString(),
-      "receiverId": reciverId
-    }, ack: (data) {
-      // This acknowledgment callback will be invoked when the server acknowledges the event
-      if (data != null) {
-        // Event emitted successfully, handle acknowledgment data
-        print('Event emitted successfully: $data');
-      } else {
-        // Event emission failed
-        print('Failed to emit event');
-      }
-    });
-
-    log("emit result is ${widget.groupId}   ${LocalStorage().getUserId().toString()}, ${DateTime.now().toString()}, $reciverId");
-    log("inside group current user id $reciverId");
-    chatController.getAllChatByGroupId(groupId: widget.groupId);
+    chatController.groupModel.value = GroupModel();
+    chatController.getGroupDetailsById(
+        groupId: widget.groupId, timeStamp: chatController.timeStamps.value);
+    chatController.groupId.value = widget.groupId;
     super.initState();
     //updateIsSeenField(widget.groupId, true);
   }
@@ -88,10 +66,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context);
-        chatController.groupId.value = "";
-        await groupListController.getGroupList(isLoadingShow: false);
-        // Navigator.pop(context, true);
+        // Navigator.pop(context);
+        // chatController.groupId.value = "";
+        // await groupListController.getGroupList(isLoadingShow: false);
+        // // Navigator.pop(context, true);
         return true;
       },
       child: Scaffold(
@@ -101,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onTap: () async {
                 chatController.groupId.value = "";
                 Navigator.pop(context);
-                await groupListController.getGroupList(isLoadingShow: false);
+                // await groupListController.getGroupList(isLoadingShow: false);
 
                 // <-- The target method
               },
@@ -189,13 +167,16 @@ class _ChatScreenState extends State<ChatScreen> {
                           isAdmin: widget.isAdmin));
                       break;
                     case 2:
-                      context.push(ReportScreen(
-                        chatMap: const {},
-                        groupId: widget.groupId.toString(),
-                        groupName: "Group Name",
-                        message: '',
-                        isGroupReport: true,
-                      ));
+                      _showReportDialog(
+                          isLoading: reportController.isGroupReportLoading,
+                          title: "Report Group",
+                          context: context,
+                          textEditingController:
+                              reportController.groupReportController.value,
+                          onTap: () async {
+                            await reportController.groupReport(
+                                groupId: widget.groupId, context: context);
+                          });
                       break;
                     // case 2:
                     //   context.push(const GroupMediaScreen());
@@ -239,6 +220,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                           onTap: () {
                                             chatController.selectedIndex.value =
                                                 index;
+                                            print(
+                                                "consdition ${item.allRecipients!.length == item.readBy!.length}");
                                           },
                                           child: SenderTile(
                                             isDelivered:
@@ -301,6 +284,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                             //       )),
                                           ))
                                       : InkWell(
+                                          onLongPress: () {
+                                            _showPopupMenu(
+                                                context, item.sId.toString());
+                                          },
                                           onTap: () {
                                             chatController.selectedIndex.value =
                                                 index;
@@ -354,5 +341,93 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           )),
     );
+  }
+
+  void _showReportDialog(
+      {required BuildContext context,
+      required TextEditingController textEditingController,
+      required VoidCallback onTap,
+      required String title,
+      required RxBool isLoading}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: textEditingController,
+            maxLines: 3,
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), hintText: "Enter your issue"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            Obx(
+              () => TextButton(
+                onPressed: onTap,
+                child: isLoading.value
+                    ? const CircularProgressIndicator.adaptive()
+                    : const Text('Submit'),
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPopupMenu(BuildContext context, String msgId) async {
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        const Offset(90, 500),
+        Offset(overlay.size.width, overlay.size.height),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    final result = await showMenu(
+      context: context,
+      position: position,
+      items: [
+        const PopupMenuItem(
+          value: 1,
+          child: Text('Report Message'),
+        ),
+        const PopupMenuItem(
+          value: 2,
+          child: Text('Delete Message'),
+        ),
+      ],
+    );
+
+    // Handle the selected option
+    if (result != null) {
+      switch (result) {
+        case 1:
+          _showReportDialog(
+              context: context,
+              textEditingController:
+                  reportController.messageReportController.value,
+              onTap: () {
+                reportController.messageReport(
+                    messageId: msgId,
+                    groupId: widget.groupId,
+                    context: context);
+              },
+              title: "Report Message",
+              isLoading: false.obs);
+          break;
+        case 2:
+          // Handle option 2
+          break;
+      }
+    }
   }
 }

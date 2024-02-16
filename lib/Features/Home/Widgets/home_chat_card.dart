@@ -131,13 +131,15 @@ class HomeChatCard extends StatelessWidget {
                                           )
                                         : messageType == 'doc'
                                             ? const Icon(
-                                                Icons.description_outlined,
+                                                Icons.description,
                                                 size: 13,
                                               )
-                                            : const Icon(
-                                                Icons.image_outlined,
-                                                size: 13,
-                                              ),
+                                            : messageType == "image"
+                                                ? const Icon(
+                                                    Icons.image_outlined,
+                                                    size: 13,
+                                                  )
+                                                : const SizedBox.shrink(),
                               ]),
 
                         // RichText(

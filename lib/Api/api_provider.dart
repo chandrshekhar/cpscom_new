@@ -4,6 +4,7 @@ import 'package:cpscom_admin/Api/urls.dart';
 import 'package:cpscom_admin/Features/ReportScreen/Model/user_report_model.dart';
 import 'package:cpscom_admin/Features/Splash/Model/get_started_response_model.dart';
 import 'package:cpscom_admin/Models/send_notification_model.dart';
+import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -150,10 +151,11 @@ class ApiProvider {
   Future<Map> resetpassword(
       {required String email,
       required String password,
-      required String cnfPassword, required String slug}) async {
+      required String cnfPassword,
+      required String slug}) async {
     Map<String, dynamic> reqModel = {
       "email": email.trim(),
-      "slug":slug,
+      "slug": slug,
       "password": password.trim(),
       "confirmPassword": cnfPassword.trim()
     };
@@ -167,6 +169,40 @@ class ApiProvider {
       if (kDebugMode) {
         log('--------Response forgetPassword : ${response.data}');
       }
+      return response.statusCode == 200
+          ? response.data
+          : throw Exception('Something Went Wrong');
+    } catch (e) {
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          // log("bed res--> ${e.response?.data}");
+          return {"status": false, "message": e.response!.data['error']};
+          // throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          // throw Exception("Faild to load data");
+          log(e.response!.data.toString());
+          return {"status": false, "message": e.response!.data['error']};
+        }
+      }
+      return {"status": false, "message": "Something went wrong"};
+    }
+  }
+
+  Future<Map> changePassword({required Map<String, dynamic> reqModel}) async {
+    var token = LocalStorage().getUserToken();
+    log("messageReport calling....");
+    Response response;
+    try {
+      _dio.options.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'access-token': token
+      };
+      response = await _dio.post(ApiPath.changePassword, data: reqModel);
+      log("change password response ${response.data.toString()}");
       return response.statusCode == 200
           ? response.data
           : throw Exception('Something Went Wrong');

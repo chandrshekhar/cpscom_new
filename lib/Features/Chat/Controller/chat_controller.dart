@@ -27,6 +27,7 @@ class ChatController extends GetxController {
   RxInt selectedIndex = (-1).obs;
   RxBool isMemberSuggestion = false.obs;
   final msgController = TextEditingController().obs;
+  RxInt timeStamps = (-1).obs;
   final RxMap<String, dynamic> replyOf = <String, dynamic>{
     "msgId": '',
     "sender": '',
@@ -48,12 +49,12 @@ class ChatController extends GetxController {
         TextPosition(offset: msgController.value.text.length));
   }
 
-  getAllChatByGroupId({required String groupId}) async {
+  Future<void> getAllChatByGroupId({required String groupId}) async {
     try {
       isChatLoading(true);
       Map<String, dynamic> reqModel = {
         "id": groupId,
-        "timestamp": DateTime.now().toString(),
+        "timestamp": timeStamps.value,
         "offset": 0,
         "limit": 1000
       };
@@ -149,10 +150,12 @@ class ChatController extends GetxController {
   // }
 
   RxBool isDetailsLaoding = false.obs;
-  getGroupDetailsById({required String groupId}) async {
+  getGroupDetailsById({required String groupId, int? timeStamp}) async {
     try {
       isDetailsLaoding(true);
-      var res = await _groupRepo.getGroupDetailsById(groupId: groupId);
+      var res = await _groupRepo.getGroupDetailsById(
+          groupId: groupId,);
+      
       groupModel.value = res;
       isDetailsLaoding(false);
     } catch (e) {

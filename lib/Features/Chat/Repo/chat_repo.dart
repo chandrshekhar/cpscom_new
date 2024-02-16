@@ -111,4 +111,76 @@ class ChatRepo {
       throw Exception("Faild to make api the request : $e");
     }
   }
+
+  Future<Map> grouopReport({required Map<String, dynamic> reqModel}) async {
+    var token = localStorage.getUserToken();
+    log("grouopReport  calling....");
+    Response response;
+    try {
+      dio.options.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'access-token': token
+      };
+
+      response = await dio.post(ApiPath.groupReportApi, data: reqModel);
+      log("group report response ${response.data.toString()}");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        return {};
+      }
+    } catch (e) {
+      log("Error for call Chat list response ${e.toString()}");
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          // TostWidget().errorToast(title: "Error!", message: e.toString());
+          throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          // TostWidget().errorToast(title: "Error!", message: e.toString());
+          throw Exception("Faild to load data");
+        }
+      }
+      throw Exception("Faild to make api the request ");
+    }
+  }
+
+  Future<Map> messageReport({required Map<String, dynamic> reqModel}) async {
+    var token = localStorage.getUserToken();
+    log("messageReport calling....");
+    Response response;
+    try {
+      dio.options.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'access-token': token
+      };
+
+      response = await dio.post(ApiPath.messageReportApi, data: reqModel);
+      log("messageReport response ${response.data.toString()}");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        return {};
+      }
+    } catch (e) {
+      log("Error for call messageReport response ${e.toString()}");
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.unknown) {
+          // TostWidget().errorToast(title: "Error!", message: e.toString());
+          throw Exception("No Internet connection or network error");
+        } else if (e.type == DioExceptionType.badResponse) {
+          // TostWidget().errorToast(title: "Error!", message: e.toString());
+          throw Exception("Faild to load data");
+        }
+      }
+      throw Exception("Faild to make api the request ");
+    }
+  }
 }

@@ -23,8 +23,8 @@ class ChatModel {
   String? message;
   String? messageType;
   bool? forwarded;
-  List<DeliveredTo>? deliveredTo;
-  List<ReadBy>? readBy;
+  List<ChatDeliveredTo>? deliveredTo;
+  List<ChatReadBy>? readBy;
   List<dynamic>? deletedBy;
   List<dynamic>? allRecipients;
   String? timestamp;
@@ -77,15 +77,15 @@ class ChatModel {
     deletedBy =
         json['deletedBy'] == null ? null : json['deletedBy'] as List<dynamic>?;
     if (json['deliveredTo'] != null) {
-      deliveredTo = <DeliveredTo>[];
+      deliveredTo = <ChatDeliveredTo>[];
       json['deliveredTo'].forEach((v) {
-        deliveredTo!.add(DeliveredTo.fromJson(v));
+        deliveredTo!.add(ChatDeliveredTo.fromJson(v));
       });
     }
     if (json['readBy'] != null) {
-      readBy = <ReadBy>[];
+      readBy = <ChatReadBy>[];
       json['readBy'].forEach((v) {
-        readBy!.add(ReadBy.fromJson(v));
+        readBy!.add(ChatReadBy.fromJson(v));
       });
     }
 
@@ -100,15 +100,15 @@ class ChatModel {
   }
 }
 
-class DeliveredTo {
+class ChatDeliveredTo {
   String? user;
   String? timestamp;
   String? sId;
   String? id;
 
-  DeliveredTo({this.user, this.timestamp, this.sId, this.id});
+  ChatDeliveredTo({this.user, this.timestamp, this.sId, this.id});
 
-  DeliveredTo.fromJson(Map<String, dynamic> json) {
+  ChatDeliveredTo.fromJson(Map<String, dynamic> json) {
     user = json['user'];
     timestamp = json['timestamp'];
     sId = json['_id'];
@@ -116,15 +116,15 @@ class DeliveredTo {
   }
 }
 
-class ReadBy {
+class ChatReadBy {
   User? user;
   String? timestamp;
   String? sId;
   String? id;
 
-  ReadBy({this.user, this.timestamp, this.sId, this.id});
+  ChatReadBy({this.user, this.timestamp, this.sId, this.id});
 
-  ReadBy.fromJson(Map<String, dynamic> json) {
+  ChatReadBy.fromJson(Map<String, dynamic> json) {
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     timestamp = json['timestamp'];
     sId = json['_id'];
