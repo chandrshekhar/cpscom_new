@@ -79,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onTap: () async {
                 chatController.groupId.value = "";
                 Navigator.pop(context);
-                // await groupListController.getGroupList(isLoadingShow: false);
+               // await groupListController.getGroupList(isLoadingShow: false);
 
                 // <-- The target method
               },
