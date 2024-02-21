@@ -100,17 +100,38 @@ class SocketController extends GetxController {
         }
       });
       socket?.on("deliver", (data) {
-        log("deliver data $data");
-        for (int i = 0; i < chatController.chatList.length; i++) {
-          if (chatController.chatList[i].sId == data['msgId'].toString()) {
-            for (var element in (data['deliveredTo'] as List)) {
-              if (chatController.chatList[i].deliveredTo?.length !=
-                  chatController.groupModel.value.currentUsers?.length) {
-                chatController.chatList[i].deliveredTo!
-                    .add(ChatDeliveredTo(sId: element['user']['_id']));
+        log("yteyrubfnmdfb $data");
+
+        if (data['deliverData'] == null) {
+          log("if pront");
+          for (int i = 0; i < chatController.chatList.length; i++) {
+            if (chatController.chatList[i].sId == data['msgId'].toString()) {
+              for (var element in (data['deliveredTo'] as List)) {
+                if (chatController.chatList[i].deliveredTo?.length !=
+                    chatController.groupModel.value.currentUsers?.length) {
+                  chatController.chatList[i].deliveredTo!
+                      .add(ChatDeliveredTo(sId: element['user']['_id']));
+                }
               }
+              chatController.chatList.refresh();
             }
-            chatController.chatList.refresh();
+          }
+        } else {
+          log("elese pront");
+          for (int i = 0; i < chatController.chatList.length; i++) {
+            log("chat list loop");
+            List deliverToIds = [];
+            for (var j = 0;
+                j < chatController.chatList[i].deliveredTo!.length;
+                j++) {
+              deliverToIds.add(chatController.chatList[i].deliveredTo![j].user);
+            }
+            if (!deliverToIds.contains(data['deliverData']['user'])) {
+              chatController.chatList[i].deliveredTo!.add(ChatDeliveredTo(
+                  user: data['deliverData']['user'],
+                  timestamp: data['deliverData']['timestamp'].toString()));
+              chatController.chatList.refresh();
+            }
           }
         }
       });
