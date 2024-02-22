@@ -18,9 +18,8 @@ class TagMemberWidget extends StatelessWidget {
               topRight: Radius.circular(AppSizes.cardCornerRadius),
               bottomRight: Radius.circular(AppSizes.cardCornerRadius))),
       padding: const EdgeInsets.only(left: 20),
-      height: 250,
       child: ListView.builder(
-          itemCount: chatController.chatList[0].currentUsers?.length,
+          itemCount: chatController.groupModel.value.currentUsers!.length,
           shrinkWrap: true,
           itemBuilder: (context, index) {
             // debugPrint("Memebrlist-> $membersList");
@@ -28,13 +27,13 @@ class TagMemberWidget extends StatelessWidget {
             return ListTile(
               onTap: () {
                 chatController.addNameInMsgText(
-                    mentionname:
-                        chatController.chatList[0].currentUsers?[index].name);
+                    mentionname: chatController
+                        .groupModel.value.currentUsers![index].name??"");
                 chatController.isMemberSuggestion(false);
               },
               contentPadding: EdgeInsets.zero,
               title: Text(
-                chatController.chatList[0].currentUsers?[index].name ?? "",
+                chatController.groupModel.value.currentUsers![index].name ?? "",
                 style: const TextStyle(color: Colors.red),
               ),
             );

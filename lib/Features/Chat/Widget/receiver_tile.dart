@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/route.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
+import 'package:cpscom_admin/Features/Chat/Widget/sender_reply_widget.dart';
 import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
@@ -133,6 +134,12 @@ class _ReceiverTileState extends State<ReceiverTile> {
                           ),
                         ],
                       ),
+                      widget.replyOf != null
+                          ? SenderMsgReplyWidget(
+                              replyMsg: widget.replyOf?.msg ?? "",
+                              senderName: widget.replyOf?.sender ?? "",
+                            )
+                          : SizedBox.fromSize(),
                       Padding(
                         padding: const EdgeInsets.only(
                           bottom: AppSizes.kDefaultPadding * 2,

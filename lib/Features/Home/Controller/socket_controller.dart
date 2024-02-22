@@ -101,7 +101,6 @@ class SocketController extends GetxController {
       });
       socket?.on("deliver", (data) {
         log("yteyrubfnmdfb $data");
-
         if (data['deliverData'] == null) {
           log("if pront");
           for (int i = 0; i < chatController.chatList.length; i++) {
@@ -118,24 +117,38 @@ class SocketController extends GetxController {
           }
         } else {
           log("elese pront");
+
           for (int i = 0; i < chatController.chatList.length; i++) {
-            log("chat list loop");
-            List deliverToIds = [];
-            for (var j = 0;
-                j < chatController.chatList[i].deliveredTo!.length;
-                j++) {
-              deliverToIds.add(chatController.chatList[i].deliveredTo![j].user);
-            }
-            if (!deliverToIds.contains(data['deliverData']['user'])) {
+            if (chatController.chatList[i].deliveredTo?.length !=
+                chatController.groupModel.value.currentUsers?.length) {
               chatController.chatList[i].deliveredTo!.add(ChatDeliveredTo(
-                  user: data['deliverData']['user'],
+                  sId: data['deliverData']['user'],
                   timestamp: data['deliverData']['timestamp'].toString()));
-              chatController.chatList.refresh();
             }
+
+            chatController.chatList.refresh();
           }
+
+          // for (int i = 0; i < chatController.chatList.length; i++) {
+          //   log("chat list loop");
+          //   //  List deliverToIds = [];
+          //   for (var j = 0;
+          //       j < chatController.chatList[i].deliveredTo!.length;
+          //       j++) {
+          //     // deliverToIds.add(chatController.chatList[i].deliveredTo![j].user);
+          //     if (chatController.chatList[i].deliveredTo![j].user.toString()
+          //        !=data['deliverData']['user'].toString()) {
+          //       chatController.chatList[i].deliveredTo!.add(ChatDeliveredTo(
+          //           user: data['deliverData']['user'],
+          //           timestamp: data['deliverData']['timestamp'].toString()));
+          //       chatController.chatList.refresh();
+          //     }
+          //   }
+          // }
         }
       });
       socket?.on("read", (data) {
+        log("jhghhg  $data");
         if (data['msgId'] != null) {
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].sId == data['msgId'].toString()) {
@@ -146,12 +159,36 @@ class SocketController extends GetxController {
             }
           }
         } else {
+          log("elffese pront");
+          // for (int i = 0; i < chatController.chatList.length; i++) {
+          //   log("chat list loop");
+          //   List readIds = [];
+          //   for (var j = 0;
+          //       j < chatController.chatList[i].readBy!.length;
+          //       j++) {
+          //     readIds.add(chatController.chatList[i].readBy![j].user);
+          //   }
+          //   log("Chat list response ${readIds.length}");
+          //   if (!readIds.contains(data['readData']['user']) &&
+          //       (chatController.chatList[i].readBy!
+          //           .where((element) =>
+          //               element.sId!.contains(data['readData']['user']))
+          //           .isEmpty)) {
+          //     chatController.chatList[i].readBy!.add(ChatReadBy(
+          //         user: User(sId: data['readData']['user']),
+          //         timestamp: data['readData']['timestamp'].toString()));
+          //   }
+          // }
+          // chatController.chatList.refresh();
+
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].readBy?.length !=
                 chatController.groupModel.value.currentUsers?.length) {
               chatController.chatList[i].readBy!.add(ChatReadBy(
-                user: User(sId: data['readData']['user']),
-              ));
+                  user: User(
+                    sId: data['readData']['user'],
+                  ),
+                  timestamp: data['readData']['timestamp'].toString()));
             }
 
             chatController.chatList.refresh();

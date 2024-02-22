@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
@@ -11,7 +9,6 @@ import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:get/get.dart';
 import 'package:linkable/linkable.dart';
 import 'package:swipe_to/swipe_to.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'show_image_widget.dart';
 
@@ -40,7 +37,6 @@ class SenderTile extends StatefulWidget {
       required this.index,
       required this.isSeen,
       required this.isDelivered,
-    
       this.onTap,
       this.onLeftSwipe,
       this.replyOf})
@@ -54,7 +50,6 @@ class _SenderTileState extends State<SenderTile> {
   final chatController = Get.put(ChatController());
   @override
   Widget build(BuildContext context) {
-   
     return Padding(
       padding: const EdgeInsets.only(
           right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),

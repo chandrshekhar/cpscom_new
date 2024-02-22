@@ -49,7 +49,9 @@ class GroupRepo {
     }
   }
 
-  Future<GroupModel> getGroupDetailsById({required String groupId,}) async {
+  Future<GroupModel> getGroupDetailsById({
+    required String groupId,
+  }) async {
     var token = localStorage.getUserToken();
     log("Group details by id calling....");
     Response response;
@@ -85,11 +87,11 @@ class GroupRepo {
     }
   }
 
-  Future<Map> updateGroupDetails({
-    required String groupId,
-    required String groupName,
-    required File groupImage,
-  }) async {
+  Future<Map> updateGroupDetails(
+      {required String groupId,
+      required String groupName,
+      required File groupImage,
+      required String groupDes}) async {
     log("Update group details api calling....");
     Response response;
     var token = localStorage.getUserToken();
@@ -102,6 +104,7 @@ class GroupRepo {
       FormData formData = FormData.fromMap({
         "groupId": groupId,
         "groupName": groupName,
+        "groupDescription": groupDes
       });
       if (groupImage.path.isNotEmpty) {
         formData.files.add(MapEntry(

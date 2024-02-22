@@ -85,6 +85,7 @@ class ChatController extends GetxController {
         // ignore: use_build_context_synchronously
         updateGroup(
             groupId: groupId,
+            groupDes: descriptionController.value.text.toString(),
             groupName: titleController.value.text.toString(),
             groupImage: groupImages,
             context: context);
@@ -109,6 +110,7 @@ class ChatController extends GetxController {
     titleController.value.text = groupModel.value.groupName != null
         ? groupModel.value.groupName.toString()
         : "";
+    descriptionController.value.text = groupModel.value.groupDescription ?? "";
   }
 
   void mentionMember(String value) {
@@ -154,8 +156,9 @@ class ChatController extends GetxController {
     try {
       isDetailsLaoding(true);
       var res = await _groupRepo.getGroupDetailsById(
-          groupId: groupId,);
-      
+        groupId: groupId,
+      );
+
       groupModel.value = res;
       isDetailsLaoding(false);
     } catch (e) {
@@ -169,11 +172,15 @@ class ChatController extends GetxController {
       {required String groupId,
       required String groupName,
       required File groupImage,
+      required String groupDes,
       required BuildContext context}) async {
     try {
       isUpdateLoading(true);
       var res = await _groupRepo.updateGroupDetails(
-          groupId: groupId, groupName: groupName, groupImage: groupImage);
+          groupDes: groupDes,
+          groupId: groupId,
+          groupName: groupName,
+          groupImage: groupImage);
       if (res['success'] == true) {
         final groupListController = Get.put(GroupListController());
         await groupListController.getGroupList(isLoadingShow: false);

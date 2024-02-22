@@ -35,15 +35,7 @@ class _ChangeGroupDescriptionState extends State<ChangeGroupDescription> {
 
   getDetails() async {
     await Future.delayed(const Duration(milliseconds: 200), () {
-      chatController.getGroupDetailsById(groupId: widget.groupId);
       chatController.setControllerValue();
-      // for (var element in chatController.groupModel.value.currentUsers!) {
-      //   memberController.memberList.add(MemberListMdoel(
-      //       sId: element.sId ?? "",
-      //       name: element.name ?? "",
-      //       phone: element.phone ?? "",
-      //       image: element.image ?? ""));
-      // }
     });
   }
 
@@ -75,7 +67,20 @@ class _ChangeGroupDescriptionState extends State<ChangeGroupDescription> {
                       child: Obx(() => CustomTextField(
                             controller: chatController.titleController.value,
                             maxLines: 1,
-                            labelText: "Add Title",
+                            labelText: "Upate Title",
+                          )),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white),
+                      padding: const EdgeInsets.only(
+                          top: 20, bottom: 20, right: 10, left: 10),
+                      child: Obx(() => CustomTextField(
+                            controller:
+                                chatController.descriptionController.value,
+                            maxLines: 1,
+                            labelText: "Update Description",
                           )),
                     ),
                   ],
@@ -93,6 +98,8 @@ class _ChangeGroupDescriptionState extends State<ChangeGroupDescription> {
                             groupId: widget.groupId,
                             groupName: chatController.titleController.value.text
                                 .toString(),
+                            groupDes:
+                                chatController.descriptionController.value.text,
                             groupImage: File(""));
                       })),
               Container(

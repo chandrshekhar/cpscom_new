@@ -17,6 +17,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../Home/Controller/socket_controller.dart';
 import '../Widget/send_message_widget.dart';
+import '../Widget/show_member_widget.dart';
 
 class ChatScreen extends StatefulWidget {
   bool? isAdmin;
@@ -37,13 +38,13 @@ class _ChatScreenState extends State<ChatScreen> {
   final groupListController = Get.put(GroupListController());
   final socketController = Get.put(SocketController());
   final reportController = Get.put(ReportController());
-
   FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
     // var ownId = LocalStorage().getUserId();
-
+    chatController.msgController.value.clear();
+    chatController.isMemberSuggestion.value = false;
     chatController.getAllChatByGroupId(groupId: widget.groupId).then((value) {
       List<String> reciverId =
           widget.groupModel.currentUsers!.map((user) => user.sId!).toList();
@@ -79,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onTap: () async {
                 chatController.groupId.value = "";
                 Navigator.pop(context);
-               // await groupListController.getGroupList(isLoadingShow: false);
+                // await groupListController.getGroupList(isLoadingShow: false);
 
                 // <-- The target method
               },
@@ -221,7 +222,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             chatController.selectedIndex.value =
                                                 index;
                                             print(
-                                                "consdition ${item.allRecipients!.length == item.readBy!.length}");
+                                                "consdition ${item.deliveredTo!.length}");
                                           },
                                           child: SenderTile(
                                             isDelivered:
@@ -292,29 +293,36 @@ class _ChatScreenState extends State<ChatScreen> {
                                             chatController.selectedIndex.value =
                                                 index;
                                           },
-                                          child: ReceiverTile(
-                                            index: index,
-                                            replyOf: item.replyOf,
-                                            fileName: item.fileName ?? "",
-                                            chatController: chatController,
-                                            onSwipedMessage: () {
-                                              chatController.isRelayFunction(
-                                                  isRep: true,
-                                                  msgId: item.id,
-                                                  msgType: item.messageType,
-                                                  msg: item.message,
-                                                  senderName: item.senderName);
-                                              // replyToMessage(chatMap);
-                                            },
-                                            message: item.message ?? "",
-                                            messageType: item.messageType ?? "",
-                                            sentTime: DateFormat('hh:mm a')
-                                                .format(DateTime.parse(
-                                                        item.timestamp ?? "")
-                                                    .toLocal()),
-                                            sentByName: item.senderName ?? "",
-                                            sentByImageUrl: item.message ?? "",
-                                            groupCreatedBy: "Pandey",
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 15),
+                                            child: ReceiverTile(
+                                              index: index,
+                                              replyOf: item.replyOf,
+                                              fileName: item.fileName ?? "",
+                                              chatController: chatController,
+                                              onSwipedMessage: () {
+                                                chatController.isRelayFunction(
+                                                    isRep: true,
+                                                    msgId: item.id,
+                                                    msgType: item.messageType,
+                                                    msg: item.message,
+                                                    senderName:
+                                                        item.senderName);
+                                                // replyToMessage(chatMap);
+                                              },
+                                              message: item.message ?? "",
+                                              messageType:
+                                                  item.messageType ?? "",
+                                              sentTime: DateFormat('hh:mm a')
+                                                  .format(DateTime.parse(
+                                                          item.timestamp ?? "")
+                                                      .toLocal()),
+                                              sentByName: item.senderName ?? "",
+                                              sentByImageUrl:
+                                                  item.message ?? "",
+                                              groupCreatedBy: "Pandey",
+                                            ),
                                           ),
                                         );
                                   //             chatMap['isDelivered'])
@@ -324,9 +332,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   )),
                 ],
               )),
-              // Obx(() => chatController.isMemberSuggestion.value
-              //     ? TagMemberWidget(chatController: chatController)
-              //     : const SizedBox()),
+              Obx(() => chatController.isMemberSuggestion.value
+                  ? TagMemberWidget(chatController: chatController)
+                  : const SizedBox()),
               Obx(() => chatController.isReply == true
                   ? SendMessageWidget(
                       groupId: widget.groupId,

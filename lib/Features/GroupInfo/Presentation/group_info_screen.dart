@@ -340,7 +340,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                     member: memberController
                                         .dataBaseMemberList[index],
                                     creatorId: widget.groupId,
-                      
                                     isUserAdmin: widget.isAdmin,
                                     onDeleteButtonPressed: () {});
                               },

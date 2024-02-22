@@ -20,6 +20,7 @@ class GroupListModel {
 class GroupModel {
   String? sId;
   String? groupName;
+  String? groupDescription;
   String? groupImage;
   List<CurrentUsers>? currentUsers;
   List<dynamic>? previousUsers;
@@ -38,6 +39,7 @@ class GroupModel {
       this.createdAt,
       this.updatedAt,
       this.groupImage,
+      this.groupDescription,
       this.iV,
       this.id,
       this.currentUsersId,
@@ -59,6 +61,9 @@ class GroupModel {
         : json['previousUsers'] as List<dynamic>?;
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    groupDescription = json['groupDescription'] == null
+        ? null
+        : json['groupDescription'] as String?;
     iV = json['__v'];
     id = json['id'];
     currentUsersId = json['currentUsersId'] == null
