@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cpscom_admin/Features/AddMembers/Model/members_model.dart';
+import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:flutter/material.dart';
 
 import '../Commons/app_colors.dart';
@@ -8,7 +8,7 @@ import '../Commons/app_sizes.dart';
 class ParticipantsCardWidget extends StatelessWidget {
   final bool? isUserAdmin;
   final bool? isUserSuperAdmin;
-  final MemberListMdoel member;
+  final CurrentUsers member;
   final String? creatorId;
   final VoidCallback onDeleteButtonPressed;
 
@@ -27,6 +27,14 @@ class ParticipantsCardWidget extends StatelessWidget {
       dense: true,
       contentPadding: EdgeInsets.zero,
       horizontalTitleGap: 0,
+      trailing: isUserAdmin == false
+          ? IconButton(
+              onPressed: onDeleteButtonPressed,
+              icon: const Icon(
+                Icons.delete,
+                color: Colors.red,
+              ))
+          : const Text("Admin"),
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
         child: CachedNetworkImage(
@@ -58,11 +66,6 @@ class ParticipantsCardWidget extends StatelessWidget {
             .bodyMedium!
             .copyWith(color: AppColors.black, fontWeight: FontWeight.w500),
       ),
-      subtitle: Text(
-        member.email ?? "",
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
     );
-    
   }
 }

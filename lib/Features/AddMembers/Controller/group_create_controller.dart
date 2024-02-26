@@ -1,9 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cpscom_admin/Features/AddMembers/Model/members_model.dart';
 import 'package:cpscom_admin/Features/AddMembers/Repo/member_repo.dart';
+import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:cpscom_admin/Widgets/toast_widget.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +23,6 @@ class MemeberlistController extends GetxController {
   final groupListController = Get.put(GroupListController());
   //member list
   RxList<MemberListMdoel> memberList = <MemberListMdoel>[].obs;
-  RxList<MemberListMdoel> dataBaseMemberList = <MemberListMdoel>[].obs;
   RxList<String> memberId = <String>[].obs;
   RxList<MemberListMdoel> memberSelectedList = <MemberListMdoel>[].obs;
 
@@ -50,13 +51,18 @@ class MemeberlistController extends GetxController {
   }
 
   //Method for selet the member for create a group
-  checkBoxTrueFalse(dynamic v, String id, MemberListMdoel mmberListModel) {
+
+  RxList<String> updateMemberId = <String>[].obs;
+  checkBoxTrueFalse(
+      dynamic v, String id, MemberListMdoel mmberListModel, String groupId) {
     if (v != null && v) {
       memberId.add(id);
       memberSelectedList.add(mmberListModel);
+      groupId.isNotEmpty ? updateMemberId.add(id) : null;
     } else {
       memberId.remove(id);
       memberSelectedList.remove(mmberListModel);
+      groupId.isNotEmpty ? updateMemberId.remove(id) : null;
     }
   }
 
@@ -76,6 +82,52 @@ class MemeberlistController extends GetxController {
     } catch (e) {
       memberList.value = [];
       isMemberListLoading(false);
+    }
+  }
+
+  RxBool isDeleteWaiting = false.obs;
+
+  Future<void> deleteUserFromGroup(
+      {required String groupId, required String userId}) async {
+    final chatController = Get.put(ChatController());
+    try {
+      Map<String, dynamic> reqModel = {"groupId": groupId, "userId": userId};
+      isDeleteWaiting(true);
+      var res = await memebrListRepo.deleteMemberFromGroup(reqModel: reqModel);
+      if (res['success'] == true) {
+        TostWidget().successToast(title: "Success", message: res['message']);
+        isDeleteWaiting(false);
+      } else {
+        isDeleteWaiting(false);
+      }
+    } catch (e) {
+      isDeleteWaiting(false);
+      log("Error while fetch the data ${e.toString()}");
+    }
+  }
+
+  RxBool addingGroup = false.obs;
+  Future<void> addGroupMember(
+      {required String groupId, required List<String> userId, required BuildContext context}) async {
+    final chatController = Get.put(ChatController());
+    try {
+      Map<String, dynamic> reqModel = {"groupId": groupId, "userId": userId};
+      addingGroup(true);
+      var res = await memebrListRepo.addMemberInGroup(reqModel: reqModel);
+      if (res['success'] == true) {
+        TostWidget().successToast(title: "Success", message: res['message']);
+        await chatController.getGroupDetailsById(groupId: groupId);
+        Navigator.pop(context);
+        addingGroup(false);
+        updateMemberId.clear();
+      } else {
+        addingGroup(false);
+        updateMemberId.clear();
+      }
+    } catch (e) {
+      addingGroup(false);
+      updateMemberId.clear();
+      log("Error while fetch the data ${e.toString()}");
     }
   }
 

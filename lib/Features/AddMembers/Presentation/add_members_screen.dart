@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Controller/group_create_controller.dart';
+import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/CreateNewGroup/Presentation/create_new_group_screen.dart';
-import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Utils/device_size.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_floating_action_button.dart';
@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../../../Utils/custom_snack_bar.dart';
 import '../../../Widgets/custom_smartrefresher_fotter.dart';
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/shimmer_effetct.dart';
@@ -36,6 +35,7 @@ class AddMembersScreen extends StatefulWidget {
 class _AddMembersScreenState extends State<AddMembersScreen> {
   final TextEditingController searchController = TextEditingController();
   final memberListController = Get.put(MemeberlistController());
+  final chatController = Get.put(ChatController());
 
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -45,6 +45,16 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
     super.initState();
     memberListController.limit.value = 20;
     widget.groupId!.isNotEmpty
+        ? WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            memberListController.memberId.clear();
+            chatController.getGroupDetailsById(groupId: widget.groupId!);
+            for (var element in chatController.groupModel.value.currentUsers!) {
+              memberListController.memberId.add(element.sId.toString());
+            }
+            memberListController.memberId.refresh();
+          })
+        : null;
+    widget.groupId!.isNotEmpty
         ? null
         : memberListController.dataClearAfterAdd();
     memberListController.getMemberList();
@@ -52,7 +62,6 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("hsfhsdfahsdfgv${memberListController.memberId.toString()}");
     return Scaffold(
         appBar: CustomAppBar(
           title: 'Add Participants',
@@ -209,7 +218,10 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                         .contains(data.sId),
                                     onChanged: (value) {
                                       memberListController.checkBoxTrueFalse(
-                                          value, data.sId!, data);
+                                          value,
+                                          data.sId!,
+                                          data,
+                                          widget.groupId!);
                                     }));
                               },
                             ),
@@ -223,22 +235,23 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
         ),
         floatingActionButton: Obx(
           () => memberListController.memberId.isNotEmpty
-              ? CustomFloatingActionButton(
-                  onPressed: () {
-                    if (widget.isCameFromHomeScreen == true) {
-                      context.push(const CreateNewGroupScreen());
-                    } else {
-                      // addMemberToGroup(widget.groupId!);
-                      Future.delayed(
-                          const Duration(seconds: 1),
-                          () => context.pop(GroupInfoScreen(
-                                groupId: widget.groupId!,
-                              )));
-                      customSnackBar(context, 'Member Added Successfully');
-                    }
-                  },
-                  iconData: EvaIcons.arrowForwardOutline,
-                )
+              ? memberListController.addingGroup.value
+                  ? const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    )
+                  : CustomFloatingActionButton(
+                      onPressed: () {
+                        if (widget.isCameFromHomeScreen == true) {
+                          context.push(const CreateNewGroupScreen());
+                        } else {
+                          memberListController.addGroupMember(
+                              groupId: widget.groupId!,
+                              userId: memberListController.updateMemberId,
+                              context: context);
+                        }
+                      },
+                      iconData: EvaIcons.arrowForwardOutline,
+                    )
               : const SizedBox(),
         ));
   }

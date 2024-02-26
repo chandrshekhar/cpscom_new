@@ -364,7 +364,7 @@ class _CreateNewGroupScreenState extends State<CreateNewGroupScreen> {
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           try {
-                            memberListController.memberId.length > 1
+                            memberListController.memberId.isNotEmpty
                                 ? await memberListController
                                     .createGroup(context)
                                 : TostWidget().errorToast(

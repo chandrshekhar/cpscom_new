@@ -284,47 +284,57 @@ class _ChatScreenState extends State<ChatScreen> {
                                             //         color: AppColors.grey,
                                             //       )),
                                           ))
-                                      : InkWell(
-                                          onLongPress: () {
-                                            _showPopupMenu(
-                                                context, item.sId.toString());
-                                          },
-                                          onTap: () {
-                                            chatController.selectedIndex.value =
-                                                index;
-                                          },
-                                          child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 15),
-                                            child: ReceiverTile(
-                                              index: index,
-                                              replyOf: item.replyOf,
-                                              fileName: item.fileName ?? "",
-                                              chatController: chatController,
-                                              onSwipedMessage: () {
-                                                chatController.isRelayFunction(
-                                                    isRep: true,
-                                                    msgId: item.id,
-                                                    msgType: item.messageType,
-                                                    msg: item.message,
-                                                    senderName:
-                                                        item.senderName);
-                                                // replyToMessage(chatMap);
+                                      : item.messageType == "created"
+                                          ? Center(
+                                              child: Text(item.message ?? ""),
+                                            )
+                                          : InkWell(
+                                              onLongPress: () {
+                                                _showPopupMenu(context,
+                                                    item.sId.toString());
                                               },
-                                              message: item.message ?? "",
-                                              messageType:
-                                                  item.messageType ?? "",
-                                              sentTime: DateFormat('hh:mm a')
-                                                  .format(DateTime.parse(
-                                                          item.timestamp ?? "")
-                                                      .toLocal()),
-                                              sentByName: item.senderName ?? "",
-                                              sentByImageUrl:
-                                                  item.message ?? "",
-                                              groupCreatedBy: "Pandey",
-                                            ),
-                                          ),
-                                        );
+                                              onTap: () {
+                                                chatController.selectedIndex
+                                                    .value = index;
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15),
+                                                child: ReceiverTile(
+                                                  index: index,
+                                                  replyOf: item.replyOf,
+                                                  fileName: item.fileName ?? "",
+                                                  chatController:
+                                                      chatController,
+                                                  onSwipedMessage: () {
+                                                    chatController
+                                                        .isRelayFunction(
+                                                            isRep: true,
+                                                            msgId: item.id,
+                                                            msgType: item
+                                                                .messageType,
+                                                            msg: item.message,
+                                                            senderName: item
+                                                                .senderName);
+                                                    // replyToMessage(chatMap);
+                                                  },
+                                                  message: item.message ?? "",
+                                                  messageType:
+                                                      item.messageType ?? "",
+                                                  sentTime: DateFormat(
+                                                          'hh:mm a')
+                                                      .format(DateTime.parse(
+                                                              item.timestamp ??
+                                                                  "")
+                                                          .toLocal()),
+                                                  sentByName:
+                                                      item.senderName ?? "",
+                                                  sentByImageUrl:
+                                                      item.message ?? "",
+                                                  groupCreatedBy: "Pandey",
+                                                ),
+                                              ),
+                                            );
                                   //             chatMap['isDelivered'])
                                   //         :
                                 })

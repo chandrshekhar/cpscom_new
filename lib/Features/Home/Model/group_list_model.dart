@@ -30,6 +30,7 @@ class GroupModel {
   String? id;
   List<dynamic>? currentUsersId;
   LastMessage? lastMessage;
+  List<dynamic>? admins;
 
   GroupModel(
       {this.sId,
@@ -40,6 +41,7 @@ class GroupModel {
       this.updatedAt,
       this.groupImage,
       this.groupDescription,
+      this.admins,
       this.iV,
       this.id,
       this.currentUsersId,
@@ -49,6 +51,7 @@ class GroupModel {
     sId = json['_id'];
     groupImage =
         json['groupImage'] == null ? null : json['groupImage'] as String?;
+    admins = json['admins'] == null ? null : json['admins'] as List<dynamic>?;
     groupName = json['groupName'];
     if (json['currentUsers'] != null) {
       currentUsers = <CurrentUsers>[];

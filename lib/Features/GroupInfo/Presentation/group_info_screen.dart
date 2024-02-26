@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Controller/group_create_controller.dart';
-import 'package:cpscom_admin/Features/AddMembers/Model/members_model.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/GroupInfo/ChangeGroupDescription/Presentation/chnage_group_description.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
@@ -17,6 +16,7 @@ import '../../../Commons/app_images.dart';
 import '../../../Utils/custom_bottom_modal_sheet.dart';
 import '../../../Widgets/shimmer_for_text.dart';
 import '../../AddMembers/Presentation/add_members_screen.dart';
+import '../../AddMembers/Widgets/delete_widget_alert.dart';
 import '../Model/image_picker_model.dart';
 
 class GroupInfoScreen extends StatefulWidget {
@@ -38,21 +38,11 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    memberController.dataBaseMemberList.clear();
-    memberController.memberId.clear();
-    getDetails();
-  }
 
-  getDetails() async {
-    await Future.delayed(const Duration(milliseconds: 200), () {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       chatController.getGroupDetailsById(groupId: widget.groupId);
       for (var element in chatController.groupModel.value.currentUsers!) {
         memberController.memberId.add(element.sId.toString());
-        memberController.dataBaseMemberList.add(MemberListMdoel(
-            sId: element.sId ?? "",
-            name: element.name ?? "",
-            phone: element.phone ?? "",
-            image: element.image ?? ""));
       }
     });
   }
@@ -243,7 +233,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     height: AppSizes.kDefaultPadding / 2,
                   ),
                   Obx(() => Text(
-                        'Group \u2022 ${memberController.dataBaseMemberList.value.length} People',
+                        'Group  ${chatController.groupModel.value.currentUsers?.length} People',
                         style: Theme.of(context).textTheme.bodySmall,
                       )),
                 ],
@@ -267,15 +257,17 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            'Group Descrition',
-                            maxLines: 5,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(color: AppColors.black),
-                          ),
+                          child: Obx(() => Text(
+                                chatController
+                                        .groupModel.value.groupDescription ??
+                                    "",
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(color: AppColors.black),
+                              )),
                         ),
                         const Icon(
                           EvaIcons.arrowIosForward,
@@ -297,61 +289,93 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Obx(() => Text(
-                            '${memberController.dataBaseMemberList.value.length} Participants',
+                            '${chatController.groupModel.value.currentUsers?.length} Participants',
                             style: Theme.of(context).textTheme.bodyLarge,
                           )),
-                      InkWell(
-                        onTap: () {
-                          context.push(AddMembersScreen(
-                            groupId: widget.groupId,
-                            isCameFromHomeScreen: false,
-                            existingMembersList: const [],
-                          ));
-                        },
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: AppColors.buttonGradientColor),
-                          child: const Icon(
-                            EvaIcons.plus,
-                            size: 18,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      )
+                      widget.isAdmin == true
+                          ? InkWell(
+                              onTap: () {
+                                context.push(AddMembersScreen(
+                                  groupId: widget.groupId,
+                                  isCameFromHomeScreen: false,
+                                  existingMembersList: const [],
+                                ));
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: AppColors.buttonGradientColor),
+                                child: const Icon(
+                                  EvaIcons.plus,
+                                  size: 18,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink()
                     ],
                   ),
                 ),
                 CustomCard(
                   margin: const EdgeInsets.all(AppSizes.kDefaultPadding),
                   padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
-                  child:
-                      Obx(() => memberController.dataBaseMemberList.isNotEmpty
-                          ? ListView.separated(
-                              itemCount:
-                                  memberController.dataBaseMemberList.length,
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              padding: EdgeInsets.zero,
-                              itemBuilder: (context, index) {
-                                return ParticipantsCardWidget(
-                                    member: memberController
-                                        .dataBaseMemberList[index],
-                                    creatorId: widget.groupId,
-                                    isUserAdmin: widget.isAdmin,
-                                    onDeleteButtonPressed: () {});
-                              },
-                              separatorBuilder:
-                                  (BuildContext context, int index) {
-                                return const Padding(
-                                  padding: EdgeInsets.only(left: 42),
-                                  child: CustomDivider(),
-                                );
-                              },
-                            )
-                          : const SizedBox.shrink()),
+                  child: Obx(() => chatController
+                          .groupModel.value.currentUsers!.isNotEmpty
+                      ? ListView.separated(
+                          itemCount: chatController
+                              .groupModel.value.currentUsers!.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemBuilder: (context, index) {
+                            var item = chatController
+                                .groupModel.value.currentUsers![index];
+                            return ParticipantsCardWidget(
+                                member: item,
+                                creatorId: widget.groupId,
+                                isUserAdmin: chatController
+                                    .groupModel.value.admins
+                                    ?.contains(item.sId),
+                                onDeleteButtonPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      // return alert dialog
+                                      return Obx(() => DeleteMemberAlertDialog(
+                                            isLoading: memberController
+                                                .isDeleteWaiting.value,
+                                            onDelete: () async {
+                                              await memberController
+                                                  .deleteUserFromGroup(
+                                                      groupId: widget.groupId,
+                                                      userId:
+                                                          item.sId.toString())
+                                                  .then((val) async {
+                                                await chatController
+                                                    .getGroupDetailsById(
+                                                        groupId:
+                                                            widget.groupId);
+                                                for (var element
+                                                    in chatController.groupModel
+                                                        .value.currentUsers!) {}
+                                                Navigator.pop(context);
+                                              });
+                                            },
+                                          ));
+                                    },
+                                  );
+                                });
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const Padding(
+                              padding: EdgeInsets.only(left: 42),
+                              child: CustomDivider(),
+                            );
+                          },
+                        )
+                      : const SizedBox.shrink()),
                 ),
               ],
             ),

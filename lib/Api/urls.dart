@@ -34,12 +34,17 @@ class ApiPath {
   //MEMBER
   //get all user for showing inside add participent screen
   static const String getAllUserDAta = "$baseUrls/users/get-all-users";
+  //delete all user
   //crate group
   static const String craeteGroupApi = "$baseUrls/groups/create";
   //get group by id
   static const String getGroupById = "$baseUrls/groups/get-group-details/";
   //update group details
   static const String updateGroupDetails = "$baseUrls/groups/update-group";
+  //remove group member
+  static const String deleteMemberFromGroup = "$baseUrls/groups/removeuser";
+  //add group memeber exsisting group
+  static const String addGroupMember = "$baseUrls/groups/adduser";
 
   //CHAT
   // get al chat
