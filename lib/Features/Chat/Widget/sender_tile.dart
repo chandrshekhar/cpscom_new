@@ -12,9 +12,7 @@ import 'package:linkable/linkable.dart';
 import 'package:open_app_file/open_app_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:swipe_to/swipe_to.dart';
-
 import 'show_image_widget.dart';
-
 class SenderTile extends StatefulWidget {
   final String message;
   final String messageType;

@@ -8,7 +8,6 @@ import 'package:cpscom_admin/Models/group.dart';
 import 'package:cpscom_admin/Utils/app_preference.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
@@ -16,7 +15,7 @@ import 'package:uuid/uuid.dart';
 class FirebaseProvider {
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  static final FirebaseStorage storage = FirebaseStorage.instance;
+  // static final FirebaseStorage storage = FirebaseStorage.instance;
   static final FirebaseMessaging messaging = FirebaseMessaging.instance;
   final AppPreference preference = AppPreference();
 
@@ -490,14 +489,14 @@ class FirebaseProvider {
     }
   }
 
-  Future<void> uploadImage(File? imageFile) async {
-    String fileName = const Uuid().v1();
-    var ref = storage.ref().child('admin_group_images').child("$fileName.jpg");
-    var uploadTask = await ref.putFile(imageFile!);
-    //setState(() async {
-    var imageUrl = await uploadTask.ref.getDownloadURL();
-    //});
-  }
+  // Future<void> uploadImage(File? imageFile) async {
+  //   String fileName = const Uuid().v1();
+  //   var ref = storage.ref().child('admin_group_images').child("$fileName.jpg");
+  //   var uploadTask = await ref.putFile(imageFile!);
+  //   //setState(() async {
+  //   var imageUrl = await uploadTask.ref.getDownloadURL();
+  //   //});
+  // }
 
   Future<void> getFirebaseMessagingToken() async {
     await messaging.requestPermission();

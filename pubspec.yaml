@@ -45,7 +45,7 @@ dependencies:
   cloud_firestore: ^4.1.0
 
   # Firebase Packages for Storage
-  firebase_storage: ^11.2.0
+  # firebase_storage: ^11.2.0
 
   # Firebase Packages for Messaging
   firebase_messaging: ^14.6.1
