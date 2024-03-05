@@ -110,36 +110,39 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(
                                   AppSizes.cardCornerRadius * 10),
-                              child: Obx(() => CachedNetworkImage(
+                              child: Obx(
+                                () => CachedNetworkImage(
                                   width: 106,
                                   height: 106,
                                   fit: BoxFit.cover,
-                                  imageUrl:
-                                      loginController.userModel.value.image !=
-                                              null
-                                          ? loginController.userModel.value.image
-                                              .toString()
-                                          : "",
+                                  imageUrl: loginController
+                                              .userModel.value.image !=
+                                          null
+                                      ? loginController.userModel.value.image
+                                          .toString()
+                                      : "",
                                   placeholder: (context, url) =>
                                       const CircleAvatar(
-                                        radius: 66,
-                                        backgroundColor: AppColors.bg,
-                                      ),
+                                    radius: 66,
+                                    backgroundColor: AppColors.bg,
+                                  ),
                                   errorWidget: (context, url, error) =>
                                       CircleAvatar(
-                                        radius: 66,
-                                        backgroundColor: AppColors.bg,
-                                        child: Text(
-                                          loginController.userModel.value.name
-                                              .toString()[0]
-                                              .toUpperCase(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineLarge!
-                                              .copyWith(
-                                                  fontWeight: FontWeight.w600),
-                                        ),
-                                      ))),
+                                    radius: 66,
+                                    backgroundColor: AppColors.bg,
+                                    child: Text(
+                                      loginController.userModel.value.name
+                                          .toString()[0]
+                                          .toUpperCase(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge!
+                                          .copyWith(
+                                              fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                             Positioned(
                                 bottom: 0,

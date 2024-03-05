@@ -225,7 +225,7 @@ class _BuildChatListState extends State<BuildChatList> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ListView.builder(
-              itemCount: membersList.length,
+              itemCount: membersList.length < 3 ? membersList.length : 3,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
@@ -270,6 +270,31 @@ class _BuildChatListState extends State<BuildChatList> {
                   ],
                 );
               }),
+          membersList.length > 3
+              ? Align(
+                  widthFactor: 0.6,
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: AppColors.lightGrey,
+                    child: CircleAvatar(
+                      radius: 13,
+                      backgroundColor: AppColors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: FittedBox(
+                          child: Text(
+                            '+${membersList.length - 3}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall!
+                                .copyWith(color: AppColors.black),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox()
         ],
       ),
     );

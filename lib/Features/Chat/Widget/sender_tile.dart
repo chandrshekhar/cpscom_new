@@ -4,10 +4,13 @@ import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_reply_widget.dart';
 import 'package:cpscom_admin/Widgets/video_player.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:get/get.dart';
 import 'package:linkable/linkable.dart';
+import 'package:open_app_file/open_app_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:swipe_to/swipe_to.dart';
 
 import 'show_image_widget.dart';
@@ -134,11 +137,18 @@ class _SenderTileState extends State<SenderTile> {
                             )
                           : widget.messageType == 'doc'
                               ? InkWell(
-                                  onTap: () {
+                                  onTap: () async {
                                     chatController.openFileAfterDownload(
                                         widget.message,
                                         widget.fileName ?? "",
                                         context);
+                                    // await openFile(
+                                    //     url: widget.message,
+                                    //     fileName: widget.fileName);
+                                    // print("presss");
+                                    // _downloadAndOpenFile(
+                                    //     file: widget.message,
+                                    //     fileName: widget.fileName!);
                                   },
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(
@@ -232,5 +242,20 @@ class _SenderTileState extends State<SenderTile> {
         ),
       ),
     );
+  }
+
+  void _downloadAndOpenFile(
+      {required String file, required String fileName}) async {
+    var dio = Dio();
+    var dir = await getApplicationDocumentsDirectory();
+    String filePath =
+        "${dir.path}/$fileName"; // Change the extension based on your file type
+    try {
+      await dio.download(file, filePath);
+      OpenAppFile.open(
+          filePath); // Open the downloaded file using the native app
+    } catch (e) {
+      print("Error downloading file: $e");
+    }
   }
 }

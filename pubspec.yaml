@@ -69,6 +69,8 @@ dependencies:
   open_file: ^3.3.2
   # This Package is for Date and Time
   intl: ^0.18.1
+  open_app_file: ^4.0.2
+  
 
   # BLOC Package for State Management
   bloc: ^8.1.1

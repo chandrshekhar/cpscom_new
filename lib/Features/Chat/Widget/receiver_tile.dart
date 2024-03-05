@@ -192,7 +192,7 @@ class _ReceiverTileState extends State<ReceiverTile> {
                                     : widget.messageType == 'doc'
                                         ? InkWell(
                                             onTap: () async {
-                                              chatController
+                                              await chatController
                                                   .openFileAfterDownload(
                                                       widget.message,
                                                       widget.fileName,

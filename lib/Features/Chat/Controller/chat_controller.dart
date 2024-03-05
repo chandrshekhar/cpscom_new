@@ -333,10 +333,11 @@ class ChatController extends GetxController {
         },
       );
 
-      await openPDF(fileUrl: message, fileName: fileName ?? "");
+      await openPDF(fileUrl: message, fileName: fileName);
 
       Navigator.pop(context);
     } catch (e) {
+      log("sahdghsdg ${e.toString()}");
       Navigator.pop(context);
     }
   }
