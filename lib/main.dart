@@ -103,21 +103,21 @@ Future<void> main() async {
   // });
 }
 
-Future<void> setFirebaseToken(String? token) async {
-  await FirebaseMessaging.instance.requestPermission();
-  if (token != null) {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({'pushToken': token});
-    await FirebaseFirestore.instance
-        .collection('group')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({'pushToken': token});
-    // .then((value) => print("setFirebaseToken then"))
-    // .onError((error, stackTrace) => print("setFirebaseToken $stackTrace"));
-  }
-}
+// Future<void> setFirebaseToken(String? token) async {
+//   await FirebaseMessaging.instance.requestPermission();
+//   if (token != null) {
+//     await FirebaseFirestore.instance
+//         .collection('users')
+//         .doc(FirebaseAuth.instance.currentUser!.uid)
+//         .update({'pushToken': token});
+//     await FirebaseFirestore.instance
+//         .collection('group')
+//         .doc(FirebaseAuth.instance.currentUser!.uid)
+//         .update({'pushToken': token});
+//     // .then((value) => print("setFirebaseToken then"))
+//     // .onError((error, stackTrace) => print("setFirebaseToken $stackTrace"));
+//   }
+// }
 
 firebaseConfig() async {
   await PushNotificationService().setupInteractedMessage();
@@ -126,14 +126,14 @@ firebaseConfig() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  RemoteMessage? initialMessage =
-      await FirebaseMessaging.instance.getInitialMessage();
+  // RemoteMessage? initialMessage =
+  //     await FirebaseMessaging.instance.getInitialMessage();
 
   String? fcmToken = await FirebaseMessaging.instance.getToken();
-  setFirebaseToken(fcmToken);
+  // setFirebaseToken(fcmToken);
   AppPreference().saveFirebaseToken(token: fcmToken ?? "");
 
-  print("FCM->$fcmToken");
+  log("FCM->$fcmToken");
 }
 
 class MyApp extends StatefulWidget {

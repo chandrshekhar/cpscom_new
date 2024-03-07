@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // ignore: slash_for_doc_comments
@@ -46,12 +48,13 @@ class PushNotificationService {
     // Stream listener
     // This function is called when the app is in the background and user clicks on the notification
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      log("remoteMsg --- > ${message.data}");
       // Get.toNamed(NOTIFICATIOINS_ROUTE);
-      if (message.data['type'] == 'chat') {
-        // Navigator.pushNamed(context, '/chat',
-        //     arguments: ChatArguments(message));
-      }
-      print("onMessageOpenedApp $message");
+      // if (message.data['type'] == 'chat') {
+      // Navigator.pushNamed(context, '/chat',
+      //     arguments: ChatArguments(message));
+      // }
+      log("onMessageOpenedApp $message");
     });
     await enableIOSNotifications();
     await registerNotificationListeners();
@@ -91,46 +94,35 @@ class PushNotificationService {
 // onMessage is called when the app is in foreground and a notification is received
     FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
       // Get.find<HomeController>().getNotificationsNumber();
-      print("onMessage ${message?.notification!.body}");
-      print(
-          "onMessage ${message?.from} , ${message?.category},${message?.contentAvailable}, ${message?.data},${message?.messageId},${message?.messageType},${message?.notification},${message?.senderId} ");
+      // print(
+      //     "onMessage text ${message?.from} , ${message?.category},${message?.contentAvailable}, ${message?.data},${message?.messageId},${message?.messageType},${message?.notification},${message?.senderId} ");
       RemoteNotification? notification = message!.notification;
-      print(notification!.apple);
-
+      // print(notification!.apple);
+      log("remoteMsgf --- > ${message.notification}");
       AndroidNotification? android = message.notification?.android;
-      AppleNotification? apple = message.notification?.apple;
+      // AppleNotification? apple = message.notification?.apple;
 // If `onMessage` is triggered with a notification, construct our own
       // local notification to show to users using the created channel.
       // if (android != null) {
       flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
+        message.notification.hashCode,
+        message.notification?.title,
+        message.notification?.body,
         NotificationDetails(
             android: AndroidNotificationDetails(
               channel.id,
               channel.name,
               channelDescription: channel.description,
-              icon: android!.smallIcon,
+              icon: android?.smallIcon,
+              priority: Priority.high,
               playSound: true,
             ),
-            iOS: const DarwinNotificationDetails()),
+            iOS: const DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+            )),
       );
-      // } else {
-      //   if (apple != null) {
-      //     flutterLocalNotificationsPlugin.show(
-      //       notification.hashCode,
-      //       notification.title,
-      //       notification.body,
-      //       NotificationDetails(
-
-      //         iOS:DarwinNotificationDetails (
-
-      //         ),
-      //       ),
-      //     );
-      //   }
-      // }
     });
   }
 

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../Utils/app_preference.dart';
 import '../../../Widgets/toast_widget.dart';
 import '../Model/user_profle_model.dart';
 
@@ -27,10 +28,13 @@ class LoginController extends GetxController {
   RxBool isLoginLaoding = false.obs;
   userLogin({required BuildContext context}) async {
     try {
+      String? fcmToken = await AppPreference().getFirebaseToken();
       isLoginLaoding(true);
+      log("fcm--> $fcmToken");
       Map<String, dynamic> reqModel = {
         "id": emailController.value.text.toString().toLowerCase(),
-        "password": passwordController.value.text.toString()
+        "password": passwordController.value.text.toString(),
+        "firebaseToken":fcmToken
       };
       log("Login request model ${reqModel.toString()}");
       var res = await _authRepo.userLogin(reqModel: reqModel);
