@@ -1,10 +1,9 @@
 import 'dart:developer';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:cpscom_admin/Commons/app_strings.dart';
 import 'package:cpscom_admin/Utils/dismis_keyboard.dart';
 import 'package:cpscom_admin/global_bloc.dart';
 import 'package:cpscom_admin/pushNotificationService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+
 import 'Commons/theme.dart';
 import 'Features/Splash/Presentation/splash_screen.dart';
 import 'Utils/app_preference.dart';
@@ -132,6 +132,7 @@ firebaseConfig() async {
   String? fcmToken = await FirebaseMessaging.instance.getToken();
   // setFirebaseToken(fcmToken);
   AppPreference().saveFirebaseToken(token: fcmToken ?? "");
+  await FirebaseMessaging.instance.requestPermission();
 
   log("FCM->$fcmToken");
 }
