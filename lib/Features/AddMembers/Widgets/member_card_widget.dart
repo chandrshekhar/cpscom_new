@@ -44,7 +44,7 @@ class MemberCardWidget extends StatelessWidget {
                       member.name?.substring(0, 1) ?? '',
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText1!
+                          .bodyLarge!
                           .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -59,11 +59,11 @@ class MemberCardWidget extends StatelessWidget {
                   children: [
                     Text(
                       member.name ?? '',
-                      style: Theme.of(context).textTheme.bodyText1,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     Text(
                       member.email ?? '',
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),

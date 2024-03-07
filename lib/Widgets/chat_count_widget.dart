@@ -18,7 +18,7 @@ class ChatCountWidget extends StatelessWidget {
         '$count',
         style: Theme.of(context)
             .textTheme
-            .caption!
+            .bodySmall!
             .copyWith(color: AppColors.white),
       ),
     );

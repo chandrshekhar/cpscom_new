@@ -3,7 +3,7 @@ import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:flutter/material.dart';
 
 class SenderMsgReplyWidget extends StatelessWidget {
-  SenderMsgReplyWidget(
+  const SenderMsgReplyWidget(
       {super.key, required this.replyMsg, required this.senderName});
 
   final String replyMsg;

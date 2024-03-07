@@ -83,7 +83,7 @@ class LoginController extends GetxController {
 
         updateUserDetails(status: "", image: groupImages);
       } else {}
-    } on Exception catch (e) {}
+    } on Exception {}
   }
 
   RxBool isUserUpdateLoading = false.obs;

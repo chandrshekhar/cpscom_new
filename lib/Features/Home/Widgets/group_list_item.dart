@@ -66,7 +66,7 @@ class _GroupListItemState extends State<GroupListItem> {
                           .toUpperCase(),
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText1!
+                          .bodyLarge!
                           .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),

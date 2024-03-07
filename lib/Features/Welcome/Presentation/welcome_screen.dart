@@ -86,7 +86,7 @@ Widget _buildDesktopView(BuildContext context, GetStartedStateLoaded state) {
                             state.responseGetStarted.data?.cms?.title
                                     .toString() ??
                                 'Join the Conversation: Connect and Collaborate',
-                            style: Theme.of(context).textTheme.headline6,
+                            style: Theme.of(context).textTheme.titleLarge,
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(
@@ -96,7 +96,7 @@ Widget _buildDesktopView(BuildContext context, GetStartedStateLoaded state) {
                             state.responseGetStarted.data?.cms?.description
                                     .toString() ??
                                 'Say goodbye to scattered conversations! Connect with your team, share files, and stay organized all in one place.',
-                            style: Theme.of(context).textTheme.bodyText2,
+                            style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -161,7 +161,7 @@ Widget _buildTabView(BuildContext context, ) {
                   Text(
                  
                         'Join the Conversation: Connect and Collaborate',
-                    style: Theme.of(context).textTheme.headline6,
+                    style: Theme.of(context).textTheme.titleLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(
@@ -171,7 +171,7 @@ Widget _buildTabView(BuildContext context, ) {
                  
                          
                         'Say goodbye to scattered conversations! Connect with your team, share files, and stay organized all in one place.',
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -237,7 +237,7 @@ Widget _buildMobileView(BuildContext context, ) {
               Text(
                 
                     'Join the Conversation: Connect and Collaborate',
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(
@@ -246,7 +246,7 @@ Widget _buildMobileView(BuildContext context, ) {
               Text(
                
                     'Say goodbye to scattered conversations! Connect with your team, share files, and stay organized all in one place.',
-                style: Theme.of(context).textTheme.bodyText2,
+                style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(

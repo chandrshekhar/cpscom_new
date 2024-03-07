@@ -33,7 +33,7 @@ class ConfirmationDialog extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(ViewDialogsAction.Cancel),
           child: Text(
             negativeButtonLabel!,
-            style: Theme.of(context).textTheme.bodyText2,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
         TextButton(
@@ -42,7 +42,7 @@ class ConfirmationDialog extends StatelessWidget {
             positiveButtonLabel!,
             style: Theme.of(context)
                 .textTheme
-                .bodyText2!
+                .bodyMedium!
                 .copyWith(color: AppColors.black, fontWeight: FontWeight.w500),
           ),
         ),

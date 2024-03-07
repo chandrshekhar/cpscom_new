@@ -49,7 +49,7 @@ class _ChangeGroupTitleState extends State<ChangeGroupTitle> {
                     'Add Group Title',
                     style: Theme.of(context)
                         .textTheme
-                        .bodyText2!
+                        .bodyMedium!
                         .copyWith(color: AppColors.black),
                   ),
                   const SizedBox(
@@ -127,7 +127,7 @@ class _ChangeGroupTitleState extends State<ChangeGroupTitle> {
                           child: Text(
                             'Cancel',
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyText1,
+                            style: Theme.of(context).textTheme.bodyLarge,
                           )),
                     )
                   ],

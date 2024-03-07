@@ -111,7 +111,7 @@ class _CustomImagePickerState extends State<CustomImagePicker> {
                                 leading: chatPickerList[index].icon,
                                 title: Text(chatPickerList[index].title!,
                                     style:
-                                        Theme.of(context).textTheme.bodyText1),
+                                        Theme.of(context).textTheme.bodyLarge),
                               );
                             }));
                   },

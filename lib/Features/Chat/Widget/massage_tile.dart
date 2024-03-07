@@ -73,11 +73,11 @@ class MassageTile extends StatelessWidget {
                                         .auth.currentUser!.displayName
                                 ? Theme.of(context)
                                     .textTheme
-                                    .bodyText2!
+                                    .bodyMedium!
                                     .copyWith(color: AppColors.white)
                                 : Theme.of(context)
                                     .textTheme
-                                    .bodyText2!
+                                    .bodyMedium!
                                     .copyWith(color: AppColors.white),
                           ),
                           SizedBox(
@@ -94,11 +94,11 @@ class MassageTile extends StatelessWidget {
                                           .auth.currentUser!.displayName
                                   ? Theme.of(context)
                                       .textTheme
-                                      .bodyText2!
+                                      .bodyMedium!
                                       .copyWith(color: AppColors.white)
                                   : Theme.of(context)
                                       .textTheme
-                                      .bodyText2!
+                                      .bodyMedium!
                                       .copyWith(color: AppColors.white),
                             ),
                           ),
@@ -154,7 +154,7 @@ class MassageTile extends StatelessWidget {
               chatMap['message'],
               style: Theme.of(context)
                   .textTheme
-                  .bodyText2!
+                  .bodyMedium!
                   .copyWith(color: AppColors.white),
             ),
           ),

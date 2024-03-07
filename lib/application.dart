@@ -37,6 +37,6 @@ class _Application extends State<Application> {
 
   @override
   Widget build(BuildContext context) {
-    return Text("...");
+    return const Text("...");
   }
 }

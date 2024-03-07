@@ -46,7 +46,7 @@ class _CustomSearchbarState extends State<CustomSearchbar> {
                 //   groupName = value!;
                 //   groupDesc = value;
                 // });
-                return null;
+                return;
               },
               isBorder: false,
             ),

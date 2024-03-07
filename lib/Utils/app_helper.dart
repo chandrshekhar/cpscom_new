@@ -65,9 +65,9 @@ extension DateHelper on DateTime {
     return formatter.format(this);
   }
   bool isSameDate(DateTime other) {
-    return this.year == other.year &&
-        this.month == other.month &&
-        this.day == other.day;
+    return year == other.year &&
+        month == other.month &&
+        day == other.day;
   }
 
   int getDifferenceInDaysWithNow() {
@@ -77,9 +77,9 @@ extension DateHelper on DateTime {
 }
 
 extension ListExtensions<T> on List<T> {
-  Iterable<T> whereWithIndex(bool test(T element, int index)) {
+  Iterable<T> whereWithIndex(bool Function(T element, int index) test) {
     final List<T> result = [];
-    for (var i = 0; i < this.length; i++) {
+    for (var i = 0; i < length; i++) {
       if (test(this[i], i)) {
         result.add(this[i]);
       }
