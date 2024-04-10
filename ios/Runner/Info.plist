@@ -38,6 +38,8 @@
 	<string>Choose photo from Library to send in a group</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>MinimumOSVersion</key>
+    <string>12.0</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

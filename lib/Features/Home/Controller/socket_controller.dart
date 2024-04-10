@@ -18,7 +18,7 @@ class SocketController extends GetxController {
   socketConnection() {
     try {
       String userId = LocalStorage().getUserId().toString();
-      socket = IO.io("https://api.excellis.in", <String, dynamic>{
+      socket = IO.io("https://api.cpscomhub.com", <String, dynamic>{
         "transports": ["websocket"],
         "autoConnect": true,
         //"query": {"id": "cK-Pqmh1ib9vJsHnAAD4"},
