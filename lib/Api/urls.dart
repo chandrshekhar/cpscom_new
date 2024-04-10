@@ -1,6 +1,6 @@
 class Urls {
   static const String baseUrl =
-      'https://excellis.co.in/derick-veliz-admin/api/v1/';
+      'https://api.cpscomhub.com/derick-veliz-admin/api/v1/';
   static const String cmsGetStarted = 'cms/get-started';
   static const String userReport = 'report/user-report';
   static const String groupReport = 'report/group-report';
@@ -8,15 +8,15 @@ class Urls {
   static const String sendPushNotificationUrl =
       'https://fcm.googleapis.com/fcm/send';
   static const String forgetPasswordurl =
-      "https://api.excellis.in/api/v1/users/forgot-password";
+      "https://api.cpscomhub.com/api/v1/users/forgot-password";
   static const String verifyOtp =
-      "https://api.excellis.in/api/v1/users/verify-email-otp";
+      "https://api.cpscomhub.com/api/v1/users/verify-email-otp";
   static const String resetPassword =
-      "https://api.excellis.in/api/v1/users/reset-password";
+      "https://api.cpscomhub.com/api/v1/users/reset-password";
 }
 
 class ApiPath {
-  static const String baseUrls = 'https://api.excellis.in/api/v1';
+  static const String baseUrls = 'https://api.cpscomhub.com/api/v1';
 
   //static const String baseUrls = "https://slippery-lionfish-59.loca.lt/api/v1";
 
