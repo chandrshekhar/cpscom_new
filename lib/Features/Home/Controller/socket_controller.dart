@@ -18,7 +18,12 @@ class SocketController extends GetxController {
   socketConnection() {
     try {
       String userId = LocalStorage().getUserId().toString();
-      socket = IO.io("https://api.cpscomhub.com", <String, dynamic>{
+      socket = IO.io(
+        
+       // "https://api.cpscomhub.com",
+       "https://crazy-sitting-duck.loca.lt",
+        
+         <String, dynamic>{
         "transports": ["websocket"],
         "autoConnect": true,
         //"query": {"id": "cK-Pqmh1ib9vJsHnAAD4"},

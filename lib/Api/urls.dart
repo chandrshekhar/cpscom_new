@@ -16,9 +16,9 @@ class Urls {
 }
 
 class ApiPath {
-  static const String baseUrls = 'https://api.cpscomhub.com/api/v1';
+  // static const String baseUrls = 'https://api.cpscomhub.com/api/v1';
 
-  //static const String baseUrls = "https://slippery-lionfish-59.loca.lt/api/v1";
+  static const String baseUrls = "https://crazy-sitting-duck.loca.lt/api/v1";
 
   //AUTH
   //Login Api
