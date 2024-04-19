@@ -7,6 +7,8 @@ import 'package:cpscom_admin/Features/AddMembers/Model/members_model.dart';
 import 'package:cpscom_admin/Features/AddMembers/Repo/member_repo.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
+import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/toast_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +23,7 @@ class MemeberlistController extends GetxController {
   var grpDescController = TextEditingController().obs;
   final memebrListRepo = MemberlistRepo();
   final groupListController = Get.put(GroupListController());
+  RxBool isUserChecked = true.obs;
   //member list
   RxList<MemberListMdoel> memberList = <MemberListMdoel>[].obs;
   RxList<String> memberId = <String>[].obs;
@@ -108,7 +111,9 @@ class MemeberlistController extends GetxController {
 
   RxBool addingGroup = false.obs;
   Future<void> addGroupMember(
-      {required String groupId, required List<String> userId, required BuildContext context}) async {
+      {required String groupId,
+      required List<String> userId,
+      required BuildContext context}) async {
     final chatController = Get.put(ChatController());
     try {
       Map<String, dynamic> reqModel = {"groupId": groupId, "userId": userId};
@@ -134,6 +139,10 @@ class MemeberlistController extends GetxController {
   RxBool isGroupCreateLoading = false.obs;
   //method for create group
   createGroup(BuildContext context) async {
+    final socketController = Get.put(SocketController());
+    var userId = LocalStorage().getUserId();
+    RxList<String> userIds = memberId;
+    userIds.add(userId);
     try {
       isGroupCreateLoading(true);
       var res = await memebrListRepo.createNewGroup(
@@ -141,9 +150,16 @@ class MemeberlistController extends GetxController {
           memberId: memberId,
           groupDescription: grpDescController.value.text,
           file: File(images.value));
+      log("asjhdghajsdf ${res.toString()}");
       if (res['success'] == true) {
         TostWidget().successToast(title: "Success", message: res['message']);
-        await groupListController.getGroupList();
+        Map<String, dynamic> reqModeSocket = {
+          "currentUsers": res['data']['currentUsers'],
+          "_id": res['data']['_id']
+        };
+        log("req---> $reqModeSocket");
+        socketController.socket!.emit("creategroup", reqModeSocket);
+        //await groupListController.getGroupList();
         isGroupCreateLoading(false);
         dataClearAfterAdd();
         doNavigateWithReplacement(route: const HomeScreen(), context: context);

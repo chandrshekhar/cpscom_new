@@ -16,9 +16,12 @@ class Urls {
 }
 
 class ApiPath {
-  // static const String baseUrls = 'https://api.cpscomhub.com/api/v1';
+  static const String baseUrls = 'https://api.cpscomhub.com/api/v1';
 
-  static const String baseUrls = "https://crazy-sitting-duck.loca.lt/api/v1";
+  static const String socketUrl = "https://api.cpscomhub.com";
+  //static const String socketUrl = "https://crazy-sitting-duck.loca.lt";
+
+  //static const String baseUrls = "https://crazy-sitting-duck.loca.lt/api/v1";  //This is for server tunnel for testing live to backend
 
   //AUTH
   //Login Api

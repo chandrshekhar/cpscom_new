@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
+import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:flutter/material.dart';
 
 import '../Commons/app_colors.dart';
@@ -27,14 +28,17 @@ class ParticipantsCardWidget extends StatelessWidget {
       dense: true,
       contentPadding: EdgeInsets.zero,
       horizontalTitleGap: 0,
-      trailing: isUserAdmin == false
-          ? IconButton(
-              onPressed: onDeleteButtonPressed,
-              icon: const Icon(
-                Icons.delete,
-                color: Colors.red,
-              ))
-          : const Text("Admin"),
+      trailing:
+          member.sId.toString().contains(LocalStorage().getUserId().toString())
+              ? const Text("My Self")
+              : isUserAdmin == true
+                  ? const Text("Admin")
+                  : IconButton(
+                      onPressed: onDeleteButtonPressed,
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      )),
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
         child: CachedNetworkImage(

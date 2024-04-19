@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cpscom_admin/Api/urls.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:get/get.dart';
@@ -19,15 +20,13 @@ class SocketController extends GetxController {
     try {
       String userId = LocalStorage().getUserId().toString();
       socket = IO.io(
-        
-       // "https://api.cpscomhub.com",
-       "https://crazy-sitting-duck.loca.lt",
-        
-         <String, dynamic>{
-        "transports": ["websocket"],
-        "autoConnect": true,
-        //"query": {"id": "cK-Pqmh1ib9vJsHnAAD4"},
-      });
+          ApiPath.socketUrl,
+          //"https://crazy-sitting-duck.loca.lt",
+          <String, dynamic>{
+            "transports": ["websocket"],
+            "autoConnect": true,
+            //"query": {"id": "cK-Pqmh1ib9vJsHnAAD4"},
+          });
       socket!.on('connect', (_) {
         print('Connected');
         // Access socket ID
@@ -105,16 +104,20 @@ class SocketController extends GetxController {
         }
       });
       socket?.on("deliver", (data) {
-        log("yteyrubfnmdfb $data");
+        log("yteyrubfnmdfb ${data['deliveredTo']}");
         if (data['deliverData'] == null) {
           log("if pront");
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].sId == data['msgId'].toString()) {
               for (var element in (data['deliveredTo'] as List)) {
-                if (chatController.chatList[i].deliveredTo?.length !=
-                    chatController.groupModel.value.currentUsers?.length) {
-                  chatController.chatList[i].deliveredTo!
-                      .add(ChatDeliveredTo(sId: element['user']['_id']));
+                if (chatController.chatList[i].deliveredTo!.length !=
+                    chatController.chatList[i].allRecipients!.length) {
+                  if (chatController.chatList[i].deliveredTo!
+                      .every((e) => e.user != element['user']['_id'])) {
+                    chatController.chatList[i].deliveredTo!
+                        .add(ChatDeliveredTo(user: element['user']['_id']));
+                    chatController.chatList.refresh();
+                  }
                 }
               }
               chatController.chatList.refresh();
@@ -122,12 +125,11 @@ class SocketController extends GetxController {
           }
         } else {
           log("elese pront");
-
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].deliveredTo?.length !=
-                chatController.groupModel.value.currentUsers?.length) {
+                chatController.chatList[i].allRecipients?.length) {
               chatController.chatList[i].deliveredTo!.add(ChatDeliveredTo(
-                  sId: data['deliverData']['user'],
+                  user: data['deliverData']['user'],
                   timestamp: data['deliverData']['timestamp'].toString()));
             }
 
@@ -152,53 +154,13 @@ class SocketController extends GetxController {
           // }
         }
       });
-      socket?.on("read", (data) {
-        log("jhghhg  $data");
-        if (data['msgId'] != null) {
-          for (int i = 0; i < chatController.chatList.length; i++) {
-            if (chatController.chatList[i].sId == data['msgId'].toString()) {
-              chatController.chatList[i].readBy = (data['readData'] as List)
-                  .map((e) => ChatReadBy.fromJson(e))
-                  .toList();
-              chatController.chatList.refresh();
-            }
-          }
-        } else {
-          log("elffese pront");
-          // for (int i = 0; i < chatController.chatList.length; i++) {
-          //   log("chat list loop");
-          //   List readIds = [];
-          //   for (var j = 0;
-          //       j < chatController.chatList[i].readBy!.length;
-          //       j++) {
-          //     readIds.add(chatController.chatList[i].readBy![j].user);
-          //   }
-          //   log("Chat list response ${readIds.length}");
-          //   if (!readIds.contains(data['readData']['user']) &&
-          //       (chatController.chatList[i].readBy!
-          //           .where((element) =>
-          //               element.sId!.contains(data['readData']['user']))
-          //           .isEmpty)) {
-          //     chatController.chatList[i].readBy!.add(ChatReadBy(
-          //         user: User(sId: data['readData']['user']),
-          //         timestamp: data['readData']['timestamp'].toString()));
-          //   }
-          // }
-          // chatController.chatList.refresh();
-
-          for (int i = 0; i < chatController.chatList.length; i++) {
-            if (chatController.chatList[i].readBy?.length !=
-                chatController.groupModel.value.currentUsers?.length) {
-              chatController.chatList[i].readBy!.add(ChatReadBy(
-                  user: User(
-                    sId: data['readData']['user'],
-                  ),
-                  timestamp: data['readData']['timestamp'].toString()));
-            }
-
-            chatController.chatList.refresh();
-          }
-        }
+      socket?.on("newgroup", (data) {
+        log("Create group socket data ${data.toString()}");
+        groupListController.getGroupList(isLoadingShow: false);
+      });
+      socket?.on("updated", (data) {
+        log("Update group socket data ${data.toString()}");
+        groupListController.getGroupList(isLoadingShow: false);
       });
     } catch (e) {
       log("pandey: $e");

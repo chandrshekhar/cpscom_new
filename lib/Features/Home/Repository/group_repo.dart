@@ -114,7 +114,6 @@ class GroupRepo {
               contentType: MediaType("images", "jpeg")),
         ));
       }
-
       response = await dio.post(ApiPath.updateGroupDetails, data: formData);
       log(response.data.toString());
       if (response.statusCode == 200) {

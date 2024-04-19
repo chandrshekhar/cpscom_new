@@ -57,7 +57,7 @@ class ChatRepo {
       File? file
       // required File groupImage,
       }) async {
-    log("Update user details api calling....");
+    log("Sending message....");
     Response response;
     var token = localStorage.getUserToken();
     var senderId = localStorage.getUserId();

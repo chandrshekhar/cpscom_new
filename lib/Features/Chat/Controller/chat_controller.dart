@@ -175,6 +175,7 @@ class ChatController extends GetxController {
       required String groupDes,
       required BuildContext context}) async {
     try {
+      final socketController = Get.put(SocketController());
       isUpdateLoading(true);
       var res = await _groupRepo.updateGroupDetails(
           groupDes: groupDes,
@@ -183,6 +184,9 @@ class ChatController extends GetxController {
           groupImage: groupImage);
       if (res['success'] == true) {
         final groupListController = Get.put(GroupListController());
+        Map<String, dynamic> reqModeSocket = res['data'];
+        log("req---> $reqModeSocket");
+        socketController.socket!.emit("update-group", reqModeSocket);
         await groupListController.getGroupList(isLoadingShow: false);
         await getGroupDetailsById(groupId: groupId);
         TostWidget().successToast(title: "Success", message: res['message']);

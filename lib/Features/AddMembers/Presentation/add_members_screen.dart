@@ -3,7 +3,7 @@ import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Controller/group_create_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/CreateNewGroup/Presentation/create_new_group_screen.dart';
-import 'package:cpscom_admin/Utils/device_size.dart';
+import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_floating_action_button.dart';
 import 'package:easy_debounce/easy_debounce.dart';
@@ -46,6 +46,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
     memberListController.limit.value = 20;
     widget.groupId!.isNotEmpty
         ? WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            memberListController.searchText.value = "";
             memberListController.memberId.clear();
             chatController.getGroupDetailsById(groupId: widget.groupId!);
             for (var element in chatController.groupModel.value.currentUsers!) {
@@ -122,7 +123,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                     ? const ShimmerEffectLaoder(
                         numberOfWidget: 20,
                       )
-                    : memberListController.memberList.isNotEmpty
+                    : memberListController.memberList.value.isNotEmpty
                         ? SmartRefresher(
                             controller: _refreshController,
                             enablePullDown: false,
@@ -134,15 +135,15 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                               _refreshController.loadComplete();
                             },
                             footer: const CustomFooterWidget(),
-                            child: ListView.separated(
-                              separatorBuilder: (context, index) {
-                                return Divider(
-                                  height: isMobile(context)
-                                      ? 1
-                                      : 30, // Adjust the height of the divider
-                                  color: Colors.grey,
-                                );
-                              },
+                            child: ListView.builder(
+                              // separatorBuilder: (context, index) {
+                              //   return Divider(
+                              //     height: isMobile(context)
+                              //         ? 1
+                              //         : 30, // Adjust the height of the divider
+                              //     color: Colors.grey,
+                              //   );
+                              // },
                               shrinkWrap: true,
                               itemCount: memberListController.memberList.length,
                               padding: const EdgeInsets.only(
@@ -152,6 +153,8 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                 var data =
                                     memberListController.memberList[index];
                                 return Obx(() => CheckboxListTile(
+                                    contentPadding: const EdgeInsets.only(
+                                        bottom: 20, left: 20, right: 20),
                                     title: Row(
                                       children: [
                                         ClipRRect(
@@ -214,8 +217,14 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                     ),
                                     controlAffinity:
                                         ListTileControlAffinity.trailing,
-                                    value: memberListController.memberId
-                                        .contains(data.sId),
+                                    value: data.sId.toString() ==
+                                            LocalStorage()
+                                                .getUserId()
+                                                .toString()
+                                        ? memberListController
+                                            .isUserChecked.value
+                                        : memberListController.memberId.value
+                                            .contains(data.sId),
                                     onChanged: (value) {
                                       memberListController.checkBoxTrueFalse(
                                           value,

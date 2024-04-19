@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
@@ -51,6 +53,7 @@ class _SenderTileState extends State<SenderTile> {
   final chatController = Get.put(ChatController());
   @override
   Widget build(BuildContext context) {
+    
     return Padding(
       padding: const EdgeInsets.only(
           right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),

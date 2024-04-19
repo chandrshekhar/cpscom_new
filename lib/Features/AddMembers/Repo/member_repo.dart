@@ -55,7 +55,7 @@ class MemberlistRepo {
     log("Craete group calling....");
     Response response;
     var token = localStorage.getUserToken();
-    var senderId = localStorage.getUserId();
+
     try {
       dio.options.headers = {
         'Content-Type': 'multipart/form-data',
