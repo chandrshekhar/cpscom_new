@@ -40,9 +40,21 @@ class _ChatScreenState extends State<ChatScreen> {
   final reportController = Get.put(ReportController());
   FocusNode focusNode = FocusNode();
 
+  String getLocaLTimeXone(String utcTime) {
+    String timeZone = Intl.getCurrentLocale();
+
+    // Create a date format object with the local time zone
+    DateFormat localDateFormat = DateFormat('h:mm a', timeZone);
+
+    // Format the UTC time using the local date format
+    String localTime = localDateFormat.format(DateTime.parse(utcTime));
+    return localTime;
+  }
+
   @override
   void initState() {
     // var ownId = LocalStorage().getUserId();
+
     chatController.msgController.value.clear();
     chatController.isMemberSuggestion.value = false;
     chatController.getAllChatByGroupId(groupId: widget.groupId).then((value) {

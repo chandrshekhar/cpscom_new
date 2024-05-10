@@ -41,7 +41,8 @@ class SocketController extends GetxController {
         List<String> reciverId = List<String>.from(data['data']
             ['allRecipients']); // Creating a copy of the original list
         reciverId.removeWhere(
-            (id) => id == ownId); // Remove the user id from the new list
+            (id)
+ => id == ownId); // Remove the user id from the new list
         socket?.emit("deliver", {
           "msgId": data['data']['_id'],
           "userId": LocalStorage().getUserId().toString(),
@@ -153,7 +154,56 @@ class SocketController extends GetxController {
           //   }
           // }
         }
+
+
       });
+      socket?.on("read", (data) {
+        log("jhghhg  $data");
+        if (data['msgId'] != null) {
+          for (int i = 0; i < chatController.chatList.length; i++) {
+            if (chatController.chatList[i].sId == data['msgId'].toString()) {
+              chatController.chatList[i].readBy = (data['readData'] as List)
+                  .map((e) => ChatReadBy.fromJson(e))
+                  .toList();
+              chatController.chatList.refresh();
+            }
+          }
+        } else {
+          log("elffese pront");
+          // for (int i = 0; i < chatController.chatList.length; i++) {
+          //   log("chat list loop");
+          //   List readIds = [];
+          //   for (var j = 0;
+          //       j < chatController.chatList[i].readBy!.length;
+          //       j++) {
+          //     readIds.add(chatController.chatList[i].readBy![j].user);
+          //   }
+          //   log("Chat list response ${readIds.length}");
+          //   if (!readIds.contains(data['readData']['user']) &&
+          //       (chatController.chatList[i].readBy!
+          //           .where((element) =>
+          //               element.sId!.contains(data['readData']['user']))
+          //           .isEmpty)) {
+          //     chatController.chatList[i].readBy!.add(ChatReadBy(
+          //         user: User(sId: data['readData']['user']),
+          //         timestamp: data['readData']['timestamp'].toString()));
+          //   }
+          // }
+          // chatController.chatList.refresh();
+
+          for (int i = 0; i < chatController.chatList.length; i++) {
+            if (chatController.chatList[i].readBy?.length !=
+                chatController.groupModel.value.currentUsers?.length) {
+              chatController.chatList[i].readBy!.add(ChatReadBy(
+                  user: User(
+                    sId: data['readData']['user'],
+                  ),
+                  timestamp: data['readData']['timestamp'].toString()));
+            }
+
+            chatController.chatList.refresh();
+          }}
+        });
       socket?.on("newgroup", (data) {
         log("Create group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);

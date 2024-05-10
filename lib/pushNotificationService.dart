@@ -27,7 +27,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
  *  
  * */
 
-class PushNotificationService {
+class PushNotificationService {  
   // It is assumed that all messages contain a data field with the key 'type'
 
   Future<void> setupInteractedMessage() async {
