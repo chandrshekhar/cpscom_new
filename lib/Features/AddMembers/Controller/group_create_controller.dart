@@ -75,8 +75,8 @@ class MemeberlistController extends GetxController {
       isLoaderShowing ? isMemberListLoading(true) : null;
       var res = await memebrListRepo.getMemberList(
           searchQuery: searchText.value, limit: limit.value, offset: 0);
-      if (res.success == true) {
-        memberList.value = res.memberList!;
+      if (res.data!.success == true) {
+        memberList.value = res.data!.memberList!;
         isMemberListLoading(false);
       } else {
         memberList.value = [];
@@ -92,13 +92,13 @@ class MemeberlistController extends GetxController {
 
   Future<void> deleteUserFromGroup(
       {required String groupId, required String userId}) async {
-    final chatController = Get.put(ChatController());
     try {
       Map<String, dynamic> reqModel = {"groupId": groupId, "userId": userId};
       isDeleteWaiting(true);
       var res = await memebrListRepo.deleteMemberFromGroup(reqModel: reqModel);
-      if (res['success'] == true) {
-        TostWidget().successToast(title: "Success", message: res['message']);
+      if (res.data!['success'] == true) {
+        TostWidget()
+            .successToast(title: "Success", message: res.data!['message']);
         isDeleteWaiting(false);
       } else {
         isDeleteWaiting(false);
@@ -119,8 +119,9 @@ class MemeberlistController extends GetxController {
       Map<String, dynamic> reqModel = {"groupId": groupId, "userId": userId};
       addingGroup(true);
       var res = await memebrListRepo.addMemberInGroup(reqModel: reqModel);
-      if (res['success'] == true) {
-        TostWidget().successToast(title: "Success", message: res['message']);
+      if (res.data!['success'] == true) {
+        TostWidget()
+            .successToast(title: "Success", message: res.data!['message']);
         await chatController.getGroupDetailsById(groupId: groupId);
         Navigator.pop(context);
         addingGroup(false);
@@ -149,22 +150,23 @@ class MemeberlistController extends GetxController {
           groupName: grpNameController.value.text,
           memberId: memberId,
           groupDescription: grpDescController.value.text,
-          file: File(images.value));
-      log("asjhdghajsdf ${res.toString()}");
-      if (res['success'] == true) {
-        TostWidget().successToast(title: "Success", message: res['message']);
+          file: images.value.isNotEmpty ? File(images.value) : null);
+
+      if (res.data!['success'] == true) {
+        TostWidget()
+            .successToast(title: "Success", message: res.data!['message']);
         Map<String, dynamic> reqModeSocket = {
-          "currentUsers": res['data']['currentUsers'],
-          "_id": res['data']['_id']
+          "currentUsers": res.data!['data']['currentUsers'],
+          "_id": res.data!['data']['_id']
         };
-        log("req---> $reqModeSocket");
+
         socketController.socket!.emit("creategroup", reqModeSocket);
         //await groupListController.getGroupList();
         isGroupCreateLoading(false);
         dataClearAfterAdd();
         doNavigateWithReplacement(route: const HomeScreen(), context: context);
       } else {
-        TostWidget().errorToast(title: "Error", message: res['message']);
+        TostWidget().errorToast(title: "Error", message: res.data!['message']);
         isGroupCreateLoading(false);
       }
     } catch (e) {

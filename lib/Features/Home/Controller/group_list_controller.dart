@@ -15,8 +15,8 @@ class GroupListController extends GetxController {
       var res = await _groupListRepo.groupListService(
           searchQuery: searchText.value, offset: 0, limit: limit.value);
       RxList<GroupModel> listData = <GroupModel>[].obs;
-      if (res.success == true) {
-        listData.value = res.groupModel!;
+      if (res.data!.success == true) {
+        listData.value = res.data!.groupModel!;
         listData.sort((a, b) {
           if (a.lastMessage == null && b.lastMessage != null) {
             return 1;

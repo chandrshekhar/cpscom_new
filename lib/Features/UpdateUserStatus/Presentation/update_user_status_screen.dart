@@ -1,7 +1,10 @@
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
 import 'package:cpscom_admin/Features/MyProfile/Presentation/my_profile_screen.dart';
+import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../Widgets/custom_text_field.dart';
 import '../../../Widgets/full_button.dart';
@@ -14,8 +17,8 @@ class UpdateUserStatusScreen extends StatefulWidget {
 }
 
 class _UpdateUserStatusScreenState extends State<UpdateUserStatusScreen> {
-  final TextEditingController statusController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final loginController = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +48,11 @@ class _UpdateUserStatusScreenState extends State<UpdateUserStatusScreen> {
                   const SizedBox(
                     height: AppSizes.kDefaultPadding,
                   ),
-                  CustomTextField(
-                    controller: statusController,
-                    hintText: 'Add Status',
-                    autoFocus: true,
-                  ),
+                  Obx(() => CustomTextField(
+                        controller: loginController.statusController.value,
+                        hintText: 'Add Status',
+                        autoFocus: true,
+                      )),
                 ],
               ),
             ),
@@ -59,23 +62,20 @@ class _UpdateUserStatusScreenState extends State<UpdateUserStatusScreen> {
                     horizontal: AppSizes.kDefaultPadding * 2),
                 child: Column(
                   children: [
-                    FullButton(
-                        label: 'Ok'.toUpperCase(),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // FirebaseFirestore.instance
-                            //     .collection('users')
-                            //     .doc(FirebaseAuth.instance.currentUser!.uid)
-                            //     .update({"status": statusController.text}).then(
-                            //         (value) {
-                            //   customSnackBar(
-                            //     context,
-                            //     'Status Updated Successfully',
-                            //   );
-                            //   context.pop(const MyProfileScreen());
-                            // });
-                          }
-                        }),
+                    Obx(() => loginController.isUserUpdateLoading.value
+                        ? const Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          )
+                        : FullButton(
+                            label: 'Ok'.toUpperCase(),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                await loginController.updateUserDetails(
+                                    status: loginController
+                                        .statusController.value.text);
+                                backFromPrevious(context: context);
+                              }
+                            })),
                     Container(
                       alignment: Alignment.center,
                       child: TextButton(

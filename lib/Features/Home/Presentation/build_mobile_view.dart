@@ -35,7 +35,9 @@ class _BuildMobileViewState extends State<BuildMobileView> {
                   isAdmin: userController.userModel.value.userType != null &&
                           userController.userModel.value.userType!.isNotEmpty
                       ? userController.userModel.value.userType!
-                              .contains('admin')
+                                  .contains(AdminCheck.admin) ||
+                              userController.userModel.value.userType!
+                                  .contains(AdminCheck.superAdmin)
                           ? true
                           : false
                       : false)),
@@ -43,7 +45,10 @@ class _BuildMobileViewState extends State<BuildMobileView> {
             floatingActionButton: Obx(() =>
                 userController.userModel.value.userType != null &&
                         userController.userModel.value.userType!.isNotEmpty
-                    ? userController.userModel.value.userType!.contains('admin')
+                    ? userController.userModel.value.userType!
+                                .contains(AdminCheck.admin) ||
+                            userController.userModel.value.userType!
+                                .contains(AdminCheck.superAdmin)
                         ? CustomFloatingActionButton(
                             onPressed: () {
                               context.push(const AddMembersScreen(

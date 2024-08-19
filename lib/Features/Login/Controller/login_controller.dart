@@ -21,6 +21,7 @@ class LoginController extends GetxController {
   var passwordController = TextEditingController().obs;
   final localStorage = LocalStorage();
   RxBool isPasswordVisible = true.obs;
+  var statusController = TextEditingController().obs;
   toggleIsPasswordVisible() {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
@@ -34,19 +35,20 @@ class LoginController extends GetxController {
       Map<String, dynamic> reqModel = {
         "id": emailController.value.text.toString().toLowerCase(),
         "password": passwordController.value.text.toString(),
-        "firebaseToken":fcmToken
+        "firebaseToken": fcmToken
       };
       log("Login request model ${reqModel.toString()}");
       var res = await _authRepo.userLogin(reqModel: reqModel);
-      if (res.success == true) {
+      if (res.data!.success == true) {
         getUserProfile();
-        TostWidget().successToast(title: "Login Success", message: res.message);
-        localStorage.setToken(token: res.data?.token.toString());
-        localStorage.setUserId(userId: res.data?.user?.sId.toString());
+        TostWidget()
+            .successToast(title: "Login Success", message: res.data!.message);
+        localStorage.setToken(token: res.data?.data?.token.toString());
+        localStorage.setUserId(userId: res.data?.data?.user?.sId.toString());
         isLoginLaoding(false);
         doNavigateWithReplacement(route: const HomeScreen(), context: context);
       } else {
-        TostWidget().errorToast(title: "Error", message: res.message);
+        TostWidget().errorToast(title: "Error", message: res.data?.message);
         isLoginLaoding(false);
       }
     } catch (e) {
@@ -61,8 +63,9 @@ class LoginController extends GetxController {
     isUserLaoding(true);
     try {
       var res = await _authRepo.getUserProfile();
-      if (res.success == true) {
-        userModel.value = res.data!.user!;
+      if (res.data?.success == true) {
+        userModel.value = res.data!.data!.user!;
+        statusController.value.text = res.data!.data!.user!.accountStatus ?? "";
         isUserLaoding(false);
       } else {
         userModel.value = User();
@@ -87,18 +90,23 @@ class LoginController extends GetxController {
   }
 
   RxBool isUserUpdateLoading = false.obs;
-  updateUserDetails({required String status, required File image}) async {
+  updateUserDetails({required String status, File? image}) async {
     try {
+      isUserUpdateLoading(true);
       var res = await _authRepo.updateProfileDetails(
           status: status, groupImage: image);
-      if (res["success"] == true) {
+      if (res.data!["success"] == true) {
         await getUserProfile();
-        TostWidget().successToast(title: "Successful", message: res['message']);
+        TostWidget()
+            .successToast(title: "Successful", message: res.data!['message']);
+        getUserProfile();
+        isUserUpdateLoading(false);
       } else {
-        TostWidget().errorToast(title: "Error", message: res['message']);
+        TostWidget().errorToast(title: "Error", message: res.data!['message']);
+        isUserUpdateLoading(false);
       }
     } catch (e) {
-      print(e);
+      isUserUpdateLoading(false);
     }
   }
 }

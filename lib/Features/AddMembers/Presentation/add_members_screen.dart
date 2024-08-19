@@ -58,6 +58,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
     widget.groupId!.isNotEmpty
         ? null
         : memberListController.dataClearAfterAdd();
+    memberListController.searchText.value = "";
     memberListController.getMemberList();
   }
 
@@ -136,14 +137,6 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                             },
                             footer: const CustomFooterWidget(),
                             child: ListView.builder(
-                              // separatorBuilder: (context, index) {
-                              //   return Divider(
-                              //     height: isMobile(context)
-                              //         ? 1
-                              //         : 30, // Adjust the height of the divider
-                              //     color: Colors.grey,
-                              //   );
-                              // },
                               shrinkWrap: true,
                               itemCount: memberListController.memberList.length,
                               padding: const EdgeInsets.only(
@@ -156,6 +149,10 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                     contentPadding: const EdgeInsets.only(
                                         bottom: 20, left: 20, right: 20),
                                     title: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       children: [
                                         ClipRRect(
                                           borderRadius: BorderRadius.circular(
@@ -192,26 +189,30 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                         const SizedBox(
                                           width: AppSizes.kDefaultPadding,
                                         ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              data.name ?? "",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge!,
-                                            ),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(
-                                              data.email ?? "",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium,
-                                            ),
-                                          ],
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                data.name ?? "",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge!,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                data.email ?? "",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),

@@ -100,7 +100,7 @@ class _ChangeGroupDescriptionState extends State<ChangeGroupDescription> {
                                 .toString(),
                             groupDes:
                                 chatController.descriptionController.value.text,
-                            groupImage: File(""));
+                            groupImage: null);
                       })),
               Container(
                 alignment: Alignment.center,

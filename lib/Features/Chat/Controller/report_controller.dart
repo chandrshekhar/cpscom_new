@@ -25,15 +25,15 @@ class ReportController extends GetxController {
     try {
       isGroupReportLoading(true);
       var res = await _groupRepo.grouopReport(reqModel: reqModel);
-      if (res['success'] == true) {
-        TostWidget()
-            .successToast(title: "Success", message: res['message'].toString());
+      if (res.data!['success'] == true) {
+        TostWidget().successToast(
+            title: "Success", message: res.data!['message'].toString());
         isGroupReportLoading(false);
         groupReportController.value.clear();
         backFromPrevious(context: context);
       } else {
-        TostWidget()
-            .errorToast(title: "Error", message: res['message'].toString());
+        TostWidget().errorToast(
+            title: "Error", message: res.data!['message'].toString());
         groupReportController.value.clear();
         isGroupReportLoading(false);
         backFromPrevious(context: context);
@@ -58,24 +58,24 @@ class ReportController extends GetxController {
     try {
       isGroupReportLoading(true);
       var res = await _groupRepo.messageReport(reqModel: reqModel);
-      if (res['success'] == true) {
-        TostWidget()
-            .successToast(title: "Success", message: res['message'].toString());
+      if (res.data!['success'] == true) {
+        TostWidget().successToast(
+            title: "Success", message: res.data!['message'].toString());
         isGroupReportLoading(false);
-        groupReportController.value.clear();
-        backFromPrevious(context: context);
+        messageReportController.value.clear();
+        backFromPrevious(context: Get.context!);
       } else {
-        TostWidget()
-            .errorToast(title: "Error", message: res['message'].toString());
-        groupReportController.value.clear();
+        TostWidget().errorToast(
+            title: "Error", message: res.data!['message'].toString());
+
         isGroupReportLoading(false);
-        backFromPrevious(context: context);
+        backFromPrevious(context: Get.context!);
       }
     } catch (e) {
       log("Error is ${e.toString()}");
       groupReportController.value.clear();
       isGroupReportLoading(false);
-      backFromPrevious(context: context);
+      backFromPrevious(context: Get.context!);
     }
   }
 }

@@ -58,3 +58,20 @@ class ApiPath {
   static const String groupReportApi = "$baseUrls/groups/report";
   static const String messageReportApi = "$baseUrls/groups/report-message";
 }
+
+class EndPoints {
+  static const userLogin = '/users/sign-in';
+  static const getUserProfileData = '/users/get-user';
+  static const groupListApi = "/groups/getall";
+  static const groupDetailsApi = "/groups/get-group-details/";
+  static const updateGroupDetails = "/groups/update-group";
+  static const updateUserProfile = '/users/update-user';
+  static const getMemberList = "/users/get-all-users";
+  static const createNewGroup = "/groups/create";
+  static const deleteMemeberFromGroup = "/groups/removeuser";
+  static const addMemberInGroup = "/groups/adduser";
+  static const getAllChat = '/groups/getonegroup';
+  static const sendMessage = "/groups/addnewmsg";
+  static const reportGroup = "/groups/report";
+  static const messageReportApi = '/groups/report-message';
+}

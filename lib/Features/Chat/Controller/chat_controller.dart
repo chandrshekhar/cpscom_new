@@ -59,9 +59,9 @@ class ChatController extends GetxController {
         "limit": 1000
       };
       var res = await _chatRepo.getChatListApi(reqModel: reqModel);
-      if (res.success == true) {
+      if (res.data!.success == true) {
         chatList.clear();
-        chatList.addAll(res.chat!);
+        chatList.addAll(res.data!.chat!);
         chatList.refresh();
         isChatLoading(false);
       } else {
@@ -158,8 +158,9 @@ class ChatController extends GetxController {
       var res = await _groupRepo.getGroupDetailsById(
         groupId: groupId,
       );
-
-      groupModel.value = res;
+      print("hjfghjfg ${res.data}");
+      groupModel.value = res.data!;
+      print("hjfghjfg ${groupModel.value.groupName}");
       isDetailsLaoding(false);
     } catch (e) {
       groupModel.value = GroupModel();
@@ -171,7 +172,7 @@ class ChatController extends GetxController {
   updateGroup(
       {required String groupId,
       required String groupName,
-      required File groupImage,
+      File? groupImage,
       required String groupDes,
       required BuildContext context}) async {
     try {
@@ -182,20 +183,21 @@ class ChatController extends GetxController {
           groupId: groupId,
           groupName: groupName,
           groupImage: groupImage);
-      if (res['success'] == true) {
+      if (res.data!['success'] == true) {
         final groupListController = Get.put(GroupListController());
-        Map<String, dynamic> reqModeSocket = res['data'];
+        Map<String, dynamic> reqModeSocket = res.data!['data'];
         log("req---> $reqModeSocket");
         socketController.socket!.emit("update-group", reqModeSocket);
         await groupListController.getGroupList(isLoadingShow: false);
         await getGroupDetailsById(groupId: groupId);
-        TostWidget().successToast(title: "Success", message: res['message']);
+        TostWidget()
+            .successToast(title: "Success", message: res.data!['message']);
         isUpdateLoading(false);
         // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } else {
         TostWidget()
-            .errorToast(title: "Error", message: res['error']['message']);
+            .errorToast(title: "Error", message: res.data!['error']['message']);
         isUpdateLoading(false);
       }
     } catch (e) {
@@ -226,7 +228,7 @@ class ChatController extends GetxController {
           senderName: userController.userModel.value.name ?? "");
       Map<String, dynamic> reqModeSocket = {
         "replyOf": replyOf,
-        "_id": res['data']['data']['id'],
+        "_id": res.data!['data']['data']['id'],
         "receiverId": reciverId,
         "senderId": LocalStorage().getUserId(),
         "time": DateFormat('hh:mm a').format(DateTime.now()),

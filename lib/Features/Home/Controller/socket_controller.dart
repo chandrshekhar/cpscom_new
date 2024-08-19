@@ -5,7 +5,6 @@ import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-
 import '../../../Utils/storage_service.dart';
 import '../../Chat/Model/chat_list_model.dart';
 import '../Model/group_list_model.dart';
@@ -41,8 +40,7 @@ class SocketController extends GetxController {
         List<String> reciverId = List<String>.from(data['data']
             ['allRecipients']); // Creating a copy of the original list
         reciverId.removeWhere(
-            (id)
- => id == ownId); // Remove the user id from the new list
+            (id) => id == ownId); // Remove the user id from the new list
         socket?.emit("deliver", {
           "msgId": data['data']['_id'],
           "userId": LocalStorage().getUserId().toString(),
@@ -154,8 +152,6 @@ class SocketController extends GetxController {
           //   }
           // }
         }
-
-
       });
       socket?.on("read", (data) {
         log("jhghhg  $data");
@@ -202,8 +198,9 @@ class SocketController extends GetxController {
             }
 
             chatController.chatList.refresh();
-          }}
-        });
+          }
+        }
+      });
       socket?.on("newgroup", (data) {
         log("Create group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
