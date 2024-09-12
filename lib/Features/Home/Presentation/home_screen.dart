@@ -170,6 +170,7 @@ class _BuildChatListState extends State<BuildChatList> {
                                   var item = groupListController
                                       .groupList.value[index];
                                   return HomeChatCard(
+                                      messageCount: item.unreadCount,
                                       groupId: item.sId.toString(),
                                       onPressed: () {
                                         chatController.timeStamps.value =
@@ -178,8 +179,12 @@ class _BuildChatListState extends State<BuildChatList> {
                                         context.push(ChatScreen(
                                           groupId: item.sId.toString(),
                                           isAdmin: widget.isAdmin,
-                                          groupModel: item,
+                                          index: index,
+                                          // groupModel: item,
                                         ));
+                                        groupListController
+                                            .groupList[index].unreadCount = 0;
+                                        groupListController.groupList.refresh();
                                       },
                                       groupName: item.groupName ?? "",
                                       groupDesc: item.createdAt ?? "",

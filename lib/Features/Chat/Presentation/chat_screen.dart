@@ -8,7 +8,6 @@ import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
-import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,10 +21,9 @@ import '../Widget/show_member_widget.dart';
 class ChatScreen extends StatefulWidget {
   bool? isAdmin;
   final String groupId;
-  final GroupModel groupModel;
+  int? index;
 
-  ChatScreen(
-      {Key? key, this.isAdmin, required this.groupId, required this.groupModel})
+  ChatScreen({Key? key, this.isAdmin, required this.groupId, this.index})
       : super(key: key);
 
   @override
@@ -53,25 +51,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
-    // var ownId = LocalStorage().getUserId();
-
-    chatController.msgController.value.clear();
-    chatController.isMemberSuggestion.value = false;
-    chatController.getAllChatByGroupId(groupId: widget.groupId).then((value) {
-      List<String> reciverId =
-          widget.groupModel.currentUsers!.map((user) => user.sId!).toList();
-      socketController.socket?.emit("read", {
-        "groupId": widget.groupId,
-        "userId": LocalStorage().getUserId().toString(),
-        "timestamp": chatController.timeStamps.value,
-        "receiverId": reciverId
-      });
-    });
-    chatController.groupModel.value = GroupModel();
-    chatController.getGroupDetailsById(
-        groupId: widget.groupId, timeStamp: chatController.timeStamps.value);
-    chatController.groupId.value = widget.groupId;
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      chatController.getGroupDetailsById(
+          groupId: widget.groupId, timeStamp: chatController.timeStamps.value);
+      chatController.msgController.value.clear();
+      chatController.isMemberSuggestion.value = false;
+      chatController.getAllChatByGroupId(groupId: widget.groupId).then((value) {
+        List<String> reciverId = chatController.groupModel.value.currentUsers!
+            .map((user) => user.sId!)
+            .toList();
+        socketController.socket?.emit("read", {
+          "groupId": widget.groupId,
+          "userId": LocalStorage().getUserId().toString(),
+          "timestamp": chatController.timeStamps.value,
+          "receiverId": reciverId
+        });
+      });
+      // chatController.groupModel.value = GroupModel();
+
+      chatController.groupId.value = widget.groupId;
+    });
     //updateIsSeenField(widget.groupId, true);
   }
 
@@ -79,10 +79,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Navigator.pop(context);
-        // chatController.groupId.value = "";
-        // await groupListController.getGroupList(isLoadingShow: false);
-        // // Navigator.pop(context, true);
+        groupListController.groupList[widget.index!].unreadCount = 0;
+        groupListController.groupList.refresh();
         return true;
       },
       child: Scaffold(
@@ -90,6 +88,8 @@ class _ChatScreenState extends State<ChatScreen> {
             elevation: 1,
             leading: InkWell(
               onTap: () async {
+                groupListController.groupList[widget.index!].unreadCount = 0;
+                groupListController.groupList.refresh();
                 chatController.groupId.value = "";
                 Navigator.pop(context);
                 // await groupListController.getGroupList(isLoadingShow: false);
@@ -226,7 +226,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 itemBuilder: (context, index) {
                                   var item = chatController.chatList.reversed
                                       .toList()[index];
-
+                                  chatController.isShowing(chatController
+                                      .chatList.last.messageType
+                                      .toString());
                                   return item.senderId.toString() ==
                                           LocalStorage().getUserId().toString()
                                       ? InkWell(
@@ -251,7 +253,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                             message: item.message ?? "",
                                             messageType:
                                                 item.messageType.toString(),
-                                            sentTime: DateFormat('hh:mm a')
+                                            sentTime: DateFormat(
+                                                    'dd/MM/yyyy hh:mm a')
                                                 .format(DateTime.parse(
                                                         item.timestamp ?? "")
                                                     .toLocal()),
@@ -295,9 +298,26 @@ class _ChatScreenState extends State<ChatScreen> {
                                             //         color: AppColors.grey,
                                             //       )),
                                           ))
-                                      : item.messageType == "created"
-                                          ? Center(
-                                              child: Text(item.message ?? ""),
+                                      : item.messageType == "created" ||
+                                              item.messageType == "removed" ||
+                                              item.messageType == "added"
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20,
+                                                  right: 20,
+                                                  bottom: 20),
+                                              child: Center(
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    log("index is : $index");
+                                                    log("chat length is : ${chatController.chatList.toList().length}");
+                                                  },
+                                                  child: Text(
+                                                    item.message ?? "",
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              ),
                                             )
                                           : InkWell(
                                               onLongPress: () {
@@ -333,7 +353,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   messageType:
                                                       item.messageType ?? "",
                                                   sentTime: DateFormat(
-                                                          'hh:mm a')
+                                                          'dd/MM/yyyy hh:mm a')
                                                       .format(DateTime.parse(
                                                               item.timestamp ??
                                                                   "")
@@ -356,17 +376,21 @@ class _ChatScreenState extends State<ChatScreen> {
               Obx(() => chatController.isMemberSuggestion.value
                   ? TagMemberWidget(chatController: chatController)
                   : const SizedBox()),
-              Obx(() => chatController.isReply == true
-                  ? SendMessageWidget(
-                      groupId: widget.groupId,
-                      msgController: chatController.msgController.value,
-                      scrollController: _scrollController,
-                    )
-                  : SendMessageWidget(
-                      groupId: widget.groupId,
-                      msgController: chatController.msgController.value,
-                      scrollController: _scrollController,
-                    ))
+              Obx(() => chatController.isReply.value
+                  ? chatController.isSendWidgetShow.value
+                      ? SendMessageWidget(
+                          groupId: widget.groupId,
+                          msgController: chatController.msgController.value,
+                          scrollController: _scrollController,
+                        )
+                      : const SizedBox()
+                  : chatController.isSendWidgetShow.value
+                      ? SendMessageWidget(
+                          groupId: widget.groupId,
+                          msgController: chatController.msgController.value,
+                          scrollController: _scrollController,
+                        )
+                      : const SizedBox())
             ],
           )),
     );

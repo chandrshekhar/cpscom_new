@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
@@ -19,6 +17,7 @@ class SendMessageWidget extends StatefulWidget {
   final TextEditingController msgController;
   final ScrollController scrollController;
   final String groupId;
+  // final bool isRemoved;
 
   const SendMessageWidget({
     super.key,
@@ -162,6 +161,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                             hintText: 'Type a message',
                             maxLines: 4,
                             isReplying: chatController.isReply.value,
+                            //readOnly: widget.isRemoved,
                             //  focusNode: focusNode,
                             keyboardType: TextInputType.multiline,
                             minLines: 1,
@@ -175,6 +175,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                           ),
                         ],
                       )),
+                      // widget.isRemoved? SizedBox():
                       InkWell(
                         onTap: () {
                           showCustomBottomSheet(
@@ -193,6 +194,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                         onTap: () {
                                           var ownId =
                                               LocalStorage().getUserId();
+
                                           List<String> userIds = chatController
                                               .groupModel.value.currentUsers!
                                               .map((user) => user.sId!)
@@ -209,16 +211,14 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                               break;
                                             case 1:
                                               chatController
-                                                  .pickImageForSendSms(
-                                                      imageSource:
-                                                          ImageSource.gallery,
+                                                  .pickMultipleImagesForSendSms(
                                                       groupId: widget.groupId,
                                                       receiverId: userIds,
                                                       context: context);
                                               break;
                                             case 2:
                                               chatController
-                                                  .pickImageForSendSms(
+                                                  .pickImageFromCameraSendSms(
                                                       imageSource:
                                                           ImageSource.camera,
                                                       groupId: widget.groupId,
@@ -293,12 +293,12 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                         widget.msgController.text.toString();
                     widget.msgController.clear();
                     var ownId = LocalStorage().getUserId();
-                    List<String> userIds = chatController
+                    List<String>? userIds = chatController
                         .groupModel.value.currentUsers!
                         .map((user) => user.sId!)
                         .where((userId) => userId != ownId)
                         .toList();
-                    log("User id is for another persion $userIds");
+
                     await chatController.sendMsg(
                         replyOf: chatController.isReply.value == true
                             ? chatController.replyOf

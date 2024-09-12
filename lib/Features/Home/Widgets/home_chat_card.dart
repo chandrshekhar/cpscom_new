@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
+import 'package:cpscom_admin/Features/Home/Widgets/message_count.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +17,7 @@ class HomeChatCard extends StatelessWidget {
   final Widget child;
   final String? sendBy;
   final String? messageType;
+  final int? messageCount;
 
   HomeChatCard(
       {Key? key,
@@ -29,7 +31,8 @@ class HomeChatCard extends StatelessWidget {
       this.imageUrl = '',
       this.lastMsg = '',
       this.unseenMsgCount,
-      this.messageType})
+      this.messageType,
+      this.messageCount})
       : super(key: key);
 
   @override
@@ -90,15 +93,27 @@ class HomeChatCard extends StatelessWidget {
                                     .copyWith(fontWeight: FontWeight.w500),
                               ),
                             ),
-                            Text(
-                              sentTime,
-                              maxLines: 1,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall!
-                                  .copyWith(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500),
+                            Column(
+                              children: [
+                                Text(
+                                  sentTime,
+                                  maxLines: 1,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                messageCount! > 0
+                                    ? MessageCountWidget(
+                                        messageCount: messageCount ?? 0,
+                                      )
+                                    : const SizedBox()
+                              ],
                             )
                           ],
                         ),

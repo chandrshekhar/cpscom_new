@@ -116,12 +116,15 @@ class MemeberlistController extends GetxController {
       required BuildContext context}) async {
     final chatController = Get.put(ChatController());
     try {
+      final socketController = Get.put(SocketController());
       Map<String, dynamic> reqModel = {"groupId": groupId, "userId": userId};
       addingGroup(true);
       var res = await memebrListRepo.addMemberInGroup(reqModel: reqModel);
+      log("respons for add memeber ${res.data!['data']}");
       if (res.data!['success'] == true) {
         TostWidget()
             .successToast(title: "Success", message: res.data!['message']);
+        socketController.socket!.emit("addremoveuser", res.data!['data']);
         await chatController.getGroupDetailsById(groupId: groupId);
         Navigator.pop(context);
         addingGroup(false);

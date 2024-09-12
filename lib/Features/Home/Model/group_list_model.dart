@@ -31,10 +31,12 @@ class GroupModel {
   List<dynamic>? currentUsersId;
   LastMessage? lastMessage;
   List<dynamic>? admins;
+  int? unreadCount;
 
   GroupModel(
       {this.sId,
       this.groupName,
+      this.unreadCount,
       this.currentUsers,
       this.previousUsers,
       this.createdAt,
@@ -75,6 +77,8 @@ class GroupModel {
     lastMessage = json['lastMessage'] != null
         ? LastMessage.fromJson(json['lastMessage'])
         : null;
+    unreadCount =
+        json['unreadCount'] == null ? null : json['unreadCount'] as int?;
   }
 }
 

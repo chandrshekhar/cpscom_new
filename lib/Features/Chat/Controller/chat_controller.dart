@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
 import 'package:cpscom_admin/Features/Chat/Repo/chat_repo.dart';
+import 'package:cpscom_admin/Features/Chat/Widget/docs_video.dart';
 import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/Home/Repository/group_repo.dart';
@@ -19,6 +20,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../Home/Controller/group_list_controller.dart';
+import '../Widget/confirmation_bottom_sheet_video.dart';
+import '../Widget/picture_shoiwing_bottomsheet.dart';
 
 class ChatController extends GetxController {
   final GroupRepo _groupRepo = GroupRepo();
@@ -28,6 +31,18 @@ class ChatController extends GetxController {
   RxBool isMemberSuggestion = false.obs;
   final msgController = TextEditingController().obs;
   RxInt timeStamps = (-1).obs;
+  RxBool isSendWidgetShow = true.obs;
+
+  void isShowing(String messageType) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (messageType == "removed") {
+        isSendWidgetShow.value = false;
+      } else {
+        isSendWidgetShow.value = true;
+      }
+    });
+  }
+
   final RxMap<String, dynamic> replyOf = <String, dynamic>{
     "msgId": '',
     "sender": '',
@@ -114,7 +129,6 @@ class ChatController extends GetxController {
   }
 
   void mentionMember(String value) {
-    // print("pandey -->$value");
     if (value != '') {
       if (value[value.length - 1] == '@') {
         isMemberSuggestion(true);
@@ -158,9 +172,7 @@ class ChatController extends GetxController {
       var res = await _groupRepo.getGroupDetailsById(
         groupId: groupId,
       );
-      print("hjfghjfg ${res.data}");
       groupModel.value = res.data!;
-      print("hjfghjfg ${groupModel.value.groupName}");
       isDetailsLaoding(false);
     } catch (e) {
       groupModel.value = GroupModel();
@@ -240,7 +252,7 @@ class ChatController extends GetxController {
     } catch (e) {}
   }
 
-  Future<void> pickImageForSendSms(
+  Future<void> pickImageFromCameraSendSms(
       {required ImageSource imageSource,
       required String groupId,
       required List<String> receiverId,
@@ -257,12 +269,49 @@ class ChatController extends GetxController {
             file: groupImages,
             msgType: "image",
             reciverId: receiverId);
+        selectedImages.clear();
       } else {}
     } on Exception catch (e) {
       log("image uplaod faild ${e.toString()}");
     }
   }
 
+  RxList<File> selectedImages = <File>[].obs;
+  Future<void> pickMultipleImagesForSendSms({
+    required String groupId,
+    required List<String> receiverId,
+    required BuildContext context,
+  }) async {
+    try {
+      final selected = await ImagePicker().pickMultiImage(
+        imageQuality: 50,
+      );
+
+      for (var image in selected) {
+        File imageFile = File(image.path);
+        selectedImages.add(imageFile);
+      }
+      log("ajdsajdfsja ${selectedImages.length}");
+      if (selectedImages.value.isNotEmpty) {
+        pictureBottomSheet(Get.context!, selectedImages, () async {
+          for (var image in selectedImages) {
+            await sendMsg(
+              msg: "text",
+              groupId: groupId,
+              file: image,
+              msgType: "image",
+              reciverId: receiverId,
+            );
+          }
+          selectedImages.clear();
+        });
+      }
+    } on Exception catch (e) {
+      log("Image upload failed: ${e.toString()}");
+    }
+  }
+
+  Rx<File?> videoFile = Rx<File?>(null);
   // record video
   Future pickVideoFromCameraAndSendMsg(
       {required String groupId, required List<String> receiverId}) async {
@@ -270,13 +319,19 @@ class ChatController extends GetxController {
       final video = await ImagePicker().pickVideo(
           source: ImageSource.camera, maxDuration: const Duration(seconds: 30));
       if (video == null) return;
-      // final extension = video.path.split(".").last;
-      await sendMsg(
-          msg: "text",
-          groupId: groupId,
-          file: File(video.path),
-          msgType: "video",
-          reciverId: receiverId);
+      File videoFileRaw = File(video.path);
+      videoFile.value = videoFileRaw;
+      if (videoFile.value != null) {
+        videoBottomSheet(Get.context!, videoFile.value!, () async {
+          // final extension = video.path.split(".").last;
+          await sendMsg(
+              msg: "text",
+              groupId: groupId,
+              file: videoFile.value,
+              msgType: "video",
+              reciverId: receiverId);
+        });
+      }
     } on PlatformException catch (e) {
       if (kDebugMode) {
         log('Failed to pick image: $e');
@@ -289,31 +344,36 @@ class ChatController extends GetxController {
       required List<String> receiverId,
       required BuildContext context}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+      allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx', 'mp4'],
     );
     if (result != null) {
+      videoFile.value = null;
       PlatformFile file = result.files.first;
-      //var extension = file.extension;
-      // debugPrint("file extension--> $extension");
       File files = File(file.path.toString());
-      // List<File> files =
-      //     result.paths.map((path) => File(path.toString())).toList();
+      videoFile.value = files;
       String extension = files.path.split(".").last;
-      await sendMsg(
-          msg: "text",
-          groupId: groupId,
-          file: files,
-          msgType:
-              extension == "pdf" || extension == "doc" || extension == "docx"
-                  ? "doc"
-                  : "video",
-          reciverId: receiverId);
-      // for (var i in files) {
-      //   String extension = i.path.split(".").last;
 
-      // }
+      if (extension == "pdf" || extension == "doc" || extension == "docx") {
+        docsModelBottomSheet(Get.context!, files, () async {
+          await sendMsg(
+              msg: "text",
+              groupId: groupId,
+              file: files,
+              msgType: "doc",
+              reciverId: receiverId);
+        });
+      } else {
+        videoBottomSheet(Get.context!, files, () async {
+          await sendMsg(
+              msg: "text",
+              groupId: groupId,
+              file: files,
+              msgType: "video",
+              reciverId: receiverId);
+        });
+      }
     } else {
       // User canceled the picker
     }

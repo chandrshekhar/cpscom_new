@@ -5,6 +5,7 @@ import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+
 import '../../../Utils/storage_service.dart';
 import '../../Chat/Model/chat_list_model.dart';
 import '../Model/group_list_model.dart';
@@ -24,6 +25,10 @@ class SocketController extends GetxController {
           <String, dynamic>{
             "transports": ["websocket"],
             "autoConnect": true,
+            "reconnection": true,
+            "reconnectionAttempts": 10,
+            "reconnectionDelay": 5000,
+            "timeout": 20000
             //"query": {"id": "cK-Pqmh1ib9vJsHnAAD4"},
           });
       socket!.on('connect', (_) {
@@ -31,11 +36,35 @@ class SocketController extends GetxController {
         // Access socket ID
         String socketId = socket!.id ?? "";
         print('Socket ID: $socketId');
+        socket?.emit("joinSelf", userId);
       });
-      socket?.connect();
-      socket?.emit("joinSelf", userId);
+      // socket?.connect();
+      // Listen for disconnection
+      socket!.on('disconnect', (reason) {
+        print('Disconnected: $reason');
+        // Optionally, try reconnecting manually if necessary
+        socket?.connect(); // Try to reconnect
+      });
+
+      // Listen for reconnection attempts
+      socket!.on('reconnecting', (attempt) {
+        print('Reconnecting... Attempt: $attempt');
+      });
+
+      // Listen for successful reconnection
+      socket!.on('reconnect', (_) {
+        print('Reconnected');
+        socket?.emit("joinSelf", userId); // Rejoin the room after reconnection
+      });
+
+      socket!.on('reconnect_failed', (_) {
+        print('Reconnection failed');
+      });
       socket?.on('message', (data) {
         log("All smsshgfjhsgfjshfgjhg ${data['data']}");
+        if (data['data']['messageType'] == "removed") {
+          groupListController.getGroupList(isLoadingShow: false);
+        }
         var ownId = LocalStorage().getUserId();
         List<String> reciverId = List<String>.from(data['data']
             ['allRecipients']); // Creating a copy of the original list
@@ -50,6 +79,8 @@ class SocketController extends GetxController {
 
         for (int i = 0; i < groupListController.groupList.length; i++) {
           if (data['data']['groupId'] == groupListController.groupList[i].sId) {
+            groupListController.groupList[i].unreadCount =
+                groupListController.groupList[i].unreadCount! + 1;
             groupListController.groupList[i].lastMessage = LastMessage(
               sId: data['data']['_id'],
               groupId: data['data']['groupId'],
@@ -207,6 +238,10 @@ class SocketController extends GetxController {
       });
       socket?.on("updated", (data) {
         log("Update group socket data ${data.toString()}");
+        groupListController.getGroupList(isLoadingShow: false);
+      });
+      socket?.on("addremoveuser", (data) {
+        log("Add remove user fromm group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
       });
     } catch (e) {
