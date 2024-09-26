@@ -332,7 +332,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                           itemBuilder: (context, index) {
                             var item = chatController
                                 .groupModel.value.currentUsers![index];
-                            print("sjhfgjshfg ${item.sId}");
+
                             return ParticipantsCardWidget(
                                 member: item,
                                 creatorId: item.sId,

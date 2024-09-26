@@ -74,7 +74,7 @@ class _ReceiverTileState extends State<ReceiverTile> {
             ],
           )
         : SwipeTo(
-            onRightSwipe: widget.onSwipedMessage,
+           // onRightSwipe: widget.onSwipedMessage,
             child: Padding(
               padding: const EdgeInsets.only(left: 5),
               child: Row(

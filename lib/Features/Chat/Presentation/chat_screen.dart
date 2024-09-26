@@ -237,67 +237,98 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 index;
                                             log("Delivery count is ${item.deliveredTo!.length}");
                                           },
-                                          child: SenderTile(
-                                            isDelivered:
-                                                item.allRecipients?.length ==
-                                                        item.deliveredTo?.length
-                                                    ? true.obs
-                                                    : false.obs,
-                                            isSeen:
-                                                item.allRecipients?.length ==
-                                                        item.readBy?.length
-                                                    ? true.obs
-                                                    : false.obs,
-                                            index: index,
-                                            fileName: item.fileName ?? "",
-                                            message: item.message ?? "",
-                                            messageType:
-                                                item.messageType.toString(),
-                                            sentTime: DateFormat(
-                                                    'dd/MM/yyyy hh:mm a')
-                                                .format(DateTime.parse(
-                                                        item.timestamp ?? "")
-                                                    .toLocal()),
-                                            groupCreatedBy: "",
-                                            read: "value",
-                                            onLeftSwipe: () {
-                                              chatController.isRelayFunction(
-                                                  isRep: true,
-                                                  msgId: item.sId,
-                                                  msgType: item.messageType,
-                                                  msg: item.message,
-                                                  senderName: item.senderName);
-                                              log(chatController.replyOf
-                                                  .toString());
-                                            },
-                                            replyOf: item.replyOf,
-                                            // child: item.allRecipients!
-                                            //                 .length ==
-                                            //             item.deliveredTo!
-                                            //                 .length &&
-                                            //         item.readBy!.length <
-                                            //             item.allRecipients!
-                                            //                 .length
-                                            //     ? Icon(
-                                            //         Icons.done_all_rounded,
-                                            //         size: 16,
-                                            //         color: item.allRecipients!
-                                            //                         .length ==
-                                            //                     item.deliveredTo!
-                                            //                         .length &&
-                                            //                 item.allRecipients!
-                                            //                         .length ==
-                                            //                     item.readBy!
-                                            //                         .length
-                                            //             ? AppColors.primary
-                                            //             : AppColors.grey,
-                                            //       )
-                                            //     : const Icon(
-                                            //         Icons.check,
-                                            //         size: 16,
-                                            //         color: AppColors.grey,
-                                            //       )),
-                                          ))
+                                          child: item.messageType ==
+                                                      "created" ||
+                                                  item.messageType ==
+                                                      "removed" ||
+                                                  item.messageType == "added"
+                                              ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 20,
+                                                          right: 20,
+                                                          bottom: 20),
+                                                  child: Center(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        log("index is : $index");
+                                                        log("chat length is : ${chatController.chatList.toList().length}");
+                                                      },
+                                                      child: Text(
+                                                        item.message ?? "",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              : SenderTile(
+                                                  isDelivered: item
+                                                              .allRecipients
+                                                              ?.length ==
+                                                          item.deliveredTo
+                                                              ?.length
+                                                      ? true.obs
+                                                      : false.obs,
+                                                  isSeen: item.allRecipients
+                                                              ?.length ==
+                                                          item.readBy?.length
+                                                      ? true.obs
+                                                      : false.obs,
+                                                  index: index,
+                                                  fileName: item.fileName ?? "",
+                                                  message: item.message ?? "",
+                                                  messageType: item.messageType
+                                                      .toString(),
+                                                  sentTime: DateFormat(
+                                                          'dd/MM/yyyy hh:mm a')
+                                                      .format(DateTime.parse(
+                                                              item.timestamp ??
+                                                                  "")
+                                                          .toLocal()),
+                                                  groupCreatedBy: "",
+                                                  read: "value",
+                                                  onLeftSwipe: () {
+                                                    chatController
+                                                        .isRelayFunction(
+                                                            isRep: true,
+                                                            msgId: item.sId,
+                                                            msgType: item
+                                                                .messageType,
+                                                            msg: item.message,
+                                                            senderName: item
+                                                                .senderName);
+                                                    log(chatController.replyOf
+                                                        .toString());
+                                                  },
+                                                  replyOf: item.replyOf,
+                                                  // child: item.allRecipients!
+                                                  //                 .length ==
+                                                  //             item.deliveredTo!
+                                                  //                 .length &&
+                                                  //         item.readBy!.length <
+                                                  //             item.allRecipients!
+                                                  //                 .length
+                                                  //     ? Icon(
+                                                  //         Icons.done_all_rounded,
+                                                  //         size: 16,
+                                                  //         color: item.allRecipients!
+                                                  //                         .length ==
+                                                  //                     item.deliveredTo!
+                                                  //                         .length &&
+                                                  //                 item.allRecipients!
+                                                  //                         .length ==
+                                                  //                     item.readBy!
+                                                  //                         .length
+                                                  //             ? AppColors.primary
+                                                  //             : AppColors.grey,
+                                                  //       )
+                                                  //     : const Icon(
+                                                  //         Icons.check,
+                                                  //         size: 16,
+                                                  //         color: AppColors.grey,
+                                                  //       )),
+                                                ))
                                       : item.messageType == "created" ||
                                               item.messageType == "removed" ||
                                               item.messageType == "added"

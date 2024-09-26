@@ -31,6 +31,7 @@ class SocketController extends GetxController {
             "timeout": 20000
             //"query": {"id": "cK-Pqmh1ib9vJsHnAAD4"},
           });
+
       socket!.on('connect', (_) {
         print('Connected');
         // Access socket ID
@@ -60,6 +61,8 @@ class SocketController extends GetxController {
       socket!.on('reconnect_failed', (_) {
         print('Reconnection failed');
       });
+
+      //Message received
       socket?.on('message', (data) {
         log("All smsshgfjhsgfjshfgjhg ${data['data']}");
         if (data['data']['messageType'] == "removed") {
@@ -133,6 +136,8 @@ class SocketController extends GetxController {
           });
         }
       });
+
+      //Deliver message listing
       socket?.on("deliver", (data) {
         log("yteyrubfnmdfb ${data['deliveredTo']}");
         if (data['deliverData'] == null) {
@@ -184,6 +189,8 @@ class SocketController extends GetxController {
           // }
         }
       });
+
+      //Seen message listing
       socket?.on("read", (data) {
         log("jhghhg  $data");
         if (data['msgId'] != null) {
@@ -232,17 +239,28 @@ class SocketController extends GetxController {
           }
         }
       });
+
+      //New group craete
       socket?.on("newgroup", (data) {
         log("Create group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
       });
+
+      //Update group changes
       socket?.on("updated", (data) {
         log("Update group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
       });
-      socket?.on("addremoveuser", (data) {
+
+      //Add or remove user from group
+      socket?.on("addremoveuser2", (data) {
         log("Add remove user fromm group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
+      });
+
+      //Error handling
+      socket?.onError((data) {
+        print('Socket Error: $data');
       });
     } catch (e) {
       log("pandey: $e");

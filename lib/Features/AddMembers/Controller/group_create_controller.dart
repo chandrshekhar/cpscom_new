@@ -92,11 +92,28 @@ class MemeberlistController extends GetxController {
 
   Future<void> deleteUserFromGroup(
       {required String groupId, required String userId}) async {
+    final socketController = Get.put(SocketController());
+    final chatController = Get.put(ChatController());
     try {
       Map<String, dynamic> reqModel = {"groupId": groupId, "userId": userId};
       isDeleteWaiting(true);
       var res = await memebrListRepo.deleteMemberFromGroup(reqModel: reqModel);
+      log("hjfgdshjfghjds ${res.data.toString()}");
       if (res.data!['success'] == true) {
+        socketController.socket!.emit("addremoveuser2", res.data!['data']);
+        var ownId = LocalStorage().getUserId();
+        List<String>? userIds = chatController.groupModel.value.currentUsers!
+            .map((user) => user.sId!)
+            .where((userId) => userId != ownId)
+            .toList();
+        await chatController.sendMsg(
+            replyOf: chatController.isReply.value == true
+                ? chatController.replyOf
+                : null,
+            msg: res.data!['message'],
+            reciverId: userIds,
+            groupId: groupId,
+            msgType: "removed");
         TostWidget()
             .successToast(title: "Success", message: res.data!['message']);
         isDeleteWaiting(false);
