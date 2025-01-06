@@ -50,269 +50,223 @@ class _ReceiverTileState extends State<ReceiverTile> {
   final chatController = Get.put(ChatController());
   @override
   Widget build(BuildContext context) {
-    return widget.messageType == 'notify'
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(
-                    vertical: AppSizes.kDefaultPadding),
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.kDefaultPadding,
-                    vertical: AppSizes.kDefaultPadding / 2),
-                decoration: BoxDecoration(
-                    border: Border.all(width: 1, color: AppColors.lightGrey),
-                    borderRadius:
-                        BorderRadius.circular(AppSizes.cardCornerRadius / 2),
-                    color: AppColors.shimmer),
-                child: Text(
-                  '${widget.groupCreatedBy} ${widget.message}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            ],
-          )
-        : SwipeTo(
-           // onRightSwipe: widget.onSwipedMessage,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(AppSizes.cardCornerRadius * 3),
-                    child: CachedNetworkImage(
-                        width: 30,
-                        height: 30,
-                        fit: BoxFit.cover,
-                        imageUrl: widget.sentByImageUrl,
-                        placeholder: (context, url) => const CircleAvatar(
-                              radius: 16,
-                              backgroundColor: AppColors.bg,
-                            ),
-                        errorWidget: (context, url, error) => CircleAvatar(
-                              radius: 16,
-                              backgroundColor: AppColors.bg,
-                              child: Text(
-                                widget.sentByName
-                                    .substring(0, 1)
-                                    .toString()
-                                    .toUpperCase(),
+    return SwipeTo(
+      // onRightSwipe: widget.onSwipedMessage,
+      child: Container(
+          // onRightSwipe: widget.onSwipedMessage,
+          child: widget.messageType == 'notify'
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: AppSizes.kDefaultPadding),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppSizes.kDefaultPadding,
+                          vertical: AppSizes.kDefaultPadding / 2),
+                      decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: AppColors.lightGrey),
+                          borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius / 2),
+                          color: AppColors.shimmer),
+                      child: Text(
+                        '${widget.groupCreatedBy} ${widget.message}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 3),
+                        child: CachedNetworkImage(
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                            imageUrl: widget.sentByImageUrl,
+                            placeholder: (context, url) => const CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppColors.bg,
+                                ),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppColors.bg,
+                                  child: Text(
+                                    widget.sentByName.substring(0, 1).toString().toUpperCase(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                )),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                widget.sentByName,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodyLarge!
-                                    .copyWith(fontWeight: FontWeight.w600),
+                                    .bodySmall!
+                                    .copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                               ),
-                            )),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            widget.sentByName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
-                                .copyWith(
-                                    fontSize: 12, fontWeight: FontWeight.w600),
+                              Text(
+                                ', ${widget.sentTime}',
+                                style:
+                                    Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 12),
+                              ),
+                            ],
                           ),
-                          Text(
-                            ', ${widget.sentTime}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
-                                .copyWith(fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      widget.replyOf != null
-                          ? SenderMsgReplyWidget(
-                              replyMsg: widget.replyOf?.msg ?? "",
-                              senderName: widget.replyOf?.sender ?? "",
-                            )
-                          : SizedBox.fromSize(),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: AppSizes.kDefaultPadding * 2,
-                        ),
-                        child: ChatBubble(
-                          // padding: messageType == 'image' ||
-                          //         messageType == 'pdf' ||
-                          //         messageType == 'docx' ||
-                          //         messageType == 'doc' ||
-                          //         messageType == 'mp4'
-                          //     ? EdgeInsets.zero
-                          //     : null,
-                          clipper: ChatBubbleClipper3(
-                              type: BubbleType.receiverBubble),
-                          backGroundColor: AppColors.lightGrey,
-                          alignment: Alignment.topLeft,
-                          elevation: 0,
-                          margin: const EdgeInsets.only(
-                              top: AppSizes.kDefaultPadding / 4),
-                          child: Container(
-                            constraints: BoxConstraints(
-                                maxWidth:
-                                    MediaQuery.of(context).size.width * 0.65),
-                            child: widget.messageType == 'image'
-                                ? GestureDetector(
-                                    onTap: () {
-                                      context.push(
-                                          ShowImage(imageUrl: widget.message));
-                                    },
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(
-                                          AppSizes.cardCornerRadius),
-                                      child: CachedNetworkImage(
-                                        imageUrl: widget.message,
-                                        fit: BoxFit.contain,
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator
-                                                .adaptive(),
-                                        errorWidget: (context, url, error) =>
-                                            const CircularProgressIndicator
-                                                .adaptive(),
-                                      ),
-                                    ),
-                                  )
-                                : widget.messageType == 'text'
-                                    ? Linkable(
-                                        text: widget.message,
-                                        linkColor: Colors.blue,
+                          widget.replyOf != null
+                              ? SenderMsgReplyWidget(
+                                  replyMsg: widget.replyOf?.msg ?? "",
+                                  senderName: widget.replyOf?.sender ?? "",
+                                )
+                              : SizedBox.fromSize(),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSizes.kDefaultPadding * 2,
+                            ),
+                            child: ChatBubble(
+                              // padding: messageType == 'image' ||
+                              //         messageType == 'pdf' ||
+                              //         messageType == 'docx' ||
+                              //         messageType == 'doc' ||
+                              //         messageType == 'mp4'
+                              //     ? EdgeInsets.zero
+                              //     : null,
+                              clipper: ChatBubbleClipper3(type: BubbleType.receiverBubble),
+                              backGroundColor: AppColors.lightGrey,
+                              alignment: Alignment.topLeft,
+                              elevation: 0,
+                              margin: const EdgeInsets.only(top: AppSizes.kDefaultPadding / 4),
+                              child: Container(
+                                constraints: BoxConstraints(
+                                    maxWidth: MediaQuery.of(context).size.width * 0.65),
+                                child: widget.messageType == 'image'
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          context.push(ShowImage(imageUrl: widget.message));
+                                        },
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(AppSizes.cardCornerRadius),
+                                          child: CachedNetworkImage(
+                                            imageUrl: widget.message,
+                                            fit: BoxFit.contain,
+                                            placeholder: (context, url) =>
+                                                const CircularProgressIndicator.adaptive(),
+                                            errorWidget: (context, url, error) =>
+                                                const CircularProgressIndicator.adaptive(),
+                                          ),
+                                        ),
                                       )
-                                    : widget.messageType == 'doc'
-                                        ? InkWell(
-                                            onTap: () async {
-                                              await chatController
-                                                  .openFileAfterDownload(
-                                                      widget.message,
-                                                      widget.fileName,
-                                                      context);
-                                            },
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(AppSizes
-                                                      .cardCornerRadius),
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                    maxWidth:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.45,
-                                                    maxHeight:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.40),
-                                                child: SizedBox(
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.40,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.45,
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      const Icon(
-                                                        Icons
-                                                            .download_for_offline,
-                                                        size: 35,
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(
-                                                                top: 10,
-                                                                left: 10,
-                                                                right: 10),
-                                                        child: Text(
-                                                          widget.fileName,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 18),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                    : widget.messageType == 'text'
+                                        ? Linkable(
+                                            text: widget.message,
+                                            linkColor: Colors.blue,
                                           )
-                                        : widget.messageType == "video"
-                                            ? GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            VideoMessage(
-                                                          videoUrl:
-                                                              widget.message,
-                                                        ),
-                                                      ));
+                                        : widget.messageType == 'doc'
+                                            ? InkWell(
+                                                onTap: () async {
+                                                  await chatController.openFileAfterDownload(
+                                                      widget.message, widget.fileName, context);
                                                 },
-                                                child: Container(
-                                                  alignment: Alignment.center,
-                                                  constraints: BoxConstraints(
-                                                      maxWidth:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.35,
-                                                      maxHeight:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.20),
-                                                  child: ClipRRect(
-                                                    borderRadius: BorderRadius
-                                                        .circular(AppSizes
-                                                            .cardCornerRadius),
-                                                    child: CachedNetworkImage(
-                                                      imageUrl: widget.message
-                                                              .isNotEmpty
-                                                          ? widget.message
-                                                          : '',
-                                                      fit: BoxFit.cover,
-                                                      placeholder: (context,
-                                                              url) =>
-                                                          const CircularProgressIndicator
-                                                              .adaptive(),
-                                                      errorWidget: (context,
-                                                              url, error) =>
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(
+                                                      AppSizes.cardCornerRadius),
+                                                  child: Container(
+                                                    constraints: BoxConstraints(
+                                                        maxWidth:
+                                                            MediaQuery.of(context).size.width *
+                                                                0.45,
+                                                        maxHeight:
+                                                            MediaQuery.of(context).size.width *
+                                                                0.40),
+                                                    child: SizedBox(
+                                                      height:
+                                                          MediaQuery.of(context).size.width * 0.40,
+                                                      width:
+                                                          MediaQuery.of(context).size.width * 0.45,
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
                                                           const Icon(
-                                                              Icons.play_arrow),
+                                                            Icons.download_for_offline,
+                                                            size: 35,
+                                                          ),
+                                                          Padding(
+                                                            padding: const EdgeInsets.only(
+                                                                top: 10, left: 10, right: 10),
+                                                            child: Text(
+                                                              widget.fileName,
+                                                              maxLines: 2,
+                                                              overflow: TextOverflow.ellipsis,
+                                                              style: const TextStyle(fontSize: 18),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                               )
-                                            : const SizedBox(),
+                                            : widget.messageType == "video"
+                                                ? GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) => VideoMessage(
+                                                              videoUrl: widget.message,
+                                                            ),
+                                                          ));
+                                                    },
+                                                    child: Container(
+                                                      alignment: Alignment.center,
+                                                      constraints: BoxConstraints(
+                                                          maxWidth:
+                                                              MediaQuery.of(context).size.width *
+                                                                  0.35,
+                                                          maxHeight:
+                                                              MediaQuery.of(context).size.width *
+                                                                  0.20),
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(
+                                                            AppSizes.cardCornerRadius),
+                                                        child: CachedNetworkImage(
+                                                          imageUrl: widget.message.isNotEmpty
+                                                              ? widget.message
+                                                              : '',
+                                                          fit: BoxFit.cover,
+                                                          placeholder: (context, url) =>
+                                                              const CircularProgressIndicator
+                                                                  .adaptive(),
+                                                          errorWidget: (context, url, error) =>
+                                                              const Icon(Icons.play_arrow),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : const SizedBox(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
-            ),
-          );
+                  ),
+                )),
+    );
   }
 }

@@ -14,12 +14,10 @@ class HomeController extends GetxController {
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
     if (userDocument.exists) {
-      
       return UserModel.fromJson(userDocument.data() as Map<String, dynamic>);
     } else {
       return null; // User with the given ID not found
     }
-
   }
 
   @override
@@ -28,9 +26,9 @@ class HomeController extends GetxController {
     super.onReady();
   }
 
-  getUSerData()async{
+  getUSerData() async {
     var result = await getUserById();
-    userModel.value=result!;
+    userModel.value = result!;
     print(userModel.value.email);
   }
 }

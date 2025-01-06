@@ -27,7 +27,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
  *  
  * */
 
-class PushNotificationService {  
+class PushNotificationService {
   // It is assumed that all messages contain a data field with the key 'type'
 
   Future<void> setupInteractedMessage() async {
@@ -65,21 +65,19 @@ class PushNotificationService {
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-    var androidSettings =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var androidSettings = const AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     var iOSSettings = const DarwinInitializationSettings(
       requestSoundPermission: true,
-      requestBadgePermission: true,
+      requestBadgePermission: false,
       requestAlertPermission: true,
     );
-    var initSetttings =
-        InitializationSettings(android: androidSettings, iOS: iOSSettings);
+    var initSetttings = InitializationSettings(android: androidSettings, iOS: iOSSettings);
     flutterLocalNotificationsPlugin.initialize(initSetttings,
-        onDidReceiveNotificationResponse:
-            (NotificationResponse notificationResponse) {
+        onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
       switch (notificationResponse.notificationResponseType) {
         case NotificationResponseType.selectedNotification:
           // selectNotificationStream.add(notificationResponse.payload);
@@ -96,9 +94,9 @@ class PushNotificationService {
       // Get.find<HomeController>().getNotificationsNumber();
       // print(
       //     "onMessage text ${message?.from} , ${message?.category},${message?.contentAvailable}, ${message?.data},${message?.messageId},${message?.messageType},${message?.notification},${message?.senderId} ");
-      RemoteNotification? notification = message!.notification;
+      // RemoteNotification? _notification = message!.notification;
       // print(notification!.apple);
-      log("remoteMsgf --- > ${message.notification}");
+      log("remoteMsgf --- > ${message!.notification}");
       AndroidNotification? android = message.notification?.android;
       // AppleNotification? apple = message.notification?.apple;
 // If `onMessage` is triggered with a notification, construct our own
@@ -115,11 +113,13 @@ class PushNotificationService {
               channelDescription: channel.description,
               icon: android?.smallIcon,
               priority: Priority.high,
-              playSound: true,
+              playSound: true, // Ensures sound is played
+              importance: Importance.high, // Ensure high importance to trigger sound and vibrate
+              // Ensure channel sound is not muted
             ),
             iOS: const DarwinNotificationDetails(
               presentAlert: true,
-              presentBadge: true,
+              presentBadge: false,
               presentSound: true,
             )),
       );
@@ -127,19 +127,17 @@ class PushNotificationService {
   }
 
   enableIOSNotifications() async {
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true, // Required to display a heads up notification
-      badge: true,
+      badge: false,
       sound: true,
     );
   }
 
   androidNotificationChannel() => const AndroidNotificationChannel(
-        'high_importance_channel', // id
-        'High Importance Notifications', // title
-        description:
-            'This channel is used for important notifications.', // description
-        importance: Importance.max,
-      );
+      'high_importance_channel', // id
+      'High Importance Notifications', // title
+      description: 'This channel is used for important notifications.', // description
+      importance: Importance.max,
+      playSound: true);
 }

@@ -1,6 +1,7 @@
 class Urls {
-  static const String baseUrl =
-      'https://api.cpscomhub.com/derick-veliz-admin/api/v1/';
+  // static const String baseUrl =
+  //     'https://api.cpscomhub.com/derick-veliz-admin/api/v1/';
+  static const String baseUrl = 'http://192.168.1.41:4000/api/v1/';
   static const String cmsGetStarted = 'cms/get-started';
   static const String userReport = 'report/user-report';
   static const String groupReport = 'report/group-report';
@@ -16,9 +17,10 @@ class Urls {
 }
 
 class ApiPath {
-  static const String baseUrls = 'https://api.cpscomhub.com/api/v1';
+  // static const String baseUrls = 'https://api.cpscomhub.com/api/v1';
+  static const String baseUrls = 'http://192.168.1.41:4000/api/v1';
 
-  static const String socketUrl = "https://api.cpscomhub.com";
+  static const String socketUrl = "http://192.168.1.41:4000/";
   //static const String socketUrl = "https://crazy-sitting-duck.loca.lt";
 
   //static const String baseUrls = "https://crazy-sitting-duck.loca.lt/api/v1";  //This is for server tunnel for testing live to backend

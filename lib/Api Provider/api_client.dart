@@ -14,8 +14,8 @@ class ApiClient {
   // String? _token;
   ApiClient() {
     _dio.options.baseUrl = ApiPath.baseUrls;
-    _dio.options.connectTimeout = const Duration(seconds: 5);
-    _dio.options.receiveTimeout = const Duration(seconds: 3);
+    _dio.options.connectTimeout = const Duration(seconds: 20);
+    _dio.options.receiveTimeout = const Duration(seconds: 20);
     _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       String token = LocalStorage().getUserToken();
       if (token.isNotEmpty) {
@@ -46,8 +46,7 @@ class ApiClient {
       required T Function(Map<String, dynamic>) fromJson,
       Map<String, dynamic>? queryParameters}) async {
     try {
-      final response =
-          await _dio.get(endPoint, queryParameters: queryParameters);
+      final response = await _dio.get(endPoint, queryParameters: queryParameters);
       final data = fromJson(response.data);
       return ApiResponse<T>(data: data, statusCode: response.statusCode ?? 0);
     } on DioException catch (e) {
@@ -62,16 +61,13 @@ class ApiClient {
       required List<T> Function(List<dynamic>) fromJosnList,
       Map<String, dynamic>? queryParameters}) async {
     try {
-      final response =
-          await _dio.get(endPoint, queryParameters: queryParameters);
+      final response = await _dio.get(endPoint, queryParameters: queryParameters);
       final data = fromJosnList(response.data);
-      return ApiResponse<List<T>>(
-          data: data, statusCode: response.statusCode ?? 0);
+      return ApiResponse<List<T>>(data: data, statusCode: response.statusCode ?? 0);
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode ?? 0;
       final errorMessage = _handleDioError(e, statusCode);
-      return ApiResponse<List<T>>(
-          statusCode: statusCode, errorMessage: errorMessage);
+      return ApiResponse<List<T>>(statusCode: statusCode, errorMessage: errorMessage);
     }
   }
 
@@ -97,33 +93,28 @@ class ApiClient {
     try {
       final response = await _dio.post(endPoint, data: reqModel);
       final data = fromJosnList(response.data);
-      return ApiResponse<List<T>>(
-          data: data, statusCode: response.statusCode ?? 0);
+      return ApiResponse<List<T>>(data: data, statusCode: response.statusCode ?? 0);
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode ?? 0;
       final errorMessage = _handleDioError(e, statusCode);
-      return ApiResponse<List<T>>(
-          statusCode: statusCode, errorMessage: errorMessage);
+      return ApiResponse<List<T>>(statusCode: statusCode, errorMessage: errorMessage);
     }
   }
 
   Future<ApiResponse<Map<String, dynamic>>> deleteRequest(
       {required String endPoint, Map<String, dynamic>? queryParameters}) async {
     try {
-      final response =
-          await _dio.delete(endPoint, queryParameters: queryParameters);
+      final response = await _dio.delete(endPoint, queryParameters: queryParameters);
       final data = response.data as Map<String, dynamic>;
-      return ApiResponse<Map<String, dynamic>>(
-          data: data, statusCode: response.statusCode ?? 0);
+      return ApiResponse<Map<String, dynamic>>(data: data, statusCode: response.statusCode ?? 0);
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode ?? 0;
       final errorMessage = _handleDioError(e, statusCode);
-      return ApiResponse<Map<String, dynamic>>(
-          statusCode: statusCode, errorMessage: errorMessage);
+      return ApiResponse<Map<String, dynamic>>(statusCode: statusCode, errorMessage: errorMessage);
     }
   }
 
- Future<ApiResponse<T>> uploadImage<T>({
+  Future<ApiResponse<T>> uploadImage<T>({
     required String endPoint,
     File? imageFile, // Make this nullable
     Map<String, dynamic>? reqModel,
@@ -184,8 +175,7 @@ class ApiClient {
         errorMessage = _handleStatusCode(statusCode);
         break;
       case DioExceptionType.unknown:
-        errorMessage =
-            "Connection to API server failed due to internet connection";
+        errorMessage = "Connection to API server failed due to internet connection";
         break;
       default:
         errorMessage = "Unexpected error occurred";

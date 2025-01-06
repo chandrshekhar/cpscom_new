@@ -58,7 +58,7 @@ class _SenderTileState extends State<SenderTile> {
       padding: const EdgeInsets.only(
           right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),
       child: SwipeTo(
-        //onLeftSwipe: widget.onLeftSwipe,
+        onLeftSwipe: widget.onLeftSwipe,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [

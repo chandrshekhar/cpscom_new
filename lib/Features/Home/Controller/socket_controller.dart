@@ -69,10 +69,9 @@ class SocketController extends GetxController {
           groupListController.getGroupList(isLoadingShow: false);
         }
         var ownId = LocalStorage().getUserId();
-        List<String> reciverId = List<String>.from(data['data']
-            ['allRecipients']); // Creating a copy of the original list
-        reciverId.removeWhere(
-            (id) => id == ownId); // Remove the user id from the new list
+        List<String> reciverId = List<String>.from(
+            data['data']['allRecipients']); // Creating a copy of the original list
+        reciverId.removeWhere((id) => id == ownId); // Remove the user id from the new list
         socket?.emit("deliver", {
           "msgId": data['data']['_id'],
           "userId": LocalStorage().getUserId().toString(),
@@ -196,9 +195,8 @@ class SocketController extends GetxController {
         if (data['msgId'] != null) {
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].sId == data['msgId'].toString()) {
-              chatController.chatList[i].readBy = (data['readData'] as List)
-                  .map((e) => ChatReadBy.fromJson(e))
-                  .toList();
+              chatController.chatList[i].readBy =
+                  (data['readData'] as List).map((e) => ChatReadBy.fromJson(e)).toList();
               chatController.chatList.refresh();
             }
           }
@@ -248,6 +246,11 @@ class SocketController extends GetxController {
 
       //Update group changes
       socket?.on("updated", (data) {
+        log("Update group socket data ${data.toString()}");
+        groupListController.getGroupList(isLoadingShow: false);
+      });
+
+      socket?.on("delete-Group", (data) {
         log("Update group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
       });

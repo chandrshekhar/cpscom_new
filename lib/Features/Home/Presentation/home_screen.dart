@@ -67,7 +67,7 @@ class _BuildChatListState extends State<BuildChatList> {
   @override
   @override
   void initState() {
-    groupListController.limit.value = 100;
+    groupListController.limit.value = 2000;
     callAfterDelay();
     super.initState();
   }
@@ -84,8 +84,7 @@ class _BuildChatListState extends State<BuildChatList> {
     super.dispose();
   }
 
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +98,8 @@ class _BuildChatListState extends State<BuildChatList> {
                 groupsList: ["Group list"],
               ),
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
-          margin:
-              const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
+          padding: const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
+          margin: const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
           decoration: BoxDecoration(
               color: AppColors.bg,
               border: Border.all(width: 1, color: AppColors.bg),
@@ -127,8 +124,7 @@ class _BuildChatListState extends State<BuildChatList> {
                     groupListController.searchText.value = value.toString();
                     EasyDebounce.debounce(
                         'group-debounce', // <-- An ID for this particular debouncer
-                        const Duration(
-                            milliseconds: 200), // <-- The debounce duration
+                        const Duration(milliseconds: 200), // <-- The debounce duration
                         () async {
                       await groupListController.getGroupList();
                     } // <-- The target method
@@ -142,80 +138,69 @@ class _BuildChatListState extends State<BuildChatList> {
         ),
         Responsive.isMobile(context) ? const SizedBox() : const CustomDivider(),
         Expanded(
-          child: Scrollbar(
-            child: Obx(
-              () => groupListController.isGroupLiastLoading.value
-                  ? const ShimmerEffectLaoder(
-                      numberOfWidget: 20,
-                    )
-                  : groupListController.groupList.isNotEmpty
-                      ? SmartRefresher(
-                          controller: _refreshController,
-                          enablePullDown: false,
-                          enablePullUp: true,
-                          onLoading: () async {
-                            groupListController.limit.value += 2;
-                            groupListController.getGroupList(
-                                isLoadingShow: false);
-                            _refreshController.loadComplete();
-                          },
-                          footer: const CustomFooterWidget(),
-                          child: Obx(() => ListView.builder(
-                                itemCount:
-                                    groupListController.groupList.value.length,
-                                shrinkWrap: false,
-                                // padding: const EdgeInsets.only(
-                                //     top: AppSizes.kDefaultPadding / 2),
-                                itemBuilder: (context, index) {
-                                  var item = groupListController
-                                      .groupList.value[index];
-                                  return HomeChatCard(
-                                      messageCount: item.unreadCount,
-                                      groupId: item.sId.toString(),
-                                      onPressed: () {
-                                        chatController.timeStamps.value =
-                                            DateTime.now()
-                                                .millisecondsSinceEpoch;
-                                        context.push(ChatScreen(
-                                          groupId: item.sId.toString(),
-                                          isAdmin: widget.isAdmin,
-                                          index: index,
-                                          // groupModel: item,
-                                        ));
-                                        groupListController
-                                            .groupList[index].unreadCount = 0;
-                                        groupListController.groupList.refresh();
-                                      },
-                                      groupName: item.groupName ?? "",
-                                      groupDesc: item.createdAt ?? "",
-                                      sentTime: item.lastMessage != null &&
-                                              item.lastMessage!.createdAt!
-                                                  .isNotEmpty
-                                          ? DateFormat('hh:mm a').format(
-                                              DateTime.parse(item.lastMessage
-                                                          ?.timestamp ??
-                                                      "")
-                                                  .toLocal())
-                                          : "",
-                                      sendBy: item.lastMessage != null
-                                          ? item.lastMessage!.senderName ?? ""
-                                          : "",
-                                      lastMsg: item.lastMessage != null
-                                          ? item.lastMessage?.message ?? ""
-                                          : "",
-                                      imageUrl: item.groupImage ?? "",
-                                      messageType: item.lastMessage != null
-                                          ? item.lastMessage?.messageType ?? ""
-                                          : "",
-                                      child:
-                                          memberWidget(item.currentUsers ?? []));
+          child: Obx(
+            () => groupListController.isGroupLiastLoading.value
+                ? const ShimmerEffectLaoder(
+                    numberOfWidget: 20,
+                  )
+                : groupListController.groupList.isNotEmpty
+                    ? SmartRefresher(
+                        controller: _refreshController,
+                        enablePullDown: true,
+                        enablePullUp: true,
+                        onRefresh: () async {
+                          groupListController.limit.value = 2000;
+                          groupListController.getGroupList(isLoadingShow: true);
+                          _refreshController.refreshCompleted();
+                        },
+                        onLoading: () async {
+                          groupListController.limit.value += 2;
+                          groupListController.getGroupList(isLoadingShow: false);
+                          _refreshController.loadComplete();
+                        },
+                        footer: const CustomFooterWidget(),
+                        child: ListView.builder(
+                          itemCount: groupListController.groupList.value.length,
+                          itemBuilder: (context, index) {
+                            var item = groupListController.groupList.value[index];
+                            return HomeChatCard(
+                                messageCount: item.unreadCount,
+                                groupId: item.sId.toString(),
+                                onPressed: () {
+                                  chatController.timeStamps.value =
+                                      DateTime.now().millisecondsSinceEpoch;
+                                  context.push(ChatScreen(
+                                    groupId: item.sId.toString(),
+                                    isAdmin: widget.isAdmin,
+                                    index: index,
+                                    // groupModel: item,
+                                  ));
+                                  groupListController.groupList[index].unreadCount = 0;
+                                  groupListController.groupList.refresh();
                                 },
-                              )),
-                        )
-                      : const Center(
-                          child: Text("No group found"),
+                                groupName: item.groupName ?? "",
+                                groupDesc: item.createdAt ?? "",
+                                sentTime: item.lastMessage != null &&
+                                        item.lastMessage!.createdAt!.isNotEmpty
+                                    ? DateFormat('hh:mm a').format(
+                                        DateTime.parse(item.lastMessage?.timestamp ?? "").toLocal())
+                                    : "",
+                                sendBy: item.lastMessage != null
+                                    ? item.lastMessage!.senderName ?? ""
+                                    : "",
+                                lastMsg:
+                                    item.lastMessage != null ? item.lastMessage?.message ?? "" : "",
+                                imageUrl: item.groupImage ?? "",
+                                messageType: item.lastMessage != null
+                                    ? item.lastMessage?.messageType ?? ""
+                                    : "",
+                                child: memberWidget(item.currentUsers ?? []));
+                          },
                         ),
-            ),
+                      )
+                    : const Center(
+                        child: Text("No group found"),
+                      ),
           ),
         ),
       ],
@@ -243,8 +228,7 @@ class _BuildChatListState extends State<BuildChatList> {
                         radius: 32,
                         backgroundColor: AppColors.white,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                              AppSizes.cardCornerRadius * 10),
+                          borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
                           child: CachedNetworkImage(
                             width: 26,
                             height: 26,
@@ -258,10 +242,7 @@ class _BuildChatListState extends State<BuildChatList> {
                               radius: 26,
                               backgroundColor: AppColors.shimmer,
                               child: Text(
-                                membersList[index]
-                                    .name
-                                    .toString()[0]
-                                    .toUpperCase(),
+                                membersList[index].name.toString()[0].toUpperCase(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyLarge!
