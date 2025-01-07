@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:cpscom_admin/Features/Home/Controller/network_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
@@ -65,10 +66,10 @@ class _BuildChatListState extends State<BuildChatList> {
   final socketController = Get.put(SocketController());
 
   @override
-  @override
   void initState() {
     groupListController.limit.value = 2000;
     callAfterDelay();
+    socketController.socketConnection();
     super.initState();
   }
 
@@ -85,6 +86,7 @@ class _BuildChatListState extends State<BuildChatList> {
   }
 
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
+  // final netwrokController = Get.put(NetworkController());
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +171,7 @@ class _BuildChatListState extends State<BuildChatList> {
                                 onPressed: () {
                                   chatController.timeStamps.value =
                                       DateTime.now().millisecondsSinceEpoch;
+                                  socketController.groupId.value = item.sId.toString();
                                   context.push(ChatScreen(
                                     groupId: item.sId.toString(),
                                     isAdmin: widget.isAdmin,

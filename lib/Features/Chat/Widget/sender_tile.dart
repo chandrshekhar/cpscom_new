@@ -14,7 +14,9 @@ import 'package:linkable/linkable.dart';
 import 'package:open_app_file/open_app_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:swipe_to/swipe_to.dart';
+import '../../../Utils/check_website.dart';
 import 'show_image_widget.dart';
+
 class SenderTile extends StatefulWidget {
   final String message;
   final String messageType;
@@ -53,10 +55,9 @@ class _SenderTileState extends State<SenderTile> {
   final chatController = Get.put(ChatController());
   @override
   Widget build(BuildContext context) {
-    
     return Padding(
-      padding: const EdgeInsets.only(
-          right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),
+      padding:
+          const EdgeInsets.only(right: AppSizes.kDefaultPadding, top: AppSizes.kDefaultPadding),
       child: SwipeTo(
         onLeftSwipe: widget.onLeftSwipe,
         child: Column(
@@ -70,10 +71,7 @@ class _SenderTileState extends State<SenderTile> {
                 children: [
                   Text(
                     widget.sentTime,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall!
-                        .copyWith(fontSize: 12),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 12),
                   ),
                   const SizedBox(
                     width: AppSizes.kDefaultPadding / 2,
@@ -82,9 +80,7 @@ class _SenderTileState extends State<SenderTile> {
                       ? Icon(
                           Icons.done_all_rounded,
                           size: 16,
-                          color: widget.isSeen.value == true
-                              ? AppColors.primary
-                              : AppColors.grey,
+                          color: widget.isSeen.value == true ? AppColors.primary : AppColors.grey,
                         )
                       : const Icon(
                           Icons.check,
@@ -107,20 +103,17 @@ class _SenderTileState extends State<SenderTile> {
               elevation: 0,
               margin: const EdgeInsets.only(top: AppSizes.kDefaultPadding / 4),
               child: Container(
-                  constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.65),
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
                   child: widget.messageType == 'image'
                       ? GestureDetector(
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) =>
-                                        ShowImage(imageUrl: widget.message)));
+                                    builder: (_) => ShowImage(imageUrl: widget.message)));
                           },
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                                AppSizes.cardCornerRadius),
+                            borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius),
                             child: CachedNetworkImage(
                               imageUrl: widget.message,
                               fit: BoxFit.cover,
@@ -132,17 +125,17 @@ class _SenderTileState extends State<SenderTile> {
                           ),
                         )
                       : widget.messageType == 'text'
-                          ? Linkable(
-                              text: widget.message.trim(),
-                              linkColor: Colors.blue,
-                            )
+                          ? CheckWebsite().isWebsite(widget.message) || widget.message.contains("@")
+                              ? Linkable(
+                                  text: widget.message,
+                                  linkColor: Colors.blue,
+                                )
+                              : Text(widget.message)
                           : widget.messageType == 'doc'
                               ? InkWell(
                                   onTap: () async {
                                     chatController.openFileAfterDownload(
-                                        widget.message,
-                                        widget.fileName ?? "",
-                                        context);
+                                        widget.message, widget.fileName ?? "", context);
                                     // await openFile(
                                     //     url: widget.message,
                                     //     fileName: widget.fileName);
@@ -152,28 +145,16 @@ class _SenderTileState extends State<SenderTile> {
                                     //     fileName: widget.fileName!);
                                   },
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        AppSizes.cardCornerRadius),
+                                    borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius),
                                     child: Container(
                                       constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.45,
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.30),
+                                          maxWidth: MediaQuery.of(context).size.width * 0.45,
+                                          maxHeight: MediaQuery.of(context).size.width * 0.30),
                                       child: SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.width *
-                                                0.30,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.45,
+                                        height: MediaQuery.of(context).size.width * 0.30,
+                                        width: MediaQuery.of(context).size.width * 0.45,
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             const Icon(
                                               Icons.cloud_download,
@@ -186,8 +167,7 @@ class _SenderTileState extends State<SenderTile> {
                                                 widget.fileName ?? "",
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                    fontSize: 18),
+                                                style: const TextStyle(fontSize: 18),
                                               ),
                                             )
                                           ],
@@ -202,8 +182,7 @@ class _SenderTileState extends State<SenderTile> {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) =>
-                                                  VideoMessage(
+                                              builder: (context) => VideoMessage(
                                                 videoUrl: widget.message,
                                               ),
                                             ));
@@ -211,27 +190,18 @@ class _SenderTileState extends State<SenderTile> {
                                       child: Container(
                                         alignment: Alignment.center,
                                         constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.35,
-                                            maxHeight: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.20),
+                                            maxWidth: MediaQuery.of(context).size.width * 0.35,
+                                            maxHeight: MediaQuery.of(context).size.width * 0.20),
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                              AppSizes.cardCornerRadius),
+                                          borderRadius:
+                                              BorderRadius.circular(AppSizes.cardCornerRadius),
                                           child: CachedNetworkImage(
-                                            imageUrl: widget.message.isNotEmpty
-                                                ? widget.message
-                                                : '',
+                                            imageUrl:
+                                                widget.message.isNotEmpty ? widget.message : '',
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>
-                                                const CircularProgressIndicator
-                                                    .adaptive(),
-                                            errorWidget: (context, url,
-                                                    error) =>
+                                                const CircularProgressIndicator.adaptive(),
+                                            errorWidget: (context, url, error) =>
                                                 const Icon(Icons.play_arrow),
                                           ),
                                         ),
@@ -245,16 +215,13 @@ class _SenderTileState extends State<SenderTile> {
     );
   }
 
-  void _downloadAndOpenFile(
-      {required String file, required String fileName}) async {
+  void _downloadAndOpenFile({required String file, required String fileName}) async {
     var dio = Dio();
     var dir = await getApplicationDocumentsDirectory();
-    String filePath =
-        "${dir.path}/$fileName"; // Change the extension based on your file type
+    String filePath = "${dir.path}/$fileName"; // Change the extension based on your file type
     try {
       await dio.download(file, filePath);
-      OpenAppFile.open(
-          filePath); // Open the downloaded file using the native app
+      OpenAppFile.open(filePath); // Open the downloaded file using the native app
     } catch (e) {
       print("Error downloading file: $e");
     }

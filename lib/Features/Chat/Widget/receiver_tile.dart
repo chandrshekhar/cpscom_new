@@ -3,6 +3,7 @@ import 'package:cpscom_admin/Commons/route.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_reply_widget.dart';
+import 'package:cpscom_admin/Utils/check_website.dart';
 import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
@@ -51,7 +52,7 @@ class _ReceiverTileState extends State<ReceiverTile> {
   @override
   Widget build(BuildContext context) {
     return SwipeTo(
-      // onRightSwipe: widget.onSwipedMessage,
+      onRightSwipe: widget.onSwipedMessage,
       child: Container(
           // onRightSwipe: widget.onSwipedMessage,
           child: widget.messageType == 'notify'
@@ -172,10 +173,13 @@ class _ReceiverTileState extends State<ReceiverTile> {
                                         ),
                                       )
                                     : widget.messageType == 'text'
-                                        ? Linkable(
-                                            text: widget.message,
-                                            linkColor: Colors.blue,
-                                          )
+                                        ? CheckWebsite().isWebsite(widget.message) ||
+                                                widget.message.contains("@")
+                                            ? Linkable(
+                                                text: widget.message,
+                                                linkColor: Colors.blue,
+                                              )
+                                            : Text(widget.message)
                                         : widget.messageType == 'doc'
                                             ? InkWell(
                                                 onTap: () async {

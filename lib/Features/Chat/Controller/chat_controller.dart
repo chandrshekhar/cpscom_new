@@ -60,13 +60,13 @@ class ChatController extends GetxController {
 
   void addNameInMsgText({String? mentionname}) {
     msgController.value.text = msgController.value.text + mentionname!;
-    msgController.value.selection = TextSelection.fromPosition(
-        TextPosition(offset: msgController.value.text.length));
+    msgController.value.selection =
+        TextSelection.fromPosition(TextPosition(offset: msgController.value.text.length));
   }
 
-  Future<void> getAllChatByGroupId({required String groupId}) async {
+  Future<void> getAllChatByGroupId({required String groupId, bool isShowLoading = true}) async {
     try {
-      isChatLoading(true);
+      isShowLoading ? isChatLoading(true) : null;
       Map<String, dynamic> reqModel = {
         "id": groupId,
         "timestamp": timeStamps.value,
@@ -93,8 +93,7 @@ class ChatController extends GetxController {
       required String groupId,
       required BuildContext context}) async {
     try {
-      final selected =
-          await ImagePicker().pickImage(imageQuality: 50, source: imageSource);
+      final selected = await ImagePicker().pickImage(imageQuality: 50, source: imageSource);
       if (selected != null) {
         File groupImages = File(selected.path);
         // ignore: use_build_context_synchronously
@@ -109,11 +108,7 @@ class ChatController extends GetxController {
   }
 
   isRelayFunction(
-      {required bool isRep,
-      String? msg,
-      String? senderName,
-      String? msgId,
-      String? msgType}) {
+      {required bool isRep, String? msg, String? senderName, String? msgId, String? msgType}) {
     replyOf['msgId'] = msgId;
     replyOf['sender'] = senderName;
     replyOf['msg'] = msg;
@@ -122,9 +117,8 @@ class ChatController extends GetxController {
   }
 
   setControllerValue() {
-    titleController.value.text = groupModel.value.groupName != null
-        ? groupModel.value.groupName.toString()
-        : "";
+    titleController.value.text =
+        groupModel.value.groupName != null ? groupModel.value.groupName.toString() : "";
     descriptionController.value.text = groupModel.value.groupDescription ?? "";
   }
 
@@ -191,10 +185,7 @@ class ChatController extends GetxController {
       final socketController = Get.put(SocketController());
       isUpdateLoading(true);
       var res = await _groupRepo.updateGroupDetails(
-          groupDes: groupDes,
-          groupId: groupId,
-          groupName: groupName,
-          groupImage: groupImage);
+          groupDes: groupDes, groupId: groupId, groupName: groupName, groupImage: groupImage);
       if (res.data!['success'] == true) {
         final groupListController = Get.put(GroupListController());
         Map<String, dynamic> reqModeSocket = res.data!['data'];
@@ -202,14 +193,12 @@ class ChatController extends GetxController {
         socketController.socket!.emit("update-group", reqModeSocket);
         await groupListController.getGroupList(isLoadingShow: false);
         await getGroupDetailsById(groupId: groupId);
-        TostWidget()
-            .successToast(title: "Success", message: res.data!['message']);
+        TostWidget().successToast(title: "Success", message: res.data!['message']);
         isUpdateLoading(false);
         // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } else {
-        TostWidget()
-            .errorToast(title: "Error", message: res.data!['error']['message']);
+        TostWidget().errorToast(title: "Error", message: res.data!['error']['message']);
         isUpdateLoading(false);
       }
     } catch (e) {
@@ -258,8 +247,7 @@ class ChatController extends GetxController {
       required List<String> receiverId,
       required BuildContext context}) async {
     try {
-      final selected =
-          await ImagePicker().pickImage(imageQuality: 50, source: imageSource);
+      final selected = await ImagePicker().pickImage(imageQuality: 50, source: imageSource);
       if (selected != null) {
         File groupImages = File(selected.path);
         // ignore: use_build_context_synchronously
@@ -316,8 +304,8 @@ class ChatController extends GetxController {
   Future pickVideoFromCameraAndSendMsg(
       {required String groupId, required List<String> receiverId}) async {
     try {
-      final video = await ImagePicker().pickVideo(
-          source: ImageSource.camera, maxDuration: const Duration(seconds: 30));
+      final video = await ImagePicker()
+          .pickVideo(source: ImageSource.camera, maxDuration: const Duration(seconds: 30));
       if (video == null) return;
       File videoFileRaw = File(video.path);
       videoFile.value = videoFileRaw;
@@ -358,20 +346,12 @@ class ChatController extends GetxController {
       if (extension == "pdf" || extension == "doc" || extension == "docx") {
         docsModelBottomSheet(Get.context!, files, () async {
           await sendMsg(
-              msg: "text",
-              groupId: groupId,
-              file: files,
-              msgType: "doc",
-              reciverId: receiverId);
+              msg: "text", groupId: groupId, file: files, msgType: "doc", reciverId: receiverId);
         });
       } else {
         videoBottomSheet(Get.context!, files, () async {
           await sendMsg(
-              msg: "text",
-              groupId: groupId,
-              file: files,
-              msgType: "video",
-              reciverId: receiverId);
+              msg: "text", groupId: groupId, file: files, msgType: "video", reciverId: receiverId);
         });
       }
     } else {
@@ -379,8 +359,7 @@ class ChatController extends GetxController {
     }
   }
 
-  openFileAfterDownload(
-      String message, String fileName, BuildContext context) async {
+  openFileAfterDownload(String message, String fileName, BuildContext context) async {
     try {
       showDialog(
         context: context,

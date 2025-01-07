@@ -66,8 +66,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               socketController.socket?.disconnect();
                               socketController.socket?.io.disconnect();
                               socketController.socket?.io.close();
-                              socketController.socket?.io
-                                  .destroy(socketController.socket);
+                              socketController.socket = null; // Ensure the socket is nullified
                               LocalStorage().deleteAllLocalData();
                               context.pushAndRemoveUntil(const LoginScreen());
                             });
@@ -85,8 +84,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     ),
                     Text(
                       'Logout',
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: AppColors.red, fontWeight: FontWeight.w500),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall!
+                          .copyWith(color: AppColors.red, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ))
@@ -108,26 +109,20 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         Stack(
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                  AppSizes.cardCornerRadius * 10),
+                              borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
                               child: Obx(
                                 () => CachedNetworkImage(
                                   width: 106,
                                   height: 106,
                                   fit: BoxFit.cover,
-                                  imageUrl: loginController
-                                              .userModel.value.image !=
-                                          null
-                                      ? loginController.userModel.value.image
-                                          .toString()
+                                  imageUrl: loginController.userModel.value.image != null
+                                      ? loginController.userModel.value.image.toString()
                                       : "",
-                                  placeholder: (context, url) =>
-                                      const CircleAvatar(
+                                  placeholder: (context, url) => const CircleAvatar(
                                     radius: 66,
                                     backgroundColor: AppColors.bg,
                                   ),
-                                  errorWidget: (context, url, error) =>
-                                      CircleAvatar(
+                                  errorWidget: (context, url, error) => CircleAvatar(
                                     radius: 66,
                                     backgroundColor: AppColors.bg,
                                     child: Text(
@@ -137,8 +132,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineLarge!
-                                          .copyWith(
-                                              fontWeight: FontWeight.w600),
+                                          .copyWith(fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                 ),
@@ -156,8 +150,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                           height: 150,
                                           child: ListView.builder(
                                               shrinkWrap: true,
-                                              padding: const EdgeInsets.all(
-                                                  AppSizes.kDefaultPadding),
+                                              padding:
+                                                  const EdgeInsets.all(AppSizes.kDefaultPadding),
                                               itemCount: imagePickerList.length,
                                               scrollDirection: Axis.horizontal,
                                               itemBuilder: (context, index) {
@@ -167,62 +161,43 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                       case 0:
                                                         loginController.pickImage(
                                                             context: context,
-                                                            imageSource:
-                                                                ImageSource
-                                                                    .gallery);
+                                                            imageSource: ImageSource.gallery);
                                                         break;
                                                       case 1:
-                                                        loginController
-                                                            .pickImage(
-                                                                context:
-                                                                    context,
-                                                                imageSource:
-                                                                    ImageSource
-                                                                        .camera);
+                                                        loginController.pickImage(
+                                                            context: context,
+                                                            imageSource: ImageSource.camera);
                                                         break;
                                                     }
 
                                                     Navigator.pop(context);
                                                   },
                                                   child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .only(
-                                                        left: AppSizes
-                                                                .kDefaultPadding *
-                                                            2),
+                                                    padding: const EdgeInsets.only(
+                                                        left: AppSizes.kDefaultPadding * 2),
                                                     child: Column(
                                                       children: [
                                                         Container(
                                                           width: 60,
                                                           height: 60,
-                                                          padding: const EdgeInsets
-                                                              .all(AppSizes
-                                                                  .kDefaultPadding),
+                                                          padding: const EdgeInsets.all(
+                                                              AppSizes.kDefaultPadding),
                                                           decoration: BoxDecoration(
                                                               border: Border.all(
                                                                   width: 1,
-                                                                  color: AppColors
-                                                                      .lightGrey),
-                                                              color: AppColors
-                                                                  .white,
-                                                              shape: BoxShape
-                                                                  .circle),
-                                                          child:
-                                                              imagePickerList[
-                                                                      index]
-                                                                  .icon,
+                                                                  color: AppColors.lightGrey),
+                                                              color: AppColors.white,
+                                                              shape: BoxShape.circle),
+                                                          child: imagePickerList[index].icon,
                                                         ),
                                                         const SizedBox(
-                                                          height: AppSizes
-                                                                  .kDefaultPadding /
-                                                              2,
+                                                          height: AppSizes.kDefaultPadding / 2,
                                                         ),
                                                         Text(
                                                           '${imagePickerList[index].title}',
-                                                          style:
-                                                              Theme.of(context)
-                                                                  .textTheme
-                                                                  .bodyMedium,
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .bodyMedium,
                                                         ),
                                                       ],
                                                     ),
@@ -234,12 +209,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                   child: Container(
                                     width: 40,
                                     height: 40,
-                                    padding: const EdgeInsets.all(
-                                        AppSizes.kDefaultPadding / 1.3),
+                                    padding: const EdgeInsets.all(AppSizes.kDefaultPadding / 1.3),
                                     decoration: BoxDecoration(
-                                        border: Border.all(
-                                            width: 1,
-                                            color: AppColors.lightGrey),
+                                        border: Border.all(width: 1, color: AppColors.lightGrey),
                                         color: AppColors.white,
                                         shape: BoxShape.circle),
                                     child: Image.asset(
@@ -254,8 +226,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: AppSizes.kDefaultPadding),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
                             child: Text(
                               'Add an optional profile picture',
                               style: Theme.of(context).textTheme.bodyMedium,
@@ -271,8 +243,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 height: 30,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.kDefaultPadding),
+                padding: const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
                 child: Column(
                   children: [
                     ListTile(
@@ -327,8 +298,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   context.push(const UpdateUserStatusScreen());
                 },
                 dense: true,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.kDefaultPadding),
+                contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
                 horizontalTitleGap: 0,
                 leading: const Icon(
                   EvaIcons.info,
@@ -355,16 +325,14 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
               ),
               const Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
+                padding: EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
                 child: CustomDivider(),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 10, right: 10),
                 child: InkWell(
                   onTap: () {
-                    doNavigator(
-                        route: const ChangePasswordScreen(), context: context);
+                    doNavigator(route: const ChangePasswordScreen(), context: context);
                   },
                   child: ListTile(
                     dense: true,
@@ -383,8 +351,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
               ),
               const Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
+                padding: EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
                 child: CustomDivider(),
               ),
             ],

@@ -8,6 +8,7 @@ import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -86,9 +87,9 @@ class _ChatScreenState extends State<ChatScreen> {
             elevation: 1,
             leading: InkWell(
               onTap: () async {
-                groupListController.groupList[widget.index!].unreadCount = 0;
-                groupListController.groupList.refresh();
-                chatController.groupId.value = "";
+                // groupListController.groupList[widget.index!].unreadCount = 0;
+                // groupListController.groupList.refresh();
+                // chatController.groupId.value = "";
                 Navigator.pop(context);
                 // await groupListController.getGroupList(isLoadingShow: false);
 
@@ -249,11 +250,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 )
                                               : InkWell(
                                                   onLongPress: () {
-                                                    _showPopupMenu(
-                                                        report: "sender",
+                                                    _showBottomSheet(
+                                                        from: "sender",
                                                         context,
                                                         item.sId.toString(), handleReply: () {
-                                                      print("hfhj ");
+                                                      backFromPrevious(context: context);
                                                       chatController.isRelayFunction(
                                                           isRep: true,
                                                           msgId: item.id,
@@ -281,13 +282,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     groupCreatedBy: "",
                                                     read: "value",
                                                     onLeftSwipe: () {
-                                                      // chatController.isRelayFunction(
-                                                      //     isRep: true,
-                                                      //     msgId: item.sId,
-                                                      //     msgType: item.messageType,
-                                                      //     msg: item.message,
-                                                      //     senderName: item.senderName);
-                                                      // log(chatController.replyOf.toString());
+                                                      chatController.isRelayFunction(
+                                                          isRep: true,
+                                                          msgId: item.sId,
+                                                          msgType: item.messageType,
+                                                          msg: item.message,
+                                                          senderName: item.senderName);
+                                                      log(chatController.replyOf.toString());
                                                     },
                                                     replyOf: item.replyOf,
                                                     // child: item.allRecipients!
@@ -339,9 +340,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                             )
                                           : InkWell(
                                               onLongPress: () {
-                                                _showPopupMenu(context, item.sId.toString(),
-                                                    handleReply: () {
-                                                  print("hfhj ");
+                                                _showBottomSheet(
+                                                    from: "reciver",
+                                                    context,
+                                                    item.sId.toString(), handleReply: () {
+                                                  backFromPrevious(context: context);
                                                   chatController.isRelayFunction(
                                                       isRep: true,
                                                       msgId: item.id,
@@ -361,12 +364,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   fileName: item.fileName ?? "",
                                                   chatController: chatController,
                                                   onSwipedMessage: () {
-                                                    // chatController.isRelayFunction(
-                                                    //     isRep: true,
-                                                    //     msgId: item.id,
-                                                    //     msgType: item.messageType,
-                                                    //     msg: item.message,
-                                                    //     senderName: item.senderName);
+                                                    chatController.isRelayFunction(
+                                                        isRep: true,
+                                                        msgId: item.id,
+                                                        msgType: item.messageType,
+                                                        msg: item.message,
+                                                        senderName: item.senderName);
                                                     // replyToMessage(chatMap);
                                                   },
                                                   message: item.message ?? "",
@@ -448,8 +451,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _showPopupMenu(BuildContext context, String msgId,
-      {VoidCallback? handleReply, String? report}) async {
+  void _showPopupMenu(BuildContext context, String msgId, {VoidCallback? handleReply}) async {
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
@@ -466,15 +468,10 @@ class _ChatScreenState extends State<ChatScreen> {
           value: 1,
           child: Text('Reply'),
         ),
-        report == "sender"
-            ? PopupMenuItem(
-                child: SizedBox(),
-                value: 3,
-              )
-            : const PopupMenuItem(
-                value: 2,
-                child: Text('Report Message'),
-              ),
+        const PopupMenuItem(
+          value: 2,
+          child: Text('Report Message'),
+        ),
       ],
     );
 
@@ -501,5 +498,88 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
     }
+  }
+
+  void _showPopupMenuSender(BuildContext context, String msgId, {VoidCallback? handleReply}) async {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        const Offset(90, 500),
+        Offset(overlay.size.width, overlay.size.height),
+      ),
+      Offset.zero & overlay.size,
+    );
+    final result = await showMenu(
+      context: context,
+      position: position,
+      items: [
+        const PopupMenuItem(
+          value: 1,
+          child: Text('Reply'),
+        ),
+      ],
+    );
+
+    // Handle the selected option
+    if (result != null) {
+      if (result == 1) {
+        // Call the handleReply function if it's provided
+        if (handleReply != null) {
+          handleReply();
+        }
+      } else if (result == 2) {}
+    }
+  }
+
+  void _showBottomSheet(BuildContext context, String msgId,
+      {VoidCallback? handleReply, required String from, VoidCallback? deleteMessage}) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                  leading: const Icon(Icons.reply, color: Colors.blue),
+                  title: const Text(
+                    'Reply',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  onTap: handleReply),
+              from == "reciver"
+                  ? ListTile(
+                      leading: const Icon(Icons.report, color: Colors.red),
+                      title: const Text(
+                        'Report Message',
+                        style: TextStyle(fontSize: 16, color: Colors.red),
+                      ),
+                      onTap: () {
+                        backFromPrevious(context: context);
+                        _showReportDialog(
+                          context: context,
+                          textEditingController: reportController.messageReportController.value,
+                          onTap: () {
+                            reportController.messageReport(
+                              messageId: msgId,
+                              groupId: widget.groupId,
+                              context: context,
+                            );
+                          },
+                          title: "Report Message",
+                          isLoading: false.obs,
+                        );
+                      },
+                    )
+                  : SizedBox()
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -28,7 +28,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
-void requestPermission() async {
+void requestPermissions() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
@@ -52,72 +52,11 @@ Future<void> main() async {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
       statusBarBrightness: Brightness.light));
-
-  // Initialize Firebase to App
-  // firebaseApp = await Firebase.initializeApp(
-  //   name: AppStrings.appNameInFirebase,
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
-  // const firebaseConfig = {
-  //   "apiKey": "AIzaSyALDdPTyjaE6qad-Uc-hslCrR2PfknvhWE",
-  //   "authDomain": "cpscom-aea2f.firebaseapp.com",
-  //   "projectId": "cpscom-aea2f",
-  //   "storageBucket": "cpscom-aea2f.appspot.com",
-  //   "messagingSenderId": "985033228014",
-  //   "appId": "1:985033228014:web:b48e1ab07d656c29b93dff"
-  // };
-  // firebaseConfig() async{
-  //   await PushNotificationService().setupInteractedMessage();
-  //   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  //   firebaseApp = await Firebase.initializeApp(
-  //     options: DefaultFirebaseOptions.currentPlatform,
-  //   );
-
-  //   RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
-  //   String? fcmToken = await FirebaseMessaging.instance.getToken();
-
-  //   AppPreference().saveFirebaseToken(token: fcmToken??"");
-
-  // }
-  //   firebaseApp = await Firebase.initializeApp(
-  //       name: AppStrings.appNameInFirebase,
-  //       options: DefaultFirebaseOptions.currentPlatform);
-
-  // if (Platform.isIOS || Platform.isAndroid) {
-  //   // Request Permission for Push Notification
-  //   requestPermission();
-  //   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  //   await FirebaseMessaging.instance.setAutoInitEnabled(true);
-  //   LocalNotificationService.initialize();
-  // }
-  // Main Function to run the application
   runApp(const MyApp());
-  // To Prevent Screenshot in app
-  // WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-  //   if (Platform.isAndroid) {
-  //     await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-  //   }
-  // });
 }
 
-// Future<void> setFirebaseToken(String? token) async {
-//   await FirebaseMessaging.instance.requestPermission();
-//   if (token != null) {
-//     await FirebaseFirestore.instance
-//         .collection('users')
-//         .doc(FirebaseAuth.instance.currentUser!.uid)
-//         .update({'pushToken': token});
-//     await FirebaseFirestore.instance
-//         .collection('group')
-//         .doc(FirebaseAuth.instance.currentUser!.uid)
-//         .update({'pushToken': token});
-//     // .then((value) => print("setFirebaseToken then"))
-//     // .onError((error, stackTrace) => print("setFirebaseToken $stackTrace"));
-//   }
-// }
-
 firebaseConfig() async {
+  requestPermissions();
   await PushNotificationService().setupInteractedMessage();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   firebaseApp = await Firebase.initializeApp(
@@ -143,50 +82,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   //1: This method only call when app is terminated
-  //   FirebaseMessaging.instance.getInitialMessage().then((message) {
-  //     if (kDebugMode) {
-  //       log('This method only call when app is terminated pandey');
-  //       log('Initial Message - ${FirebaseMessaging.instance.getInitialMessage()}');
-  //     }
-  //     if (message != null) {
-  //       if (kDebugMode) {
-  //         log('Got New Notification');
-  //       }
-  //     }
-  //   });
-  //   //2: This method only call when app is in foreground or app must be opened
-  //   FirebaseMessaging.onMessage.listen((message) {
-  //     if (kDebugMode) {
-  //       log('This method only call when app is in foreground or app must be opened');
-  //     }
-  //     if (message.notification != null) {
-  //       if (kDebugMode) {
-  //         log('Notification Title - ${message.notification!.title}');
-  //         log('Notification Body - ${message.notification!.body}');
-  //         log("Notification Data - ${message.data}");
-  //       }
-  //       // LocalNotificationService.createDisplayNotification(message);
-  //     }
-  //   });
-  //   //3: This method only call when app is in background and not terminated
-  //   FirebaseMessaging.onMessageOpenedApp.listen((message) {
-  //     if (kDebugMode) {
-  //       log('This method only call when app is in background and not terminated');
-  //     }
-  //     if (message.notification != null) {
-  //       if (kDebugMode) {
-  //         log('Notification Title - ${message.notification!.title}');
-  //         log('Notification Body - ${message.notification!.body}');
-  //         log("Notification Data - ${message.data}");
-  //       }
-  //     }
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return DismissKeyBoard(

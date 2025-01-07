@@ -1,11 +1,10 @@
 import 'dart:developer';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cpscom_admin/Api/urls.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-
 import '../../../Utils/storage_service.dart';
 import '../../Chat/Model/chat_list_model.dart';
 import '../Model/group_list_model.dart';
@@ -15,16 +14,20 @@ class SocketController extends GetxController {
   List<Map<String, dynamic>> mesages = [];
   final chatController = Get.put(ChatController());
   final groupListController = Get.put(GroupListController());
+  RxBool isConnected = true.obs; // Observable for connection state
+  final connectivity = Connectivity(); // Connectivity instance
+  RxString groupId = "".obs;
 
   socketConnection() {
     try {
+      print("Socket initializing...");
       String userId = LocalStorage().getUserId().toString();
       socket = IO.io(
           ApiPath.socketUrl,
           //"https://crazy-sitting-duck.loca.lt",
           <String, dynamic>{
             "transports": ["websocket"],
-            "autoConnect": true,
+            "autoConnect": false,
             "reconnection": true,
             "reconnectionAttempts": 10,
             "reconnectionDelay": 5000,
@@ -33,33 +36,26 @@ class SocketController extends GetxController {
           });
 
       socket!.on('connect', (_) {
-        print('Connected');
-        // Access socket ID
+        print('Socket connected');
         String socketId = socket!.id ?? "";
         print('Socket ID: $socketId');
         socket?.emit("joinSelf", userId);
+        isConnected.value = true; // Mark as connected
       });
       // socket?.connect();
       // Listen for disconnection
       socket!.on('disconnect', (reason) {
-        print('Disconnected: $reason');
-        // Optionally, try reconnecting manually if necessary
-        socket?.connect(); // Try to reconnect
+        print('Socket disconnected: $reason');
+        isConnected.value = false; // Mark as disconnected
+      });
+      socket!.on('error', (data) {
+        print('Socket error: $data');
+        isConnected.value = false; // Mark as disconnected
       });
 
       // Listen for reconnection attempts
-      socket!.on('reconnecting', (attempt) {
-        print('Reconnecting... Attempt: $attempt');
-      });
-
-      // Listen for successful reconnection
-      socket!.on('reconnect', (_) {
-        print('Reconnected');
-        socket?.emit("joinSelf", userId); // Rejoin the room after reconnection
-      });
-
-      socket!.on('reconnect_failed', (_) {
-        print('Reconnection failed');
+      socket!.on('reconnect_attempt', (attempt) {
+        print('Socket reconnecting... Attempt: $attempt');
       });
 
       //Message received
@@ -169,23 +165,6 @@ class SocketController extends GetxController {
 
             chatController.chatList.refresh();
           }
-
-          // for (int i = 0; i < chatController.chatList.length; i++) {
-          //   log("chat list loop");
-          //   //  List deliverToIds = [];
-          //   for (var j = 0;
-          //       j < chatController.chatList[i].deliveredTo!.length;
-          //       j++) {
-          //     // deliverToIds.add(chatController.chatList[i].deliveredTo![j].user);
-          //     if (chatController.chatList[i].deliveredTo![j].user.toString()
-          //        !=data['deliverData']['user'].toString()) {
-          //       chatController.chatList[i].deliveredTo!.add(ChatDeliveredTo(
-          //           user: data['deliverData']['user'],
-          //           timestamp: data['deliverData']['timestamp'].toString()));
-          //       chatController.chatList.refresh();
-          //     }
-          //   }
-          // }
         }
       });
 
@@ -202,26 +181,6 @@ class SocketController extends GetxController {
           }
         } else {
           log("elffese pront");
-          // for (int i = 0; i < chatController.chatList.length; i++) {
-          //   log("chat list loop");
-          //   List readIds = [];
-          //   for (var j = 0;
-          //       j < chatController.chatList[i].readBy!.length;
-          //       j++) {
-          //     readIds.add(chatController.chatList[i].readBy![j].user);
-          //   }
-          //   log("Chat list response ${readIds.length}");
-          //   if (!readIds.contains(data['readData']['user']) &&
-          //       (chatController.chatList[i].readBy!
-          //           .where((element) =>
-          //               element.sId!.contains(data['readData']['user']))
-          //           .isEmpty)) {
-          //     chatController.chatList[i].readBy!.add(ChatReadBy(
-          //         user: User(sId: data['readData']['user']),
-          //         timestamp: data['readData']['timestamp'].toString()));
-          //   }
-          // }
-          // chatController.chatList.refresh();
 
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].readBy?.length !=
@@ -266,8 +225,30 @@ class SocketController extends GetxController {
         print('Socket Error: $data');
       });
     } catch (e) {
-      log("pandey: $e");
+      log("Socket connection error: $e");
     }
+  }
+
+  void reconnectSocket() {
+    if (socket != null && !(socket?.connected ?? false)) {
+      print('Attempting to reconnect socket...');
+      socket?.connect();
+    }
+  }
+
+  void monitorConnectivity() {
+    connectivity.onConnectivityChanged.listen((result) {
+      if (result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi) ||
+          result.contains(ConnectivityResult.ethernet)) {
+        print('Internet is back');
+        reconnectSocket(); // Reconnect socket when internet is back
+        groupListController.getGroupList(isLoadingShow: false);
+        chatController.getAllChatByGroupId(groupId: groupId.value, isShowLoading: false);
+      } else {
+        print('No internet connection');
+      }
+    });
   }
 
   @override
@@ -275,5 +256,13 @@ class SocketController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     socketConnection();
+    monitorConnectivity(); // Start monitoring network connectivity
+  }
+
+  @override
+  void onClose() {
+    socket?.disconnect();
+    socket?.dispose();
+    super.onClose();
   }
 }
