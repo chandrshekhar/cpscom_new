@@ -12,8 +12,8 @@ class Urls {
 }
 
 class ApiPath {
-  // static const String baseUrls = 'https://cpscomhub.com/api';
-  static const String baseUrls = 'http://192.168.1.44:4000/api/v1';
+  static const String baseUrls = 'https://cpscomhub.com/api';
+  // static const String baseUrls = 'http://192.168.1.44:4000/api/v1';
 
   static const String socketUrl = "https://api.cpscomhub.com";
   //static const String socketUrl = "https://crazy-sitting-duck.loca.lt";
