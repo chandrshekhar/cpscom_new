@@ -32,26 +32,16 @@ class _HomeHeaderState extends State<HomeHeader> {
     return Padding(
       padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Chats',
-            style: Theme.of(context)
-                .textTheme
-                .headlineLarge!
-                .copyWith(color: AppColors.black, fontWeight: FontWeight.w600),
-          ),
-          const Spacer(),
           GestureDetector(
             onTap: () => context.push(MyProfileScreen(
               groupsList: widget.groupsList,
             )),
             child: ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+              borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
               child: Obx(() => CachedNetworkImage(
-                  width: 34,
-                  height: 34,
+                  width: 60,
+                  height: 60,
                   fit: BoxFit.cover,
                   imageUrl: loginController.userModel.value.image != null
                       ? loginController.userModel.value.image.toString()
@@ -64,9 +54,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                         radius: 16,
                         backgroundColor: AppColors.bg,
                         child: Text(
-                          loginController.userModel.value.name
-                              .toString()[0]
-                              .toUpperCase(),
+                          loginController.userModel.value.name.toString()[0].toUpperCase(),
                           style: Theme.of(context)
                               .textTheme
                               .bodyLarge!
@@ -75,6 +63,26 @@ class _HomeHeaderState extends State<HomeHeader> {
                       ))),
             ),
           ),
+          SizedBox(
+            width: 10,
+          ),
+          Obx(() => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    loginController.userModel.value.name ?? "",
+                    style: Theme.of(context).textTheme.bodyLarge!,
+                  ),
+                  SizedBox(
+                    height: 2,
+                  ),
+                  Text(
+                    loginController.userModel.value.accountStatus ?? "",
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.green),
+                  ),
+                ],
+              )),
+          Spacer(),
           PopupMenuButton(
             icon: const Icon(
               Icons.more_vert,

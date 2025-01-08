@@ -45,8 +45,7 @@ class ForgetPasswordControler extends GetxController {
   void sentOtp(BuildContext context) async {
     isForgetPasswordLoading(true);
     forgetemailController.value = loginController.emailController.value;
-    var res = await apiProvider
-        .forgetPassword(forgetemailController.value.text.toLowerCase());
+    var res = await apiProvider.forgetPassword(forgetemailController.value.text.toLowerCase());
     if (res['success'] == true) {
       customSnackBar(context, res['data']['message'].toString());
       isForgetPasswordLoading(false);
@@ -60,8 +59,7 @@ class ForgetPasswordControler extends GetxController {
   void verifyOtp(BuildContext context) async {
     verifyingOtp(true);
     var res = await apiProvider.verifyOtp(
-        email: forgetemailController.value.text.toLowerCase(),
-        otp: otpController.value.text);
+        email: forgetemailController.value.text.toLowerCase(), otp: otpController.value.text);
     if (res['success'] == true) {
       slug.value = res['data']['slug'];
       customSnackBar(context, res['message'].toString());
@@ -106,17 +104,16 @@ class ForgetPasswordControler extends GetxController {
       var res = await apiProvider.changePassword(reqModel: reqModel);
       log("response for change password ${res.toString()}");
       if (res['success'] == true) {
-        TostWidget()
-            .successToast(title: "Success", message: res['message'].toString());
+        TostWidget().successToast(title: "Success", message: res['message'].toString());
         backFromPrevious(context: context);
         isChangingPassword(false);
       } else {
-        TostWidget()
-            .errorToast(title: "Error!", message: res['error'].toString());
+        TostWidget().errorToast(title: "Error!", message: res['error'].toString());
         isChangingPassword(false);
       }
     } catch (e) {
-      TostWidget().errorToast(title: "Error!", message: e.toString());
+      print("djsfhdjsfh ${e.toString()}");
+      // TostWidget().errorToast(title: "Error!", message: e.toString());
       isChangingPassword(false);
     }
   }

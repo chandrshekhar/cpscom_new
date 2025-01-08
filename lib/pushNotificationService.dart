@@ -216,15 +216,13 @@ class PushNotificationService {
   final socketController = Get.put(SocketController());
   final groupListController = Get.put(GroupListController());
 
-  int notificationCount = 0; // To keep track of unread notification count
-
   Future<void> setupInteractedMessage() async {
     await enableIOSNotifications();
     await registerNotificationListeners();
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       // Reset notification count on app open from notification
-      resetNotificationCount();
+      // resetNotificationCount();
       int ind = -1;
       for (int i = 0; i < groupListController.groupList.length; i++) {
         if (groupListController.groupList[i].sId.toString() == message.data['grp']) {
@@ -249,15 +247,15 @@ class PushNotificationService {
       if (message != null) {
         log("App launched from terminated state by notification: ${message.data}");
         // Reset notification count when app is launched from a terminated state
-        resetNotificationCount();
+        // resetNotificationCount();
       }
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      log("Foreground notification: ${message.notification?.title}");
-
+      log("Foreground notification: ${message.notification}");
+      log("jdfjdfhj ${message.data}");
       // Increment notification count for badge
-      incrementNotificationCount();
+      // incrementNotificationCount();
 
       AndroidNotificationChannel channel = androidNotificationChannel();
       await flutterLocalNotificationsPlugin
@@ -267,7 +265,9 @@ class PushNotificationService {
       flutterLocalNotificationsPlugin.show(
         message.notification.hashCode,
         message.notification?.title,
-        message.notification?.body,
+        // message.notification?.body,
+        bodyMessage(message.data['msgType'].toString(), message.notification?.body ?? ""),
+        // ,
         NotificationDetails(
           android: AndroidNotificationDetails(
             channel.id,
@@ -279,7 +279,7 @@ class PushNotificationService {
           ),
           iOS: const DarwinNotificationDetails(
             presentAlert: true,
-            presentBadge: true,
+            presentBadge: false,
             presentSound: true,
           ),
         ),
@@ -290,7 +290,7 @@ class PushNotificationService {
   Future<void> enableIOSNotifications() async {
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
-      badge: true,
+      badge: false,
       sound: true,
     );
   }
@@ -305,7 +305,7 @@ class PushNotificationService {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iOSSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
-      requestBadgePermission: true,
+      requestBadgePermission: false,
       requestSoundPermission: true,
     );
     final initSettings = InitializationSettings(android: androidSettings, iOS: iOSSettings);
@@ -318,22 +318,27 @@ class PushNotificationService {
 
   AndroidNotificationChannel androidNotificationChannel() {
     return const AndroidNotificationChannel(
-      'high_importance_channel',
-      'High Importance Notifications',
-      description: 'This channel is used for important notifications.',
-      importance: Importance.max,
-      playSound: true,
-    );
+        'high_importance_channel', 'High Importance Notifications',
+        description: 'This channel is used for important notifications.',
+        importance: Importance.max,
+        playSound: true,
+        showBadge: false);
   }
 
-  void incrementNotificationCount() {
-    notificationCount++;
-
-    FlutterAppIconBadge.updateBadge(notificationCount);
-  }
-
-  void resetNotificationCount() {
-    notificationCount = 0;
-    FlutterAppIconBadge.removeBadge();
+  String bodyMessage(String mesageType, String body) {
+    switch (mesageType) {
+      case "text":
+        return body;
+      case "image":
+        return "Image";
+      case "audio":
+        return "Audio";
+      case "video":
+        return "Video";
+      case "doc":
+        return "Docs";
+      default:
+        return body;
+    }
   }
 }

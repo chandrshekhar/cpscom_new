@@ -12,8 +12,8 @@ class Urls {
 }
 
 class ApiPath {
-  static const String baseUrls = 'https://cpscomhub.com/api';
-  // static const String baseUrls = 'http://192.168.1.41:4000/api/v1';
+  // static const String baseUrls = 'https://cpscomhub.com/api';
+  static const String baseUrls = 'http://192.168.1.44:4000/api/v1';
 
   static const String socketUrl = "https://api.cpscomhub.com";
   //static const String socketUrl = "https://crazy-sitting-duck.loca.lt";
@@ -25,7 +25,7 @@ class ApiPath {
   static const String loginApi = "$baseUrls/v1/users/sign-in";
   static const String getUserDAta = "$baseUrls/v1/users/get-user";
   static const String updateProfileDetails = "$baseUrls/v1/users/update-user";
-  static const String changePassword = "$baseUrls/v1/users/change-password";
+  static const String changePassword = "$baseUrls/users/change-password";
 
   //GROUP
   //group api path
