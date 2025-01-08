@@ -226,12 +226,12 @@ class PushNotificationService {
       // Reset notification count on app open from notification
       resetNotificationCount();
 
-      // for (var test in groupListController.groupList) {
-      //   if (test.sId.toString() == message.data['grp']) {
-      //     test.unreadCount = 0;
-      //     groupListController.groupList.refresh();
-      //   }
-      // }
+      for (var test in groupListController.groupList) {
+        if (test.sId.toString() == message.data['grp']) {
+          test.unreadCount = 0;
+          groupListController.groupList.refresh();
+        }
+      }
       chatController.timeStamps.value = DateTime.now().millisecondsSinceEpoch;
       socketController.groupId.value = message.data['grp'];
       log("App was opened by a notification: ${message.data}");

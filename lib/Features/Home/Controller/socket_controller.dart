@@ -251,12 +251,9 @@ class SocketController extends GetxController {
     });
   }
 
-  @override
-  void onInit() {
-    // TODO: implement onInit
-    super.onInit();
-    socketConnection();
-    monitorConnectivity(); // Start monitoring network connectivity
+  socketInitialization() {
+    // socketConnection();
+    monitorConnectivity();
   }
 
   @override
