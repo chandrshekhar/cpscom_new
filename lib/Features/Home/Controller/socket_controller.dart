@@ -3,7 +3,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cpscom_admin/Api/urls.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../../Utils/storage_service.dart';
 import '../../Chat/Model/chat_list_model.dart';
@@ -17,6 +19,7 @@ class SocketController extends GetxController {
   RxBool isConnected = true.obs; // Observable for connection state
   final connectivity = Connectivity(); // Connectivity instance
   RxString groupId = "".obs;
+  RxString socketId = "".obs;
 
   socketConnection() {
     try {
@@ -37,7 +40,7 @@ class SocketController extends GetxController {
 
       socket!.on('connect', (_) {
         print('Socket connected');
-        String socketId = socket!.id ?? "";
+        socketId.value = socket!.id ?? "";
         print('Socket ID: $socketId');
         socket?.emit("joinSelf", userId);
         isConnected.value = true; // Mark as connected
@@ -47,10 +50,12 @@ class SocketController extends GetxController {
       socket!.on('disconnect', (reason) {
         print('Socket disconnected: $reason');
         isConnected.value = false; // Mark as disconnected
+        socketId.value = "";
       });
       socket!.on('error', (data) {
         print('Socket error: $data');
         isConnected.value = false; // Mark as disconnected
+        socketId.value = "";
       });
 
       // Listen for reconnection attempts
@@ -236,24 +241,43 @@ class SocketController extends GetxController {
     }
   }
 
-  void monitorConnectivity() {
+  void monitorConnectivity(bool isFirstTime) {
     connectivity.onConnectivityChanged.listen((result) {
-      if (result.contains(ConnectivityResult.mobile) ||
-          result.contains(ConnectivityResult.wifi) ||
-          result.contains(ConnectivityResult.ethernet)) {
-        print('Internet is back');
-        reconnectSocket(); // Reconnect socket when internet is back
-        groupListController.getGroupList(isLoadingShow: false);
-        chatController.getAllChatByGroupId(groupId: groupId.value, isShowLoading: false);
+      if (!isFirstTime) {
+        if (result.contains(ConnectivityResult.mobile) ||
+            result.contains(ConnectivityResult.wifi) ||
+            result.contains(ConnectivityResult.ethernet)) {
+          Get.snackbar(
+            "Online",
+            "Your internet connected",
+            backgroundColor: Colors.green,
+          );
+          reconnectSocket(); // Reconnect socket when internet is back
+          groupListController.getGroupList(isLoadingShow: false);
+          chatController.getAllChatByGroupId(groupId: groupId.value, isShowLoading: false);
+        } else {
+          print('No internet connection');
+          Get.snackbar(
+            "Offline",
+            "Your internet disconnected",
+            backgroundColor: Colors.red,
+          );
+        }
       } else {
-        print('No internet connection');
+        isFirstTime = false;
       }
     });
   }
 
   socketInitialization() {
-    // socketConnection();
-    monitorConnectivity();
+    monitorConnectivity(true);
+  }
+
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    super.onInit();
+    socketInitialization();
   }
 
   @override

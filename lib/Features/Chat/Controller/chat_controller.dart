@@ -75,7 +75,6 @@ class ChatController extends GetxController {
       };
       var res = await _chatRepo.getChatListApi(reqModel: reqModel);
       if (res.data!.success == true) {
-        chatList.clear();
         chatList.addAll(res.data!.chat!);
         chatList.refresh();
         isChatLoading(false);

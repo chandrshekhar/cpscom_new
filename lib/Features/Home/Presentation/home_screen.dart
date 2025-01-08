@@ -77,7 +77,7 @@ class _BuildChatListState extends State<BuildChatList> {
     await Future.delayed(const Duration(milliseconds: 200), () {
       loginController.getUserProfile();
       groupListController.getGroupList();
-      socketController.socketInitialization();
+      socketController.reconnectSocket();
     });
   }
 
