@@ -83,71 +83,87 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       child: Scaffold(
           appBar: AppBar(
+            centerTitle: false,
             elevation: 1,
-            leading: InkWell(
-              onTap: () async {
-                groupListController.groupList[widget.index!].unreadCount = 0;
-                groupListController.groupList.refresh();
-                chatController.groupId.value = "";
-                Navigator.pop(context);
-                // await groupListController.getGroupList(isLoadingShow: false);
+            leadingWidth: double.infinity,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      groupListController.groupList[widget.index!].unreadCount = 0;
+                      groupListController.groupList.refresh();
+                      chatController.groupId.value = "";
+                      Navigator.pop(context);
+                      // await groupListController.getGroupList(isLoadingShow: false);
 
-                // <-- The target method
-              },
-              child: const Icon(
-                Icons.arrow_back,
-                size: 22,
-              ),
-            ),
-            title: Obx(
-              () => chatController.isDetailsLaoding.value == false
-                  ? Text(chatController.groupModel.value.groupName ?? "")
-                  : Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
-                      child: const Text(
-                        'Loading...',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      // <-- The target method
+                    },
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 22,
                     ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+                    child: Obx(() => CachedNetworkImage(
+                          width: 30,
+                          height: 30,
+                          fit: BoxFit.cover,
+                          imageUrl: chatController.groupModel.value.groupImage ?? "",
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: const CircleAvatar(
+                              radius: 50.0,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => CircleAvatar(
+                            radius: 16,
+                            backgroundColor: AppColors.bg,
+                            child: Text(
+                              chatController.groupModel.value.groupName != null
+                                  ? chatController.groupModel.value.groupName!
+                                      .substring(0, 1)
+                                      .toUpperCase()
+                                  : "",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        )),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Obx(
+                    () => chatController.isDetailsLaoding.value == false
+                        ? Text(chatController.groupModel.value.groupName ?? "")
+                        : Shimmer.fromColors(
+                            baseColor: Colors.grey.shade300,
+                            highlightColor: Colors.grey.shade100,
+                            child: const Text(
+                              'Loading...',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
             ),
             actions: [
               PopupMenuButton(
                 position: PopupMenuPosition.under,
-                icon: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
-                  child: Obx(() => CachedNetworkImage(
-                        width: 30,
-                        height: 30,
-                        fit: BoxFit.cover,
-                        imageUrl: chatController.groupModel.value.groupImage ?? "",
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: const CircleAvatar(
-                            radius: 50.0,
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => CircleAvatar(
-                          radius: 16,
-                          backgroundColor: AppColors.bg,
-                          child: Text(
-                            chatController.groupModel.value.groupName != null
-                                ? chatController.groupModel.value.groupName!
-                                    .substring(0, 1)
-                                    .toUpperCase()
-                                : "",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      )),
-                ),
+                icon: Icon(Icons.more_vert),
                 itemBuilder: (context) => [
                   PopupMenuItem(
                       value: 1,
@@ -185,12 +201,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                 groupId: widget.groupId, context: context);
                           });
                       break;
-                    // case 2:
-                    //   context.push(const GroupMediaScreen());
-                    //   break;
-                    // case 3:
-                    //   context.push(const MessageSearchScreen());
-                    //   break;
                   }
                 },
               ),
