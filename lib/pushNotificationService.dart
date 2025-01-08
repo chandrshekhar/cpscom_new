@@ -225,17 +225,24 @@ class PushNotificationService {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       // Reset notification count on app open from notification
       resetNotificationCount();
-
-      for (var test in groupListController.groupList) {
-        if (test.sId.toString() == message.data['grp']) {
-          test.unreadCount = 0;
+      int ind = -1;
+      for (int i = 0; i < groupListController.groupList.length; i++) {
+        if (groupListController.groupList[i].sId.toString() == message.data['grp']) {
+          ind = i;
+          groupListController.groupList[i].unreadCount = 0;
           groupListController.groupList.refresh();
         }
       }
       chatController.timeStamps.value = DateTime.now().millisecondsSinceEpoch;
       socketController.groupId.value = message.data['grp'];
       log("App was opened by a notification: ${message.data}");
-      doNavigator(route: ChatScreen(groupId: message.data['grp']), context: Get.context!);
+      doNavigator(
+        route: ChatScreen(
+          groupId: message.data['grp'],
+          index: ind,
+        ),
+        context: Get.context!,
+      );
     });
 
     FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {

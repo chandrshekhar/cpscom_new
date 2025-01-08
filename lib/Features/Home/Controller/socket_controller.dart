@@ -5,7 +5,6 @@ import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../../Utils/storage_service.dart';
 import '../../Chat/Model/chat_list_model.dart';
@@ -19,7 +18,6 @@ class SocketController extends GetxController {
   RxBool isConnected = true.obs; // Observable for connection state
   final connectivity = Connectivity(); // Connectivity instance
   RxString groupId = "".obs;
-  RxString socketId = "".obs;
 
   socketConnection() {
     try {
@@ -40,7 +38,7 @@ class SocketController extends GetxController {
 
       socket!.on('connect', (_) {
         print('Socket connected');
-        socketId.value = socket!.id ?? "";
+        String socketId = socket!.id ?? "";
         print('Socket ID: $socketId');
         socket?.emit("joinSelf", userId);
         isConnected.value = true; // Mark as connected
@@ -50,12 +48,10 @@ class SocketController extends GetxController {
       socket!.on('disconnect', (reason) {
         print('Socket disconnected: $reason');
         isConnected.value = false; // Mark as disconnected
-        socketId.value = "";
       });
       socket!.on('error', (data) {
         print('Socket error: $data');
         isConnected.value = false; // Mark as disconnected
-        socketId.value = "";
       });
 
       // Listen for reconnection attempts

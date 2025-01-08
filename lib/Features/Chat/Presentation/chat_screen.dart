@@ -57,6 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
           groupId: widget.groupId, timeStamp: chatController.timeStamps.value);
       chatController.msgController.value.clear();
       chatController.isMemberSuggestion.value = false;
+      chatController.chatList.clear();
       chatController.getAllChatByGroupId(groupId: widget.groupId).then((value) {
         List<String> reciverId =
             chatController.groupModel.value.currentUsers!.map((user) => user.sId!).toList();
@@ -67,339 +68,349 @@ class _ChatScreenState extends State<ChatScreen> {
           "receiverId": reciverId
         });
       });
-      // chatController.groupModel.value = GroupModel();
 
       chatController.groupId.value = widget.groupId;
     });
-    //updateIsSeenField(widget.groupId, true);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          elevation: 1,
-          leading: InkWell(
-            onTap: () async {
-              // groupListController.groupList[widget.index!].unreadCount = 0;
-              // groupListController.groupList.refresh();
-              // chatController.groupId.value = "";
-              Navigator.pop(context);
-              // await groupListController.getGroupList(isLoadingShow: false);
+    return WillPopScope(
+      onWillPop: () async {
+        groupListController.groupList[widget.index!].unreadCount = 0;
+        groupListController.groupList.refresh();
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            elevation: 1,
+            leading: InkWell(
+              onTap: () async {
+                groupListController.groupList[widget.index!].unreadCount = 0;
+                groupListController.groupList.refresh();
+                chatController.groupId.value = "";
+                Navigator.pop(context);
+                // await groupListController.getGroupList(isLoadingShow: false);
 
-              // <-- The target method
-            },
-            child: const Icon(
-              Icons.arrow_back,
-              size: 22,
+                // <-- The target method
+              },
+              child: const Icon(
+                Icons.arrow_back,
+                size: 22,
+              ),
             ),
-          ),
-          title: Obx(
-            () => chatController.isDetailsLaoding.value == false
-                ? Text(chatController.groupModel.value.groupName ?? "")
-                : Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: const Text(
-                      'Loading...',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
+            title: Obx(
+              () => chatController.isDetailsLaoding.value == false
+                  ? Text(chatController.groupModel.value.groupName ?? "")
+                  : Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: const Text(
+                        'Loading...',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-          ),
-          actions: [
-            PopupMenuButton(
-              position: PopupMenuPosition.under,
-              icon: ClipRRect(
-                borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
-                child: Obx(() => CachedNetworkImage(
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.cover,
-                      imageUrl: chatController.groupModel.value.groupImage ?? "",
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: const CircleAvatar(
-                          radius: 50.0,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => CircleAvatar(
-                        radius: 16,
-                        backgroundColor: AppColors.bg,
-                        child: Text(
-                          chatController.groupModel.value.groupName != null
-                              ? chatController.groupModel.value.groupName!
-                                  .substring(0, 1)
-                                  .toUpperCase()
-                              : "",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge!
-                              .copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    )),
-              ),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                    value: 1,
-                    child: Text(
-                      'Group Info',
-                      style:
-                          Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.black),
-                    )),
-                PopupMenuItem(
-                    value: 2,
-                    child: Text(
-                      'Report Group',
-                      style:
-                          Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.black),
-                    )),
-              ],
-              onSelected: (value) {
-                switch (value) {
-                  case 1:
-                    context.push(GroupInfoScreen(
-                        groupId: widget.groupId.toString(), isAdmin: widget.isAdmin));
-                    break;
-                  case 2:
-                    _showReportDialog(
-                        isLoading: reportController.isGroupReportLoading,
-                        title: "Report Group",
-                        context: context,
-                        textEditingController: reportController.groupReportController.value,
-                        onTap: () async {
-                          await reportController.groupReport(
-                              groupId: widget.groupId, context: context);
-                        });
-                    break;
-                  // case 2:
-                  //   context.push(const GroupMediaScreen());
-                  //   break;
-                  // case 3:
-                  //   context.push(const MessageSearchScreen());
-                  //   break;
-                }
-              },
             ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Expanded(
-                child: Column(
-              children: [
-                Expanded(
-                    child: Obx(
-                  () => chatController.isChatLoading.value
-                      ? const Center(
-                          child: CircularProgressIndicator.adaptive(),
-                        )
-                      : chatController.chatList.isNotEmpty
-                          ? ListView.builder(
-                              itemCount: chatController.chatList.length,
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              controller: _scrollController,
-                              shrinkWrap: true,
-                              reverse: true,
-                              padding: const EdgeInsets.only(
-                                  // left: 5,
-                                  bottom: AppSizes.kDefaultPadding * 2),
-                              itemBuilder: (context, index) {
-                                var item = chatController.chatList.reversed.toList()[index];
-                                chatController.isShowing(!(chatController
-                                    .chatList.last.allRecipients!
-                                    .contains(LocalStorage().getUserId())));
-                                return item.senderId.toString() ==
-                                        LocalStorage().getUserId().toString()
-                                    ? InkWell(
-                                        onTap: () {
-                                          chatController.selectedIndex.value = index;
-                                          log("Delivery count is ${item.deliveredTo!.length}");
-                                        },
-                                        child: item.messageType == "created" ||
-                                                item.messageType == "removed" ||
-                                                item.messageType == "added"
-                                            ? Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 20, right: 20, bottom: 20),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      log("index is : $index");
-                                                      log("chat length is : ${chatController.chatList.toList().length}");
-                                                    },
-                                                    child: Text(
-                                                      item.message ?? "",
-                                                      textAlign: TextAlign.center,
+            actions: [
+              PopupMenuButton(
+                position: PopupMenuPosition.under,
+                icon: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+                  child: Obx(() => CachedNetworkImage(
+                        width: 30,
+                        height: 30,
+                        fit: BoxFit.cover,
+                        imageUrl: chatController.groupModel.value.groupImage ?? "",
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: const CircleAvatar(
+                            radius: 50.0,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColors.bg,
+                          child: Text(
+                            chatController.groupModel.value.groupName != null
+                                ? chatController.groupModel.value.groupName!
+                                    .substring(0, 1)
+                                    .toUpperCase()
+                                : "",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      )),
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                      value: 1,
+                      child: Text(
+                        'Group Info',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(color: AppColors.black),
+                      )),
+                  PopupMenuItem(
+                      value: 2,
+                      child: Text(
+                        'Report Group',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(color: AppColors.black),
+                      )),
+                ],
+                onSelected: (value) {
+                  switch (value) {
+                    case 1:
+                      context.push(GroupInfoScreen(
+                          groupId: widget.groupId.toString(), isAdmin: widget.isAdmin));
+                      break;
+                    case 2:
+                      _showReportDialog(
+                          isLoading: reportController.isGroupReportLoading,
+                          title: "Report Group",
+                          context: context,
+                          textEditingController: reportController.groupReportController.value,
+                          onTap: () async {
+                            await reportController.groupReport(
+                                groupId: widget.groupId, context: context);
+                          });
+                      break;
+                    // case 2:
+                    //   context.push(const GroupMediaScreen());
+                    //   break;
+                    // case 3:
+                    //   context.push(const MessageSearchScreen());
+                    //   break;
+                  }
+                },
+              ),
+            ],
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                  child: Column(
+                children: [
+                  Expanded(
+                      child: Obx(
+                    () => chatController.isChatLoading.value
+                        ? const Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          )
+                        : chatController.chatList.isNotEmpty
+                            ? ListView.builder(
+                                itemCount: chatController.chatList.length,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                controller: _scrollController,
+                                shrinkWrap: true,
+                                reverse: true,
+                                padding: const EdgeInsets.only(
+                                    // left: 5,
+                                    bottom: AppSizes.kDefaultPadding * 2),
+                                itemBuilder: (context, index) {
+                                  var item = chatController.chatList.reversed.toList()[index];
+                                  chatController.isShowing(!(chatController
+                                      .chatList.last.allRecipients!
+                                      .contains(LocalStorage().getUserId())));
+                                  return item.senderId.toString() ==
+                                          LocalStorage().getUserId().toString()
+                                      ? InkWell(
+                                          onTap: () {
+                                            chatController.selectedIndex.value = index;
+                                            log("Delivery count is ${item.deliveredTo!.length}");
+                                          },
+                                          child: item.messageType == "created" ||
+                                                  item.messageType == "removed" ||
+                                                  item.messageType == "added"
+                                              ? Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      left: 20, right: 20, bottom: 20),
+                                                  child: Center(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        log("index is : $index");
+                                                        log("chat length is : ${chatController.chatList.toList().length}");
+                                                      },
+                                                      child: Text(
+                                                        item.message ?? "",
+                                                        textAlign: TextAlign.center,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              )
-                                            : InkWell(
-                                                onLongPress: () {
-                                                  _showBottomSheet(
-                                                      from: "sender",
-                                                      context,
-                                                      item.sId.toString(), handleReply: () {
-                                                    backFromPrevious(context: context);
-                                                    chatController.isRelayFunction(
-                                                        isRep: true,
-                                                        msgId: item.id,
-                                                        msgType: item.messageType,
-                                                        msg: item.message,
-                                                        senderName: item.senderName);
-                                                  });
-                                                },
-                                                child: SenderTile(
-                                                  isDelivered: item.allRecipients?.length ==
-                                                          item.deliveredTo?.length
-                                                      ? true.obs
-                                                      : false.obs,
-                                                  isSeen: item.allRecipients?.length ==
-                                                          item.readBy?.length
-                                                      ? true.obs
-                                                      : false.obs,
-                                                  index: index,
-                                                  fileName: item.fileName ?? "",
-                                                  message: item.message ?? "",
-                                                  messageType: item.messageType.toString(),
-                                                  sentTime: DateFormat('dd/MM/yyyy hh:mm a').format(
-                                                      DateTime.parse(item.timestamp ?? "")
-                                                          .toLocal()),
-                                                  groupCreatedBy: "",
-                                                  read: "value",
-                                                  onLeftSwipe: () {
-                                                    chatController.isRelayFunction(
-                                                        isRep: true,
-                                                        msgId: item.sId,
-                                                        msgType: item.messageType,
-                                                        msg: item.message,
-                                                        senderName: item.senderName);
-                                                    log(chatController.replyOf.toString());
+                                                )
+                                              : InkWell(
+                                                  onLongPress: () {
+                                                    _showBottomSheet(
+                                                        from: "sender",
+                                                        context,
+                                                        item.sId.toString(), handleReply: () {
+                                                      backFromPrevious(context: context);
+                                                      chatController.isRelayFunction(
+                                                          isRep: true,
+                                                          msgId: item.id,
+                                                          msgType: item.messageType,
+                                                          msg: item.message,
+                                                          senderName: item.senderName);
+                                                    });
                                                   },
-                                                  replyOf: item.replyOf,
-                                                  // child: item.allRecipients!
-                                                  //                 .length ==
-                                                  //             item.deliveredTo!
-                                                  //                 .length &&
-                                                  //         item.readBy!.length <
-                                                  //             item.allRecipients!
-                                                  //                 .length
-                                                  //     ? Icon(
-                                                  //         Icons.done_all_rounded,
-                                                  //         size: 16,
-                                                  //         color: item.allRecipients!
-                                                  //                         .length ==
-                                                  //                     item.deliveredTo!
-                                                  //                         .length &&
-                                                  //                 item.allRecipients!
-                                                  //                         .length ==
-                                                  //                     item.readBy!
-                                                  //                         .length
-                                                  //             ? AppColors.primary
-                                                  //             : AppColors.grey,
-                                                  //       )
-                                                  //     : const Icon(
-                                                  //         Icons.check,
-                                                  //         size: 16,
-                                                  //         color: AppColors.grey,
-                                                  //       )),
-                                                ),
-                                              ))
-                                    : item.messageType == "created" ||
-                                            item.messageType == "removed" ||
-                                            item.messageType == "added"
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 20, right: 20, bottom: 20),
-                                            child: Center(
-                                              child: InkWell(
-                                                onTap: () {
-                                                  log("index is : $index");
-                                                  log("chat length is : ${chatController.chatList.toList().length}");
-                                                },
-                                                child: Text(
-                                                  item.message ?? "",
-                                                  textAlign: TextAlign.center,
+                                                  child: SenderTile(
+                                                    isDelivered: item.allRecipients?.length ==
+                                                            item.deliveredTo?.length
+                                                        ? true.obs
+                                                        : false.obs,
+                                                    isSeen: item.allRecipients?.length ==
+                                                            item.readBy?.length
+                                                        ? true.obs
+                                                        : false.obs,
+                                                    index: index,
+                                                    fileName: item.fileName ?? "",
+                                                    message: item.message ?? "",
+                                                    messageType: item.messageType.toString(),
+                                                    sentTime: DateFormat('dd/MM/yyyy hh:mm a')
+                                                        .format(DateTime.parse(item.timestamp ?? "")
+                                                            .toLocal()),
+                                                    groupCreatedBy: "",
+                                                    read: "value",
+                                                    onLeftSwipe: () {
+                                                      chatController.isRelayFunction(
+                                                          isRep: true,
+                                                          msgId: item.sId,
+                                                          msgType: item.messageType,
+                                                          msg: item.message,
+                                                          senderName: item.senderName);
+                                                      log(chatController.replyOf.toString());
+                                                    },
+                                                    replyOf: item.replyOf,
+                                                    // child: item.allRecipients!
+                                                    //                 .length ==
+                                                    //             item.deliveredTo!
+                                                    //                 .length &&
+                                                    //         item.readBy!.length <
+                                                    //             item.allRecipients!
+                                                    //                 .length
+                                                    //     ? Icon(
+                                                    //         Icons.done_all_rounded,
+                                                    //         size: 16,
+                                                    //         color: item.allRecipients!
+                                                    //                         .length ==
+                                                    //                     item.deliveredTo!
+                                                    //                         .length &&
+                                                    //                 item.allRecipients!
+                                                    //                         .length ==
+                                                    //                     item.readBy!
+                                                    //                         .length
+                                                    //             ? AppColors.primary
+                                                    //             : AppColors.grey,
+                                                    //       )
+                                                    //     : const Icon(
+                                                    //         Icons.check,
+                                                    //         size: 16,
+                                                    //         color: AppColors.grey,
+                                                    //       )),
+                                                  ),
+                                                ))
+                                      : item.messageType == "created" ||
+                                              item.messageType == "removed" ||
+                                              item.messageType == "added"
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20, right: 20, bottom: 20),
+                                              child: Center(
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    log("index is : $index");
+                                                    log("chat length is : ${chatController.chatList.toList().length}");
+                                                  },
+                                                  child: Text(
+                                                    item.message ?? "",
+                                                    textAlign: TextAlign.center,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          )
-                                        : InkWell(
-                                            onLongPress: () {
-                                              _showBottomSheet(
-                                                  from: "reciver",
-                                                  context,
-                                                  item.sId.toString(), handleReply: () {
-                                                backFromPrevious(context: context);
-                                                chatController.isRelayFunction(
-                                                    isRep: true,
-                                                    msgId: item.id,
-                                                    msgType: item.messageType,
-                                                    msg: item.message,
-                                                    senderName: item.senderName);
-                                              });
-                                            },
-                                            onTap: () {
-                                              chatController.selectedIndex.value = index;
-                                            },
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(top: 15),
-                                              child: ReceiverTile(
-                                                index: index,
-                                                replyOf: item.replyOf,
-                                                fileName: item.fileName ?? "",
-                                                chatController: chatController,
-                                                onSwipedMessage: () {
+                                            )
+                                          : InkWell(
+                                              onLongPress: () {
+                                                _showBottomSheet(
+                                                    from: "reciver",
+                                                    context,
+                                                    item.sId.toString(), handleReply: () {
+                                                  backFromPrevious(context: context);
                                                   chatController.isRelayFunction(
                                                       isRep: true,
                                                       msgId: item.id,
                                                       msgType: item.messageType,
                                                       msg: item.message,
                                                       senderName: item.senderName);
-                                                  // replyToMessage(chatMap);
-                                                },
-                                                message: item.message ?? "",
-                                                messageType: item.messageType ?? "",
-                                                sentTime: DateFormat('dd/MM/yyyy hh:mm a').format(
-                                                    DateTime.parse(item.timestamp ?? "").toLocal()),
-                                                sentByName: item.senderName ?? "",
-                                                sentByImageUrl: item.message ?? "",
-                                                groupCreatedBy: "Pandey",
+                                                });
+                                              },
+                                              onTap: () {
+                                                chatController.selectedIndex.value = index;
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(top: 15),
+                                                child: ReceiverTile(
+                                                  index: index,
+                                                  replyOf: item.replyOf,
+                                                  fileName: item.fileName ?? "",
+                                                  chatController: chatController,
+                                                  onSwipedMessage: () {
+                                                    chatController.isRelayFunction(
+                                                        isRep: true,
+                                                        msgId: item.id,
+                                                        msgType: item.messageType,
+                                                        msg: item.message,
+                                                        senderName: item.senderName);
+                                                    // replyToMessage(chatMap);
+                                                  },
+                                                  message: item.message ?? "",
+                                                  messageType: item.messageType ?? "",
+                                                  sentTime: DateFormat('dd/MM/yyyy hh:mm a').format(
+                                                      DateTime.parse(item.timestamp ?? "")
+                                                          .toLocal()),
+                                                  sentByName: item.senderName ?? "",
+                                                  sentByImageUrl: item.message ?? "",
+                                                  groupCreatedBy: "Pandey",
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                //             chatMap['isDelivered'])
-                                //         :
-                              })
-                          : const SizedBox.shrink(),
-                )),
-              ],
-            )),
-            Obx(() => chatController.isMemberSuggestion.value
-                ? TagMemberWidget(chatController: chatController)
-                : const SizedBox()),
-            Obx(() => chatController.isReply.value
-                ? chatController.isSendWidgetShow.value
-                    ? SendMessageWidget(
-                        groupId: widget.groupId,
-                        msgController: chatController.msgController.value,
-                        scrollController: _scrollController,
-                      )
-                    : const SizedBox()
-                : chatController.isSendWidgetShow.value
-                    ? SendMessageWidget(
-                        groupId: widget.groupId,
-                        msgController: chatController.msgController.value,
-                        scrollController: _scrollController,
-                      )
-                    : const SizedBox())
-          ],
-        ));
+                                            );
+                                  //             chatMap['isDelivered'])
+                                  //         :
+                                })
+                            : const SizedBox.shrink(),
+                  )),
+                ],
+              )),
+              Obx(() => chatController.isMemberSuggestion.value
+                  ? TagMemberWidget(chatController: chatController)
+                  : const SizedBox()),
+              Obx(() => chatController.isReply.value
+                  ? chatController.isSendWidgetShow.value
+                      ? SendMessageWidget(
+                          groupId: widget.groupId,
+                          msgController: chatController.msgController.value,
+                          scrollController: _scrollController,
+                        )
+                      : const SizedBox()
+                  : chatController.isSendWidgetShow.value
+                      ? SendMessageWidget(
+                          groupId: widget.groupId,
+                          msgController: chatController.msgController.value,
+                          scrollController: _scrollController,
+                        )
+                      : const SizedBox())
+            ],
+          )),
+    );
   }
 
   void _showReportDialog(
