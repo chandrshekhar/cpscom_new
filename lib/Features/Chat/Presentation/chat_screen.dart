@@ -210,8 +210,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                   bottom: AppSizes.kDefaultPadding * 2),
                               itemBuilder: (context, index) {
                                 var item = chatController.chatList.reversed.toList()[index];
-                                chatController
-                                    .isShowing(chatController.chatList.last.messageType.toString());
+                                chatController.isShowing(!(chatController
+                                    .chatList.last.allRecipients!
+                                    .contains(LocalStorage().getUserId())));
                                 return item.senderId.toString() ==
                                         LocalStorage().getUserId().toString()
                                     ? InkWell(

@@ -18,16 +18,13 @@ class MemberlistRepo {
       {String? searchQuery, int? offset, int? limit}) async {
     Map<String, dynamic> queryParameters = {
       "searchQuery": searchQuery,
-      "offset": offset,
-      "limit": limit
     };
-    final response = await _apiClient.getRequest(
+    final response = await _apiClient.postRequest(
         endPoint: EndPoints.getMemberList,
-        queryParameters: queryParameters,
-        fromJson: (data) => MemberModel.fromJson(data));
+        reqModel: queryParameters,
+        fromJosn: (data) => MemberModel.fromJson(data));
     if (response.errorMessage != null) {
-      return ApiResponse(
-          statusCode: response.statusCode, errorMessage: response.errorMessage);
+      return ApiResponse(statusCode: response.statusCode, errorMessage: response.errorMessage);
     } else {
       return ApiResponse(statusCode: response.statusCode, data: response.data);
     }
@@ -50,8 +47,7 @@ class MemberlistRepo {
         imageFieldName: "file",
         reqModel: reqModel);
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
@@ -61,12 +57,9 @@ class MemberlistRepo {
   Future<ApiResponse<Map<String, dynamic>>> deleteMemberFromGroup(
       {required Map<String, dynamic> reqModel}) async {
     final res = await _apiClient.postRequest(
-        endPoint: EndPoints.deleteMemeberFromGroup,
-        fromJosn: (data) => data,
-        reqModel: reqModel);
+        endPoint: EndPoints.deleteMemeberFromGroup, fromJosn: (data) => data, reqModel: reqModel);
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
@@ -76,12 +69,9 @@ class MemberlistRepo {
   Future<ApiResponse<Map<String, dynamic>>> addMemberInGroup(
       {required Map<String, dynamic> reqModel}) async {
     final res = await _apiClient.postRequest(
-        endPoint: EndPoints.addMemberInGroup,
-        fromJosn: (data) => data,
-        reqModel: reqModel);
+        endPoint: EndPoints.addMemberInGroup, fromJosn: (data) => data, reqModel: reqModel);
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }

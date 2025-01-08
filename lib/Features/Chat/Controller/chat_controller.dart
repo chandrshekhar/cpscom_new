@@ -33,9 +33,11 @@ class ChatController extends GetxController {
   RxInt timeStamps = (-1).obs;
   RxBool isSendWidgetShow = true.obs;
 
-  void isShowing(String messageType) {
+  void isShowing(
+    bool isShowing,
+  ) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (messageType == "removed") {
+      if (isShowing == true) {
         isSendWidgetShow.value = false;
       } else {
         isSendWidgetShow.value = true;
