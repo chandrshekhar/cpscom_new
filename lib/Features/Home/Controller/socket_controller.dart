@@ -243,21 +243,9 @@ class SocketController extends GetxController {
         if (result.contains(ConnectivityResult.mobile) ||
             result.contains(ConnectivityResult.wifi) ||
             result.contains(ConnectivityResult.ethernet)) {
-          Get.snackbar(
-            "Online",
-            "Your internet connected",
-            backgroundColor: Colors.green,
-          );
           reconnectSocket(); // Reconnect socket when internet is back
           groupListController.getGroupList(isLoadingShow: false);
           chatController.getAllChatByGroupId(groupId: groupId.value, isShowLoading: false);
-        } else {
-          print('No internet connection');
-          Get.snackbar(
-            "Offline",
-            "Your internet disconnected",
-            backgroundColor: Colors.red,
-          );
         }
       } else {
         isFirstTime = false;
