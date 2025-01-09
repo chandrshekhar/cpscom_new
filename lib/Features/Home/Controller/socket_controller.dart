@@ -206,8 +206,11 @@ class SocketController extends GetxController {
 
       //Update group changes
       socket?.on("updated", (data) {
-        log("Update group socket data ${data.toString()}");
+        final chatController = Get.put(ChatController());
+        log("Update group socket data1 ${data['data']['data']}");
+
         groupListController.getGroupList(isLoadingShow: false);
+        chatController.getGroupDetailsById(groupId: groupId.value, isShowLoading: false);
       });
 
       socket?.on("delete-Group", (data) {

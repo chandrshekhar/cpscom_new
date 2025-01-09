@@ -5,7 +5,6 @@ import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart
 import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_app_icon_badge/flutter_app_icon_badge.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 
@@ -261,29 +260,34 @@ class PushNotificationService {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(channel);
+      AndroidNotification? android = message.notification?.android;
+      // AppleNotification? apple = message.notification?.apple;
+      // If `onMessage` is triggered with a notification, construct our own
+      // local notification to show to users using the created channel.
+      if (android != null) {
+        flutterLocalNotificationsPlugin.show(
+          message.notification.hashCode,
+          message.notification?.title,
+          // message.notification?.body,
+          bodyMessage(message.data['msgType'].toString(), message.notification?.body ?? ""),
 
-      flutterLocalNotificationsPlugin.show(
-        message.notification.hashCode,
-        message.notification?.title,
-        // message.notification?.body,
-        bodyMessage(message.data['msgType'].toString(), message.notification?.body ?? ""),
-        // ,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channel.id,
-            channel.name,
-            channelDescription: channel.description,
-            priority: Priority.high,
-            importance: Importance.high,
-            playSound: true,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+              priority: Priority.high,
+              importance: Importance.high,
+              playSound: true,
+            ),
+            iOS: const DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: false,
+              presentSound: true,
+            ),
           ),
-          iOS: const DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: false,
-            presentSound: true,
-          ),
-        ),
-      );
+        );
+      }
     });
   }
 
@@ -330,13 +334,13 @@ class PushNotificationService {
       case "text":
         return body;
       case "image":
-        return "Image";
+        return "Image 🏞️ ";
       case "audio":
-        return "Audio";
+        return "Audio 🎵";
       case "video":
-        return "Video";
+        return "Video 🎬";
       case "doc":
-        return "Docs";
+        return "Docs 📄";
       default:
         return body;
     }

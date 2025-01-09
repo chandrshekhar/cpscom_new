@@ -23,8 +23,7 @@ class GroupInfoScreen extends StatefulWidget {
   final String groupId;
   final bool? isAdmin;
 
-  const GroupInfoScreen({Key? key, required this.groupId, this.isAdmin})
-      : super(key: key);
+  const GroupInfoScreen({Key? key, required this.groupId, this.isAdmin}) : super(key: key);
 
   @override
   State<GroupInfoScreen> createState() => _GroupInfoScreenState();
@@ -76,21 +75,17 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                   Stack(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            AppSizes.cardCornerRadius * 10),
+                        borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
                         child: Obx(() => CachedNetworkImage(
                               width: 106,
                               height: 106,
                               fit: BoxFit.cover,
-                              imageUrl:
-                                  chatController.groupModel.value.groupImage ??
-                                      "",
+                              imageUrl: chatController.groupModel.value.groupImage ?? "",
                               placeholder: (context, url) => const CircleAvatar(
                                 radius: 66,
                                 backgroundColor: AppColors.lightGrey,
                               ),
-                              errorWidget: (context, url, error) =>
-                                  CircleAvatar(
+                              errorWidget: (context, url, error) => CircleAvatar(
                                 radius: 66,
                                 backgroundColor: AppColors.lightGrey,
                                 child: Obx(
@@ -120,8 +115,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                     height: 150,
                                     child: ListView.builder(
                                         shrinkWrap: true,
-                                        padding: const EdgeInsets.all(
-                                            AppSizes.kDefaultPadding),
+                                        padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
                                         itemCount: imagePickerList.length,
                                         scrollDirection: Axis.horizontal,
                                         itemBuilder: (context, index) {
@@ -130,16 +124,14 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                               switch (index) {
                                                 case 0:
                                                   chatController.pickImage(
-                                                      imageSource:
-                                                          ImageSource.gallery,
+                                                      imageSource: ImageSource.gallery,
                                                       groupId: widget.groupId,
                                                       context: context);
                                                   //  pickImageFromGallery();
                                                   break;
                                                 case 1:
                                                   chatController.pickImage(
-                                                      imageSource:
-                                                          ImageSource.camera,
+                                                      imageSource: ImageSource.camera,
                                                       groupId: widget.groupId,
                                                       context: context);
                                                   // pickImageFromCamera();
@@ -149,38 +141,27 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                             },
                                             child: Padding(
                                               padding: const EdgeInsets.only(
-                                                  left:
-                                                      AppSizes.kDefaultPadding *
-                                                          2),
+                                                  left: AppSizes.kDefaultPadding * 2),
                                               child: Column(
                                                 children: [
                                                   Container(
                                                     width: 60,
                                                     height: 60,
-                                                    padding: const EdgeInsets
-                                                        .all(AppSizes
-                                                            .kDefaultPadding),
+                                                    padding: const EdgeInsets.all(
+                                                        AppSizes.kDefaultPadding),
                                                     decoration: BoxDecoration(
                                                         border: Border.all(
-                                                            width: 1,
-                                                            color: AppColors
-                                                                .lightGrey),
+                                                            width: 1, color: AppColors.lightGrey),
                                                         color: AppColors.white,
                                                         shape: BoxShape.circle),
-                                                    child:
-                                                        imagePickerList[index]
-                                                            .icon,
+                                                    child: imagePickerList[index].icon,
                                                   ),
                                                   const SizedBox(
-                                                    height: AppSizes
-                                                            .kDefaultPadding /
-                                                        2,
+                                                    height: AppSizes.kDefaultPadding / 2,
                                                   ),
                                                   Text(
                                                     '${imagePickerList[index].title}',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodyMedium,
+                                                    style: Theme.of(context).textTheme.bodyMedium,
                                                   ),
                                                 ],
                                               ),
@@ -192,15 +173,12 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                             child: Container(
                               width: 40,
                               height: 40,
-                              padding: const EdgeInsets.all(
-                                  AppSizes.kDefaultPadding / 1.3),
+                              padding: const EdgeInsets.all(AppSizes.kDefaultPadding / 1.3),
                               decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 1, color: AppColors.lightGrey),
+                                  border: Border.all(width: 1, color: AppColors.lightGrey),
                                   color: AppColors.white,
                                   shape: BoxShape.circle),
-                              child: Obx(() => chatController
-                                      .isUpdateLoading.value
+                              child: Obx(() => chatController.isUpdateLoading.value
                                   ? const Center(
                                       child: CircularProgressIndicator.adaptive(
                                         strokeWidth: 3,
@@ -258,9 +236,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                       children: [
                         Expanded(
                           child: Obx(() => Text(
-                                chatController
-                                        .groupModel.value.groupDescription ??
-                                    "",
+                                chatController.groupModel.value.groupDescription ?? "",
                                 maxLines: 5,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)
@@ -321,46 +297,37 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 CustomCard(
                   margin: const EdgeInsets.all(AppSizes.kDefaultPadding),
                   padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
-                  child: Obx(() => chatController
-                          .groupModel.value.currentUsers!.isNotEmpty
+                  child: Obx(() => chatController.groupModel.value.currentUsers!.isNotEmpty
                       ? ListView.separated(
-                          itemCount: chatController
-                              .groupModel.value.currentUsers!.length,
+                          itemCount: chatController.groupModel.value.currentUsers!.length,
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           padding: EdgeInsets.zero,
                           itemBuilder: (context, index) {
-                            var item = chatController
-                                .groupModel.value.currentUsers![index];
+                            var item = chatController.groupModel.value.currentUsers![index];
 
                             return ParticipantsCardWidget(
                                 member: item,
                                 creatorId: item.sId,
-                                isUserAdmin: chatController
-                                    .groupModel.value.admins
-                                    ?.contains(item.sId),
+                                userType: item.userType ?? "",
+                               
                                 onDeleteButtonPressed: () {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       // return alert dialog
                                       return Obx(() => DeleteMemberAlertDialog(
-                                            isLoading: memberController
-                                                .isDeleteWaiting.value,
+                                            isLoading: memberController.isDeleteWaiting.value,
                                             onDelete: () async {
                                               await memberController
                                                   .deleteUserFromGroup(
                                                       groupId: widget.groupId,
-                                                      userId:
-                                                          item.sId.toString())
+                                                      userId: item.sId.toString())
                                                   .then((val) async {
-                                                await chatController
-                                                    .getGroupDetailsById(
-                                                        groupId:
-                                                            widget.groupId);
-                                                for (var element
-                                                    in chatController.groupModel
-                                                        .value.currentUsers!) {}
+                                                await chatController.getGroupDetailsById(
+                                                    groupId: widget.groupId);
+                                                for (var element in chatController
+                                                    .groupModel.value.currentUsers!) {}
                                                 Navigator.pop(context);
                                               });
                                             },

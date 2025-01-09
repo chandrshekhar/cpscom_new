@@ -8,6 +8,7 @@ import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
 import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final groupListController = Get.put(GroupListController());
   final socketController = Get.put(SocketController());
   final reportController = Get.put(ReportController());
+  final loginController = Get.put(LoginController());
   FocusNode focusNode = FocusNode();
 
   String getLocaLTimeXone(String utcTime) {
@@ -144,7 +146,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   Obx(
                     () => chatController.isDetailsLaoding.value == false
-                        ? Text(chatController.groupModel.value.groupName ?? "")
+                        ? Expanded(
+                            child: Text(
+                              chatController.groupModel.value.groupName ?? "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          )
                         : Shimmer.fromColors(
                             baseColor: Colors.grey.shade300,
                             highlightColor: Colors.grey.shade100,
@@ -157,6 +165,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
                   ),
+                  const SizedBox(
+                    width: 40,
+                  )
                 ],
               ),
             ),
@@ -229,9 +240,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                     bottom: AppSizes.kDefaultPadding * 2),
                                 itemBuilder: (context, index) {
                                   var item = chatController.chatList.reversed.toList()[index];
-                                  chatController.isShowing(!(chatController
-                                      .chatList.last.allRecipients!
-                                      .contains(LocalStorage().getUserId())));
+                                
+                                  print(
+                                      "dfghg ${chatController.groupModel.value.currentUsersId.toString()}");
+
                                   return item.senderId.toString() ==
                                           LocalStorage().getUserId().toString()
                                       ? InkWell(

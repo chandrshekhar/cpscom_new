@@ -161,9 +161,9 @@ class ChatController extends GetxController {
   // }
 
   RxBool isDetailsLaoding = false.obs;
-  getGroupDetailsById({required String groupId, int? timeStamp}) async {
+  getGroupDetailsById({required String groupId, int? timeStamp, bool isShowLoading = true}) async {
     try {
-      isDetailsLaoding(true);
+     isShowLoading? isDetailsLaoding(true):null;
       var res = await _groupRepo.getGroupDetailsById(
         groupId: groupId,
       );
