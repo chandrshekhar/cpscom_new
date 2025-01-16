@@ -53,23 +53,30 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       context: context,
                       barrierDismissible: true,
                       builder: (BuildContext dialogContext) {
-                        return ConfirmationDialog(
+                        return Obx(() => ConfirmationDialog(
                             title: 'Logout?',
                             body: 'Are you sure you want to logout?',
-                            positiveButtonLabel: 'Logout',
+                            positiveButtonLabel:
+                                loginController.isLoading.value ? "Loading..." : 'Logout',
                             negativeButtonLabel: 'Cancel',
-                            onPressedPositiveButton: () {
-                              Get.delete<SocketController>();
-                              socketController.socket?.clearListeners();
-                              socketController.socket?.destroy();
-                              socketController.socket?.dispose();
-                              socketController.socket?.disconnect();
-                              socketController.socket?.io.disconnect();
-                              socketController.socket?.io.close();
-                              socketController.socket = null; // Ensure the socket is nullified
-                              LocalStorage().deleteAllLocalData();
-                              context.pushAndRemoveUntil(const LoginScreen());
-                            });
+                            onPressedPositiveButton: () async {
+                              final isLoggedOut = await loginController.logout();
+                              if (isLoggedOut == true) {
+                                loginController.emailController.value.clear();
+                                loginController.passwordController.value.clear();
+                                loginController.isPasswordVisible(true);
+                                Get.delete<SocketController>();
+                                socketController.socket?.clearListeners();
+                                socketController.socket?.destroy();
+                                socketController.socket?.dispose();
+                                socketController.socket?.disconnect();
+                                socketController.socket?.io.disconnect();
+                                socketController.socket?.io.close();
+                                socketController.socket = null; // Ensure the socket is nullified
+                                LocalStorage().deleteAllLocalData();
+                                context.pushAndRemoveUntil(const LoginScreen());
+                              }
+                            }));
                       });
                 },
                 child: Row(

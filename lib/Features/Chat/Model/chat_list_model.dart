@@ -16,25 +16,25 @@ class ChatListModel {
 }
 
 class ChatModel {
-  String? sId;
-  String? groupId;
-  String? senderId;
-  String? senderName;
-  String? message;
-  String? messageType;
+  dynamic? sId;
+  dynamic? groupId;
+  dynamic senderId;
+  dynamic senderName;
+  dynamic message;
+  dynamic messageType;
   bool? forwarded;
   List<ChatDeliveredTo>? deliveredTo;
   List<ChatReadBy>? readBy;
   List<dynamic>? deletedBy;
   List<dynamic>? allRecipients;
-  String? timestamp;
-  String? createdAt;
-  String? updatedAt;
-  String? fileName;
+  dynamic timestamp;
+  dynamic createdAt;
+  dynamic updatedAt;
+  dynamic fileName;
   int? iV;
-  String? id;
+  dynamic id;
   ReplyOf? replyOf;
-  List<CurrentUsers>? currentUsers;
+  // List<CurrentUsers>? currentUsers;
 
   ChatModel(
       {this.sId,
@@ -55,7 +55,7 @@ class ChatModel {
       this.iV,
       this.id,
       this.replyOf,
-      this.currentUsers});
+    });
 
   ChatModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -67,13 +67,7 @@ class ChatModel {
     forwarded = json['forwarded'];
     fileName = json['fileName'];
     allRecipients = json['allRecipients'];
-    if (json['currentUsers'] != null) {
-      currentUsers = <CurrentUsers>[];
-      json['currentUsers'].forEach((v) {
-        currentUsers!.add(CurrentUsers.fromJson(v));
-      });
-    }
-
+   
     deletedBy =
         json['deletedBy'] == null ? null : json['deletedBy'] as List<dynamic>?;
     if (json['deliveredTo'] != null) {
@@ -162,18 +156,3 @@ class ReplyOf {
   }
 }
 
-class CurrentUsers {
-  String? sId;
-  String? name;
-  String? phone;
-  String? image;
-
-  CurrentUsers({this.sId, this.name, this.phone, this.image});
-
-  CurrentUsers.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    name = json['name'];
-    phone = json['phone'];
-    image = json['image'];
-  }
-}

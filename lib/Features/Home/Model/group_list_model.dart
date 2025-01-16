@@ -51,8 +51,7 @@ class GroupModel {
 
   GroupModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
-    groupImage =
-        json['groupImage'] == null ? null : json['groupImage'] as String?;
+    groupImage = json['groupImage'] == null ? null : json['groupImage'] as String?;
     admins = json['admins'] == null ? null : json['admins'] as List<dynamic>?;
     groupName = json['groupName'];
     if (json['currentUsers'] != null) {
@@ -61,24 +60,17 @@ class GroupModel {
         currentUsers!.add(CurrentUsers.fromJson(v));
       });
     }
-    previousUsers = json['previousUsers'] == null
-        ? null
-        : json['previousUsers'] as List<dynamic>?;
+    previousUsers = json['previousUsers'] == null ? null : json['previousUsers'] as List<dynamic>?;
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    groupDescription = json['groupDescription'] == null
-        ? null
-        : json['groupDescription'] as String?;
+    groupDescription =
+        json['groupDescription'] == null ? null : json['groupDescription'] as String?;
     iV = json['__v'];
     id = json['id'];
-    currentUsersId = json['currentUsersId'] == null
-        ? null
-        : json['currentUsersId'] as List<dynamic>;
-    lastMessage = json['lastMessage'] != null
-        ? LastMessage.fromJson(json['lastMessage'])
-        : null;
-    unreadCount =
-        json['unreadCount'] == null ? null : json['unreadCount'] as int?;
+    currentUsersId =
+        json['currentUsersId'] == null ? null : json['currentUsersId'] as List<dynamic>;
+    lastMessage = json['lastMessage'] != null ? LastMessage.fromJson(json['lastMessage']) : null;
+    unreadCount = json['unreadCount'] == null ? null : json['unreadCount'] as int?;
   }
 }
 
@@ -109,7 +101,7 @@ class CurrentUsers {
 class LastMessage {
   String? sId;
   String? groupId;
-  String? senderId;
+  SenderId? senderId;
   String? senderName;
   String? message;
   String? messageType;
@@ -143,7 +135,7 @@ class LastMessage {
   LastMessage.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     groupId = json['groupId'];
-    senderId = json['senderId'];
+    senderId = json['senderId'] != null ? SenderId.fromJson(json['senderId']) : null;
     senderName = json['senderName'];
     message = json['message'];
     messageType = json['messageType'];
@@ -162,36 +154,12 @@ class LastMessage {
       });
     }
 
-    deletedBy =
-        json['deletedBy'] == null ? null : json[deletedBy] as List<dynamic>?;
+    deletedBy = json['deletedBy'] == null ? null : json[deletedBy] as List<dynamic>?;
 
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];
     id = json['id'];
-  }
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['groupId'] = groupId;
-    data['senderId'] = senderId;
-    data['senderName'] = senderName;
-    data['message'] = message;
-    data['messageType'] = messageType;
-    data['forwarded'] = forwarded;
-    // if (this.deliveredTo != null) {
-    //   data['deliveredTo'] = this.deliveredTo!.map((v) => v.toJson()).toList();
-    // }
-    // if (this.readBy != null) {
-    //   data['readBy'] = this.readBy!.map((v) => v.toJson()).toList();
-    // }
-    data['deletedBy'] = deletedBy;
-    data['timestamp'] = timestamp;
-    data['createdAt'] = createdAt;
-    data['updatedAt'] = updatedAt;
-    data['__v'] = iV;
-    data['id'] = id;
-    return data;
   }
 }
 
@@ -226,5 +194,16 @@ class DeliveredTo {
     timestamp = json['timestamp'];
     sId = json['_id'];
     id = json['id'];
+  }
+}
+
+class SenderId {
+  String? name;
+  String? id;
+  SenderId({this.name, this.id});
+
+  SenderId.fromJson(Map<String, dynamic> json) {
+    id = json['_id'];
+    name = json['name'];
   }
 }

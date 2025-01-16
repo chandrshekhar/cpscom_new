@@ -84,6 +84,7 @@ class ChatController extends GetxController {
         chatList.value = [];
       }
     } catch (e) {
+      print("fhgdsfhgdhsf ${e.toString()}");
       chatList.value = [];
       isChatLoading(false);
     }
@@ -163,7 +164,7 @@ class ChatController extends GetxController {
   RxBool isDetailsLaoding = false.obs;
   getGroupDetailsById({required String groupId, int? timeStamp, bool isShowLoading = true}) async {
     try {
-     isShowLoading? isDetailsLaoding(true):null;
+      isShowLoading ? isDetailsLaoding(true) : null;
       var res = await _groupRepo.getGroupDetailsById(
         groupId: groupId,
       );

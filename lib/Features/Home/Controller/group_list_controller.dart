@@ -37,6 +37,7 @@ class GroupListController extends GetxController {
         isGroupLiastLoading(false);
       }
     } catch (e) {
+      print("ghghfgf $e");
       isGroupLiastLoading(false);
     }
   }

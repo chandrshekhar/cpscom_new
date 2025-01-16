@@ -1,13 +1,15 @@
 class UserModel {
   bool? success;
   String? message;
+  String? error;
   Data? data;
 
-  UserModel({this.success, this.message, this.data});
+  UserModel({this.success, this.message, this.data, this.error});
 
   UserModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
+    error = json['error'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 }

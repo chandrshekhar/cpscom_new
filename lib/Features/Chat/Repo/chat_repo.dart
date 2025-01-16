@@ -22,9 +22,9 @@ class ChatRepo {
         endPoint: EndPoints.getAllChat,
         fromJosn: (data) => ChatListModel.fromJson(data),
         reqModel: reqModel);
+
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
@@ -54,8 +54,7 @@ class ChatRepo {
         fromJson: (data) => data,
         reqModel: reqModel);
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
@@ -63,30 +62,22 @@ class ChatRepo {
 
   //REPORT GROUP SERVICE
 
-  Future<ApiResponse<Map>> grouopReport(
-      {required Map<String, dynamic> reqModel}) async {
+  Future<ApiResponse<Map>> grouopReport({required Map<String, dynamic> reqModel}) async {
     final res = await _apiClient.postRequest(
-        endPoint: EndPoints.reportGroup,
-        fromJosn: (data) => data,
-        reqModel: reqModel);
+        endPoint: EndPoints.reportGroup, fromJosn: (data) => data, reqModel: reqModel);
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
   }
 
 //MESSAGE REPORT API SERVICE
-  Future<ApiResponse<Map>> messageReport(
-      {required Map<String, dynamic> reqModel}) async {
+  Future<ApiResponse<Map>> messageReport({required Map<String, dynamic> reqModel}) async {
     final res = await _apiClient.postRequest(
-        endPoint: EndPoints.messageReportApi,
-        fromJosn: (data) => data,
-        reqModel: reqModel);
+        endPoint: EndPoints.messageReportApi, fromJosn: (data) => data, reqModel: reqModel);
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
@@ -102,7 +93,7 @@ class ChatRepo {
 //         'Content-Type': 'application/json',
 //         'access-token': token
 //       };
-// 
+//
 //       response = await dio.post(ApiPath.messageReportApi, data: reqModel);
 //       log("messageReport response ${response.data.toString()}");
 //       if (response.statusCode == 200 || response.statusCode == 201) {

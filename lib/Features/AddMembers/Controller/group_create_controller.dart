@@ -106,7 +106,7 @@ class MemeberlistController extends GetxController {
             .toList();
         await chatController.sendMsg(
             replyOf: chatController.isReply.value == true ? chatController.replyOf : null,
-            msg: res.data!['message'],
+            msg: "User removed successfully",
             reciverId: userIds,
             groupId: groupId,
             msgType: "removed");
@@ -135,7 +135,8 @@ class MemeberlistController extends GetxController {
       log("respons for add memeber ${res.data!['data']}");
       if (res.data!['success'] == true) {
         TostWidget().successToast(title: "Success", message: res.data!['message']);
-        socketController.socket!.emit("addremoveuser", res.data!['data']);
+        socketController.socket!.emit("update-group", res.data!['data']);
+
         await chatController.getGroupDetailsById(groupId: groupId);
         Navigator.pop(context);
         addingGroup(false);

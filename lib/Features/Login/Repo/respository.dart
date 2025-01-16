@@ -17,8 +17,7 @@ class AuthRepo {
   final _apiClient = ApiClient();
 
   //USER LOGIN SERVICE
-  Future<ApiResponse<UserModel>> userLogin(
-      {required Map<String, dynamic> reqModel}) async {
+  Future<ApiResponse<UserModel>> userLogin({required Map<String, dynamic> reqModel}) async {
     final response = await _apiClient.postRequest<UserModel>(
         endPoint: EndPoints.userLogin,
         fromJosn: (data) => UserModel.fromJson(data),
@@ -27,9 +26,17 @@ class AuthRepo {
       return ApiResponse<UserModel>(
           statusCode: response.statusCode, errorMessage: response.errorMessage);
     } else {
-      return ApiResponse<UserModel>(
-          data: response.data, statusCode: response.statusCode);
+      return ApiResponse<UserModel>(data: response.data, statusCode: response.statusCode);
     }
+  }
+
+  //USER LOGIN SERVICE
+  Future<ApiResponse<Map<String, dynamic>>> userLogout(
+      {required Map<String, dynamic> reqModel}) async {
+    final response = await _apiClient.postRequest<Map<String, dynamic>>(
+        endPoint: EndPoints.logoutApi, fromJosn: (data) => data, reqModel: reqModel);
+    return ApiResponse<Map<String, dynamic>>(
+        statusCode: response.statusCode, errorMessage: response.errorMessage, data: response.data);
   }
 
   //USER PROFILE DATA SERVICE
@@ -38,8 +45,7 @@ class AuthRepo {
         endPoint: EndPoints.getUserProfileData,
         fromJson: (data) => UserProfileModel.fromJson(data));
     if (response.errorMessage != null) {
-      return ApiResponse(
-          statusCode: response.statusCode, errorMessage: response.errorMessage);
+      return ApiResponse(statusCode: response.statusCode, errorMessage: response.errorMessage);
     } else {
       return ApiResponse(statusCode: response.statusCode, data: response.data);
     }
@@ -59,8 +65,7 @@ class AuthRepo {
         fromJson: (data) => data,
         imageFieldName: "file");
     if (res.errorMessage != null) {
-      return ApiResponse(
-          statusCode: res.statusCode, errorMessage: res.errorMessage);
+      return ApiResponse(statusCode: res.statusCode, errorMessage: res.errorMessage);
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
@@ -78,7 +83,7 @@ class AuthRepo {
 //         'Content-Type': 'multipart/form-data',
 //         'access-token': token
 //       };
-// 
+//
 //       FormData formData = FormData.fromMap({
 //         "accountStatus": status,
 //       });
@@ -90,7 +95,7 @@ class AuthRepo {
 //               contentType: MediaType("images", "jpeg")),
 //         ));
 //       }
-// 
+//
 //       response = await dio.post(ApiPath.updateProfileDetails, data: formData);
 //       log("Update user details response ${response.data.toString()}");
 //       if (response.statusCode == 200) {

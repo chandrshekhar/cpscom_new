@@ -3,6 +3,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cpscom_admin/Api/urls.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
+import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
+import 'package:cpscom_admin/Features/Login/Presentation/login_screen.dart';
+import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -15,6 +18,7 @@ class SocketController extends GetxController {
   List<Map<String, dynamic>> mesages = [];
   final chatController = Get.put(ChatController());
   final groupListController = Get.put(GroupListController());
+  final loginController = Get.put(LoginController());
   RxBool isConnected = true.obs; // Observable for connection state
   final connectivity = Connectivity(); // Connectivity instance
   RxString groupId = "".obs;
@@ -83,7 +87,8 @@ class SocketController extends GetxController {
             groupListController.groupList[i].lastMessage = LastMessage(
               sId: data['data']['_id'],
               groupId: data['data']['groupId'],
-              senderId: data['data']['senderId'],
+              // senderId: {"id": data['data']['senderId'], "name": data['data']['senderName']},
+
               senderName: data['data']['senderName'],
               message: data['data']['message'],
               messageType: data['data']['messageType'],
@@ -204,6 +209,11 @@ class SocketController extends GetxController {
         groupListController.getGroupList(isLoadingShow: false);
       });
 
+      socket?.on("updated-User", (data) {
+        log("update user ${data.toString()}");
+        loginController.getUserProfile(isrefresh: false);
+      });
+
       //Update group changes
       socket?.on("updated", (data) {
         final chatController = Get.put(ChatController());
@@ -216,6 +226,27 @@ class SocketController extends GetxController {
       socket?.on("delete-Group", (data) {
         log("Update group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
+      });
+      socket?.on("deleted-User", (data) async {
+        groupListController.getGroupList(isLoadingShow: false);
+        if (data['data']['_id'] == LocalStorage().getUserId()) {
+          final isLoggedOut = await loginController.logout();
+          if (isLoggedOut == true) {
+            loginController.emailController.value.clear();
+            loginController.passwordController.value.clear();
+            loginController.isPasswordVisible(true);
+            Get.delete<SocketController>();
+            socket?.clearListeners();
+            socket?.destroy();
+            socket?.dispose();
+            socket?.disconnect();
+            socket?.io.disconnect();
+            socket?.io.close();
+            socket = null; // Ensure the socket is nullified
+            LocalStorage().deleteAllLocalData();
+            doNavigateWithReplacement(route: LoginScreen(), context: Get.context!);
+          }
+        }
       });
 
       //Add or remove user from group
