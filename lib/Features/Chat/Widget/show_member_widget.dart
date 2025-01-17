@@ -11,6 +11,7 @@ class TagMemberWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 200,
       margin: const EdgeInsets.only(left: 5, right: 40),
       decoration: const BoxDecoration(
           color: AppColors.bg,
@@ -27,8 +28,7 @@ class TagMemberWidget extends StatelessWidget {
             return ListTile(
               onTap: () {
                 chatController.addNameInMsgText(
-                    mentionname: chatController
-                        .groupModel.value.currentUsers![index].name??"");
+                    mentionname: chatController.groupModel.value.currentUsers![index].name ?? "");
                 chatController.isMemberSuggestion(false);
               },
               contentPadding: EdgeInsets.zero,

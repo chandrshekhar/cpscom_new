@@ -36,26 +36,26 @@ class ChatModel {
   ReplyOf? replyOf;
   // List<CurrentUsers>? currentUsers;
 
-  ChatModel(
-      {this.sId,
-      this.groupId,
-      this.senderId,
-      this.allRecipients,
-      this.senderName,
-      this.message,
-      this.messageType,
-      this.fileName,
-      this.forwarded,
-      this.deliveredTo,
-      this.readBy,
-      this.deletedBy,
-      this.timestamp,
-      this.createdAt,
-      this.updatedAt,
-      this.iV,
-      this.id,
-      this.replyOf,
-    });
+  ChatModel({
+    this.sId,
+    this.groupId,
+    this.senderId,
+    this.allRecipients,
+    this.senderName,
+    this.message,
+    this.messageType,
+    this.fileName,
+    this.forwarded,
+    this.deliveredTo,
+    this.readBy,
+    this.deletedBy,
+    this.timestamp,
+    this.createdAt,
+    this.updatedAt,
+    this.iV,
+    this.id,
+    this.replyOf,
+  });
 
   ChatModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -67,9 +67,8 @@ class ChatModel {
     forwarded = json['forwarded'];
     fileName = json['fileName'];
     allRecipients = json['allRecipients'];
-   
-    deletedBy =
-        json['deletedBy'] == null ? null : json['deletedBy'] as List<dynamic>?;
+
+    deletedBy = json['deletedBy'] == null ? null : json['deletedBy'] as List<dynamic>?;
     if (json['deliveredTo'] != null) {
       deliveredTo = <ChatDeliveredTo>[];
       json['deliveredTo'].forEach((v) {
@@ -83,8 +82,7 @@ class ChatModel {
       });
     }
 
-    replyOf =
-        json['replyOf'] != null ? ReplyOf.fromJson(json['replyOf']) : null;
+    replyOf = json['replyOf'] != null ? ReplyOf.fromJson(json['replyOf']) : null;
 
     timestamp = json['timestamp'];
     createdAt = json['createdAt'];
@@ -155,4 +153,3 @@ class ReplyOf {
     msgType = json['msgType'];
   }
 }
-

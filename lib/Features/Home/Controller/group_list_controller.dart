@@ -3,7 +3,7 @@ import 'package:get/state_manager.dart';
 
 import '../Repository/group_repo.dart';
 
-class GroupListController extends GetxController {
+class  GroupListController extends GetxController {
   final _groupListRepo = GroupRepo();
   RxList<GroupModel> groupList = <GroupModel>[].obs;
   RxBool isGroupLiastLoading = false.obs;

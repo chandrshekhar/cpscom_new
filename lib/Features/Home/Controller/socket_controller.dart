@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../../Utils/storage_service.dart';
+import '../../AddMembers/Controller/group_create_controller.dart';
 import '../../Chat/Model/chat_list_model.dart';
 import '../Model/group_list_model.dart';
 
@@ -19,9 +20,9 @@ class SocketController extends GetxController {
   final chatController = Get.put(ChatController());
   final groupListController = Get.put(GroupListController());
   final loginController = Get.put(LoginController());
+  final memberListController = Get.put(MemeberlistController());
   RxBool isConnected = true.obs; // Observable for connection state
   final connectivity = Connectivity(); // Connectivity instance
-  RxString groupId = "".obs;
 
   socketConnection() {
     try {
@@ -66,9 +67,16 @@ class SocketController extends GetxController {
       //Message received
       socket?.on('message', (data) {
         log("All smsshgfjhsgfjshfgjhg ${data['data']}");
-        if (data['data']['messageType'] == "removed") {
+        if ((data['data']['messageType'] == "removed") ||
+            (data['data']['messageType'] == "added")) {
           groupListController.getGroupList(isLoadingShow: false);
-        }
+          chatController.getGroupDetailsById(
+              groupId: chatController.groupId.value,
+              isShowLoading: false,
+              timeStamp: chatController.timeStamps.value);
+          List<dynamic> currentUser = data['data']['allRecipients'] as List<dynamic>;
+          hideTextArea(currentUser, data['data']['groupId']);
+        } else {}
         var ownId = LocalStorage().getUserId();
         List<String> reciverId = List<String>.from(
             data['data']['allRecipients']); // Creating a copy of the original list
@@ -88,7 +96,7 @@ class SocketController extends GetxController {
               sId: data['data']['_id'],
               groupId: data['data']['groupId'],
               // senderId: {"id": data['data']['senderId'], "name": data['data']['senderName']},
-
+              senderId: SenderId(id: data['data']['senderId'], name: data['data']['senderName']),
               senderName: data['data']['senderName'],
               message: data['data']['message'],
               messageType: data['data']['messageType'],
@@ -212,21 +220,38 @@ class SocketController extends GetxController {
       socket?.on("updated-User", (data) {
         log("update user ${data.toString()}");
         loginController.getUserProfile(isrefresh: false);
+        memberListController.getMemberList(
+            isLoaderShowing: false, searchQuery: memberListController.searchText.value);
+        chatController.getGroupDetailsById(
+            groupId: chatController.groupId.value,
+            isShowLoading: false,
+            timeStamp: chatController.timeStamps.value);
       });
 
       //Update group changes
       socket?.on("updated", (data) {
         final chatController = Get.put(ChatController());
         log("Update group socket data1 ${data['data']['data']}");
-
         groupListController.getGroupList(isLoadingShow: false);
-        chatController.getGroupDetailsById(groupId: groupId.value, isShowLoading: false);
+        chatController.getGroupDetailsById(
+            groupId: chatController.groupId.value,
+            isShowLoading: false,
+            timeStamp: chatController.timeStamps.value);
+        List<dynamic> currentUser = data['data']['data']['currentUsers'] as List<dynamic>;
+        hideTextArea(currentUser, data['data']['data']['_id']);
       });
 
       socket?.on("delete-Group", (data) {
         log("Update group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
+
+        if (chatController.groupId.value == data['data']['_id']) {
+          backFromPrevious(context: Get.context!);
+        } else {
+          null;
+        }
       });
+
       socket?.on("deleted-User", (data) async {
         groupListController.getGroupList(isLoadingShow: false);
         if (data['data']['_id'] == LocalStorage().getUserId()) {
@@ -279,7 +304,8 @@ class SocketController extends GetxController {
             result.contains(ConnectivityResult.ethernet)) {
           reconnectSocket(); // Reconnect socket when internet is back
           groupListController.getGroupList(isLoadingShow: false);
-          chatController.getAllChatByGroupId(groupId: groupId.value, isShowLoading: false);
+          chatController.getAllChatByGroupId(
+              groupId: chatController.groupId.value, isShowLoading: false);
         }
       } else {
         isFirstTime = false;
@@ -303,5 +329,14 @@ class SocketController extends GetxController {
     socket?.disconnect();
     socket?.dispose();
     super.onClose();
+  }
+
+  void hideTextArea(List<dynamic> currentUser, String groupIdFromSocket) {
+    if (chatController.groupId.value == groupIdFromSocket &&
+        !(currentUser.contains(LocalStorage().getUserId()))) {
+      backFromPrevious(context: Get.context!);
+    } else {
+      null;
+    }
   }
 }

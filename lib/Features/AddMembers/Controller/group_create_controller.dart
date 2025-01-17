@@ -56,15 +56,18 @@ class MemeberlistController extends GetxController {
   //Method for selet the member for create a group
 
   RxList<String> updateMemberId = <String>[].obs;
+  RxList<String> updtaeMemberName = <String>[].obs;
   checkBoxTrueFalse(dynamic v, String id, MemberListMdoel mmberListModel, String groupId) {
     if (v != null && v) {
       memberId.add(id);
       memberSelectedList.add(mmberListModel);
       groupId.isNotEmpty ? updateMemberId.add(id) : null;
+      groupId.isNotEmpty ? updtaeMemberName.add(mmberListModel.name ?? "") : null;
     } else {
       memberId.remove(id);
       memberSelectedList.remove(mmberListModel);
       groupId.isNotEmpty ? updateMemberId.remove(id) : null;
+      groupId.isNotEmpty ? updtaeMemberName.remove(mmberListModel.name) : null;
     }
   }
 
@@ -89,7 +92,8 @@ class MemeberlistController extends GetxController {
 
   RxBool isDeleteWaiting = false.obs;
 
-  Future<void> deleteUserFromGroup({required String groupId, required String userId}) async {
+  Future<void> deleteUserFromGroup(
+      {required String groupId, required String userId, required String userName}) async {
     final socketController = Get.put(SocketController());
     final chatController = Get.put(ChatController());
     try {
@@ -106,7 +110,7 @@ class MemeberlistController extends GetxController {
             .toList();
         await chatController.sendMsg(
             replyOf: chatController.isReply.value == true ? chatController.replyOf : null,
-            msg: "User removed successfully",
+            msg: "${userName} has been removed from the group.",
             reciverId: userIds,
             groupId: groupId,
             msgType: "removed");
@@ -125,6 +129,7 @@ class MemeberlistController extends GetxController {
   Future<void> addGroupMember(
       {required String groupId,
       required List<String> userId,
+      required List<String> userName,
       required BuildContext context}) async {
     final chatController = Get.put(ChatController());
     try {
@@ -136,11 +141,24 @@ class MemeberlistController extends GetxController {
       if (res.data!['success'] == true) {
         TostWidget().successToast(title: "Success", message: res.data!['message']);
         socketController.socket!.emit("update-group", res.data!['data']);
-
+        var ownId = LocalStorage().getUserId();
+        List<String>? userIds = chatController.groupModel.value.currentUsers!
+            .map((user) => user.sId!)
+            .where((userId) => userId != ownId)
+            .toList();
+        for (int i = 0; i < userName.length; i++) {
+          await chatController.sendMsg(
+              replyOf: chatController.isReply.value == true ? chatController.replyOf : null,
+              msg: "${userName[i]} has joined the group.",
+              reciverId: userIds,
+              groupId: groupId,
+              msgType: "added");
+        }
         await chatController.getGroupDetailsById(groupId: groupId);
         Navigator.pop(context);
         addingGroup(false);
         updateMemberId.clear();
+        updtaeMemberName.clear();
       } else {
         addingGroup(false);
         updateMemberId.clear();

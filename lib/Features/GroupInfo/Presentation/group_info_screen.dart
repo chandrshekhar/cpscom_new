@@ -14,6 +14,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../Commons/app_images.dart';
 import '../../../Utils/custom_bottom_modal_sheet.dart';
+import '../../../Utils/navigator.dart';
+import '../../../Widgets/image_popup.dart';
 import '../../../Widgets/shimmer_for_text.dart';
 import '../../AddMembers/Presentation/add_members_screen.dart';
 import '../../AddMembers/Widgets/delete_widget_alert.dart';
@@ -74,34 +76,45 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 children: [
                   Stack(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
-                        child: Obx(() => CachedNetworkImage(
-                              width: 106,
-                              height: 106,
-                              fit: BoxFit.cover,
-                              imageUrl: chatController.groupModel.value.groupImage ?? "",
-                              placeholder: (context, url) => const CircleAvatar(
-                                radius: 66,
-                                backgroundColor: AppColors.lightGrey,
-                              ),
-                              errorWidget: (context, url, error) => CircleAvatar(
-                                radius: 66,
-                                backgroundColor: AppColors.lightGrey,
-                                child: Obx(
-                                  () => Text(
-                                    chatController.groupModel.value.groupName
-                                        .toString()
-                                        .substring(0, 1)
-                                        .toUpperCase(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge!
-                                        .copyWith(fontWeight: FontWeight.w600),
+                      InkWell(
+                        onTap: () {
+                          if (chatController.groupModel.value.groupImage != null &&
+                              chatController.groupModel.value.groupImage!.isNotEmpty) {
+                            doNavigator(
+                                route: FullScreenImageViewer(
+                                    imageUrl: chatController.groupModel.value.groupImage ?? ""),
+                                context: context);
+                          }
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+                          child: Obx(() => CachedNetworkImage(
+                                width: 106,
+                                height: 106,
+                                fit: BoxFit.cover,
+                                imageUrl: chatController.groupModel.value.groupImage ?? "",
+                                placeholder: (context, url) => const CircleAvatar(
+                                  radius: 66,
+                                  backgroundColor: AppColors.lightGrey,
+                                ),
+                                errorWidget: (context, url, error) => CircleAvatar(
+                                  radius: 66,
+                                  backgroundColor: AppColors.lightGrey,
+                                  child: Obx(
+                                    () => Text(
+                                      chatController.groupModel.value.groupName
+                                          .toString()
+                                          .substring(0, 1)
+                                          .toUpperCase(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge!
+                                          .copyWith(fontWeight: FontWeight.w600),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )),
+                              )),
+                        ),
                       ),
                       Positioned(
                           right: 0,
@@ -310,7 +323,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                 member: item,
                                 creatorId: item.sId,
                                 userType: item.userType ?? "",
-                               
                                 onDeleteButtonPressed: () {
                                   showDialog(
                                     context: context,
@@ -322,7 +334,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                               await memberController
                                                   .deleteUserFromGroup(
                                                       groupId: widget.groupId,
-                                                      userId: item.sId.toString())
+                                                      userId: item.sId.toString(),
+                                                      userName: item.name ?? "")
                                                   .then((val) async {
                                                 await chatController.getGroupDetailsById(
                                                     groupId: widget.groupId);

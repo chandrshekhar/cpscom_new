@@ -10,7 +10,6 @@ import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:get/get.dart';
 import 'package:linkable/linkable.dart';
 import 'package:swipe_to/swipe_to.dart';
-
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
 import 'show_image_widget.dart';
@@ -51,6 +50,7 @@ class _ReceiverTileState extends State<ReceiverTile> {
   final chatController = Get.put(ChatController());
   @override
   Widget build(BuildContext context) {
+    print("hdgsfhdsfgdhs ${widget.sentByImageUrl}");
     return SwipeTo(
       onRightSwipe: widget.onSwipedMessage,
       child: Container(

@@ -11,6 +11,7 @@ import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart
 import 'package:cpscom_admin/Features/Login/Controller/login_controller.dart';
 import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
+import 'package:cpscom_admin/Widgets/image_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -79,6 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        chatController.groupId.value = "";
         groupListController.groupList[widget.index!].unreadCount = 0;
         groupListController.groupList.refresh();
         return true;
@@ -94,9 +96,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   InkWell(
                     onTap: () async {
+                      chatController.groupId.value = "";
                       groupListController.groupList[widget.index!].unreadCount = 0;
                       groupListController.groupList.refresh();
-                      chatController.groupId.value = "";
                       Navigator.pop(context);
                       // await groupListController.getGroupList(isLoadingShow: false);
 
@@ -110,36 +112,44 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(
                     width: 20,
                   ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
-                    child: Obx(() => CachedNetworkImage(
-                          width: 30,
-                          height: 30,
-                          fit: BoxFit.cover,
-                          imageUrl: chatController.groupModel.value.groupImage ?? "",
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: const CircleAvatar(
-                              radius: 50.0,
+                  InkWell(
+                    onTap: () {
+                      doNavigator(
+                          route: FullScreenImageViewer(
+                              imageUrl: chatController.groupModel.value.groupImage ?? ""),
+                          context: context);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+                      child: Obx(() => CachedNetworkImage(
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                            imageUrl: chatController.groupModel.value.groupImage ?? "",
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: const CircleAvatar(
+                                radius: 50.0,
+                              ),
                             ),
-                          ),
-                          errorWidget: (context, url, error) => CircleAvatar(
-                            radius: 16,
-                            backgroundColor: AppColors.bg,
-                            child: Text(
-                              chatController.groupModel.value.groupName != null
-                                  ? chatController.groupModel.value.groupName!
-                                      .substring(0, 1)
-                                      .toUpperCase()
-                                  : "",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge!
-                                  .copyWith(fontWeight: FontWeight.w600),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                              radius: 16,
+                              backgroundColor: AppColors.bg,
+                              child: Text(
+                                chatController.groupModel.value.groupName != null
+                                    ? chatController.groupModel.value.groupName!
+                                        .substring(0, 1)
+                                        .toUpperCase()
+                                    : "",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(fontWeight: FontWeight.w600),
+                              ),
                             ),
-                          ),
-                        )),
+                          )),
+                    ),
                   ),
                   SizedBox(
                     width: 10,
@@ -240,9 +250,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                     bottom: AppSizes.kDefaultPadding * 2),
                                 itemBuilder: (context, index) {
                                   var item = chatController.chatList.reversed.toList()[index];
-                                
-                                  print(
-                                      "dfghg ${chatController.groupModel.value.currentUsersId.toString()}");
 
                                   return item.senderId.toString() ==
                                           LocalStorage().getUserId().toString()
@@ -400,7 +407,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                       DateTime.parse(item.timestamp ?? "")
                                                           .toLocal()),
                                                   sentByName: item.senderName ?? "",
-                                                  sentByImageUrl: item.message ?? "",
+                                                  sentByImageUrl: item. senderId?? "",
                                                   groupCreatedBy: "Pandey",
                                                 ),
                                               ),

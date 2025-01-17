@@ -20,6 +20,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../Commons/app_images.dart';
 import '../../../Utils/custom_bottom_modal_sheet.dart';
 import '../../../Widgets/custom_confirmation_dialog.dart';
+import '../../../Widgets/image_popup.dart';
 import '../../GroupInfo/Model/image_picker_model.dart';
 
 class MyProfileScreen extends StatefulWidget {
@@ -115,31 +116,43 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       children: [
                         Stack(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
-                              child: Obx(
-                                () => CachedNetworkImage(
-                                  width: 106,
-                                  height: 106,
-                                  fit: BoxFit.cover,
-                                  imageUrl: loginController.userModel.value.image != null
-                                      ? loginController.userModel.value.image.toString()
-                                      : "",
-                                  placeholder: (context, url) => const CircleAvatar(
-                                    radius: 66,
-                                    backgroundColor: AppColors.bg,
-                                  ),
-                                  errorWidget: (context, url, error) => CircleAvatar(
-                                    radius: 66,
-                                    backgroundColor: AppColors.bg,
-                                    child: Text(
-                                      loginController.userModel.value.name
-                                          .toString()[0]
-                                          .toUpperCase(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineLarge!
-                                          .copyWith(fontWeight: FontWeight.w600),
+                            GestureDetector(
+                              onTap: () {
+                                // Show the popup dialog to display the image
+                                if (loginController.userModel.value.image != null) {
+                                  doNavigator(
+                                      route: FullScreenImageViewer(
+                                        imageUrl: loginController.userModel.value.image.toString(),
+                                      ),
+                                      context: context);
+                                }
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+                                child: Obx(
+                                  () => CachedNetworkImage(
+                                    width: 106,
+                                    height: 106,
+                                    fit: BoxFit.cover,
+                                    imageUrl: loginController.userModel.value.image != null
+                                        ? loginController.userModel.value.image.toString()
+                                        : "",
+                                    placeholder: (context, url) => const CircleAvatar(
+                                      radius: 66,
+                                      backgroundColor: AppColors.bg,
+                                    ),
+                                    errorWidget: (context, url, error) => CircleAvatar(
+                                      radius: 66,
+                                      backgroundColor: AppColors.bg,
+                                      child: Text(
+                                        loginController.userModel.value.name
+                                            .toString()[0]
+                                            .toUpperCase(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineLarge!
+                                            .copyWith(fontWeight: FontWeight.w600),
+                                      ),
                                     ),
                                   ),
                                 ),

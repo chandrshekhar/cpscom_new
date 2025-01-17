@@ -8,7 +8,9 @@ import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
 import 'package:cpscom_admin/Features/Home/Presentation/build_mobile_view.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_chat_card.dart';
 import 'package:cpscom_admin/Features/Home/Widgets/home_header.dart';
+import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Widgets/custom_divider.dart';
+import 'package:cpscom_admin/Widgets/image_popup.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -167,12 +169,22 @@ class _BuildChatListState extends State<BuildChatList> {
                           itemBuilder: (context, index) {
                             var item = groupListController.groupList.value[index];
                             return HomeChatCard(
+                                onPictureTap: () {
+                                  print("hjfghjdfg ${item.groupImage}");
+                                  if (item.groupImage != null && item.groupImage != "undefined") {
+                                    doNavigator(
+                                        route:
+                                            FullScreenImageViewer(imageUrl: item.groupImage ?? ""),
+                                        context: context);
+                                  }
+                                },
                                 messageCount: item.unreadCount,
                                 groupId: item.sId.toString(),
                                 onPressed: () {
+                                  chatController.isShowing(false);
                                   chatController.timeStamps.value =
                                       DateTime.now().millisecondsSinceEpoch;
-                                  socketController.groupId.value = item.sId.toString();
+
                                   context.push(ChatScreen(
                                     groupId: item.sId.toString(),
                                     isAdmin: widget.isAdmin,

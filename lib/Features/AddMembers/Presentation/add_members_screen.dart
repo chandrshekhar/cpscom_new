@@ -3,9 +3,11 @@ import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/AddMembers/Controller/group_create_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/CreateNewGroup/Presentation/create_new_group_screen.dart';
+import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:cpscom_admin/Utils/storage_service.dart';
 import 'package:cpscom_admin/Widgets/custom_app_bar.dart';
 import 'package:cpscom_admin/Widgets/custom_floating_action_button.dart';
+import 'package:cpscom_admin/Widgets/image_popup.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -22,10 +24,7 @@ class AddMembersScreen extends StatefulWidget {
   final List<dynamic>? existingMembersList;
 
   const AddMembersScreen(
-      {Key? key,
-      this.groupId,
-      required this.isCameFromHomeScreen,
-      this.existingMembersList})
+      {Key? key, this.groupId, required this.isCameFromHomeScreen, this.existingMembersList})
       : super(key: key);
 
   @override
@@ -37,8 +36,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
   final memberListController = Get.put(MemeberlistController());
   final chatController = Get.put(ChatController());
 
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -48,6 +46,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
         ? WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             memberListController.searchText.value = "";
             memberListController.memberId.clear();
+            memberListController.getMemberList();
             chatController.getGroupDetailsById(groupId: widget.groupId!);
             for (var element in chatController.groupModel.value.currentUsers!) {
               memberListController.memberId.add(element.sId.toString());
@@ -55,11 +54,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
             memberListController.memberId.refresh();
           })
         : null;
-    widget.groupId!.isNotEmpty
-        ? null
-        : memberListController.dataClearAfterAdd();
-    memberListController.searchText.value = "";
-    memberListController.getMemberList();
+    widget.groupId!.isNotEmpty ? null : memberListController.dataClearAfterAdd();
   }
 
   @override
@@ -78,13 +73,11 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
         body: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSizes.kDefaultPadding),
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
               margin: const EdgeInsets.all(AppSizes.kDefaultPadding),
               decoration: BoxDecoration(
                   color: AppColors.bg,
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.cardCornerRadius)),
+                  borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius)),
               child: Row(
                 children: [
                   const Icon(
@@ -104,8 +97,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                         memberListController.searchText.value = val.toString();
                         EasyDebounce.debounce(
                             'add-member-list', // <-- An ID for this particular debouncer
-                            const Duration(
-                                milliseconds: 200), // <-- The debounce duration
+                            const Duration(milliseconds: 200), // <-- The debounce duration
                             () async {
                           await memberListController.getMemberList();
                         } // <-- The target method
@@ -131,57 +123,53 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                             enablePullUp: true,
                             onLoading: () async {
                               memberListController.limit.value += 20;
-                              memberListController.getMemberList(
-                                  isLoaderShowing: false);
+                              memberListController.getMemberList(isLoaderShowing: false);
                               _refreshController.loadComplete();
                             },
                             footer: const CustomFooterWidget(),
                             child: ListView.builder(
                               shrinkWrap: true,
                               itemCount: memberListController.memberList.length,
-                              padding: const EdgeInsets.only(
-                                  bottom: AppSizes.kDefaultPadding * 9),
+                              padding: const EdgeInsets.only(bottom: AppSizes.kDefaultPadding * 9),
                               itemBuilder: (context, index) {
                                 //for search members
-                                var data =
-                                    memberListController.memberList[index];
-                                return Obx(() => CheckboxListTile(
-                                    contentPadding: const EdgeInsets.only(
-                                        bottom: 20, left: 20, right: 20),
-                                    title: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                var data = memberListController.memberList[index];
+                                return Obx(() => Row(
                                       children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                              AppSizes.cardCornerRadius * 10),
-                                          child: CachedNetworkImage(
-                                            width: 30,
-                                            height: 30,
-                                            fit: BoxFit.cover,
-                                            imageUrl: data.image ?? "",
-                                            placeholder: (context, url) =>
-                                                const CircleAvatar(
-                                              radius: 16,
-                                              backgroundColor:
-                                                  AppColors.shimmer,
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    CircleAvatar(
-                                              radius: 16,
-                                              backgroundColor:
-                                                  AppColors.shimmer,
-                                              child: Text(
-                                                data.name!.substring(0, 1),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge!
-                                                    .copyWith(
-                                                        fontWeight:
-                                                            FontWeight.w600),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            if (data.image != null && data.image!.isNotEmpty) {
+                                              doNavigator(
+                                                  route: FullScreenImageViewer(
+                                                      imageUrl: data.image ?? ""),
+                                                  context: context);
+                                            }
+                                          },
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                                AppSizes.cardCornerRadius * 10),
+                                            child: CachedNetworkImage(
+                                              width: 30,
+                                              height: 30,
+                                              fit: BoxFit.cover,
+                                              imageUrl: data.image ?? "",
+                                              placeholder: (context, url) => const CircleAvatar(
+                                                radius: 16,
+                                                backgroundColor: AppColors.shimmer,
+                                              ),
+                                              errorWidget: (context, url, error) => CircleAvatar(
+                                                radius: 16,
+                                                backgroundColor: AppColors.shimmer,
+                                                child: Text(
+                                                  data.name!.substring(0, 1),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge!
+                                                      .copyWith(fontWeight: FontWeight.w600),
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -190,49 +178,50 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                           width: AppSizes.kDefaultPadding,
                                         ),
                                         Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                data.name ?? "",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge!,
+                                          child: CheckboxListTile(
+                                              contentPadding: const EdgeInsets.only(right: 20),
+                                              title: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          data.name ?? "",
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .bodyLarge!,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 5,
+                                                        ),
+                                                        Text(
+                                                          data.email ?? "",
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .bodyMedium,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                data.email ?? "",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium,
-                                              ),
-                                            ],
-                                          ),
+                                              controlAffinity: ListTileControlAffinity.trailing,
+                                              value: data.sId.toString() ==
+                                                      LocalStorage().getUserId().toString()
+                                                  ? memberListController.isUserChecked.value
+                                                  : memberListController.memberId.value
+                                                      .contains(data.sId),
+                                              onChanged: (value) {
+                                                memberListController.checkBoxTrueFalse(
+                                                    value, data.sId!, data, widget.groupId!);
+                                              }),
                                         ),
                                       ],
-                                    ),
-                                    controlAffinity:
-                                        ListTileControlAffinity.trailing,
-                                    value: data.sId.toString() ==
-                                            LocalStorage()
-                                                .getUserId()
-                                                .toString()
-                                        ? memberListController
-                                            .isUserChecked.value
-                                        : memberListController.memberId.value
-                                            .contains(data.sId),
-                                    onChanged: (value) {
-                                      memberListController.checkBoxTrueFalse(
-                                          value,
-                                          data.sId!,
-                                          data,
-                                          widget.groupId!);
-                                    }));
+                                    ));
                               },
                             ),
                           )
@@ -257,6 +246,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                           memberListController.addGroupMember(
                               groupId: widget.groupId!,
                               userId: memberListController.updateMemberId,
+                              userName: memberListController.updtaeMemberName,
                               context: context);
                         }
                       },

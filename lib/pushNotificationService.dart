@@ -231,7 +231,7 @@ class PushNotificationService {
         }
       }
       chatController.timeStamps.value = DateTime.now().millisecondsSinceEpoch;
-      socketController.groupId.value = message.data['grp'];
+      chatController.groupId.value = message.data['grp'];
       log("App was opened by a notification: ${message.data}");
       doNavigator(
         route: ChatScreen(

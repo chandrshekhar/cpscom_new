@@ -12,7 +12,7 @@ class HomeChatCard extends StatelessWidget {
   final String? lastMsg;
   final int? unseenMsgCount;
   final String? imageUrl;
-  final VoidCallback onPressed;
+  final VoidCallback onPressed, onPictureTap;
   final String groupId;
   final Widget child;
   final String? sendBy;
@@ -32,23 +32,23 @@ class HomeChatCard extends StatelessWidget {
       this.lastMsg = '',
       this.unseenMsgCount,
       this.messageType,
-      this.messageCount})
+      this.messageCount,
+      required this.onPictureTap})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => onPressed.call(),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: onPictureTap,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
                   child: CachedNetworkImage(
                     width: 50,
                     height: 50,
@@ -71,10 +71,12 @@ class HomeChatCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSizes.kDefaultPadding),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
+                  child: InkWell(
+                    onTap: onPressed,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -101,9 +103,7 @@ class HomeChatCard extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
-                                      .copyWith(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500),
+                                      .copyWith(fontSize: 12, fontWeight: FontWeight.w500),
                                 ),
                                 const SizedBox(
                                   height: 5,
@@ -122,21 +122,19 @@ class HomeChatCard extends StatelessWidget {
                             ? const SizedBox()
                             : Row(children: [
                                 Text("$sendBy : ",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                           fontWeight: FontWeight.w500,
                                         )),
-                                messageType == 'text'
+                                messageType == 'text' ||
+                                        messageType == "created" ||
+                                        messageType == "added" ||
+                                        messageType == "removed"
                                     ? Expanded(
                                         child: Text(
                                           lastMsg ?? "",
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!,
+                                          style: Theme.of(context).textTheme.bodySmall!,
                                         ),
                                       )
                                     : messageType == 'video'
@@ -190,16 +188,16 @@ class HomeChatCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
-          const Padding(
-            padding: EdgeInsets.only(left: 0),
-            child: CustomDivider(),
-          )
-        ],
-      ),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(left: 0),
+          child: CustomDivider(),
+        )
+      ],
     );
   }
 }
