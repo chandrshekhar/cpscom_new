@@ -190,7 +190,7 @@ class ChatController extends GetxController {
           groupDes: groupDes, groupId: groupId, groupName: groupName, groupImage: groupImage);
       if (res.data!['success'] == true) {
         final groupListController = Get.put(GroupListController());
-        Map<String, dynamic> reqModeSocket = res.data!['data'];
+        Map<String, dynamic> reqModeSocket = {"data": res.data!['data']};
         log("req---> $reqModeSocket");
         socketController.socket!.emit("update-group", reqModeSocket);
         await groupListController.getGroupList(isLoadingShow: false);
