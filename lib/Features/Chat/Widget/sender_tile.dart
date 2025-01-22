@@ -14,6 +14,7 @@ import 'package:linkable/linkable.dart';
 import 'package:open_app_file/open_app_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:swipe_to/swipe_to.dart';
+import '../../../Utils/check_emojii.dart';
 import '../../../Utils/check_website.dart';
 import 'show_image_widget.dart';
 
@@ -130,7 +131,8 @@ class _SenderTileState extends State<SenderTile> {
                                   text: widget.message,
                                   linkColor: Colors.blue,
                                 )
-                              : Text(widget.message)
+                              : Text(widget.message,
+                                  style: TextStyle(fontSize: isOnlyEmoji(widget.message) ? 40 : 15))
                           : widget.messageType == 'doc'
                               ? InkWell(
                                   onTap: () async {

@@ -170,12 +170,15 @@ class _BuildChatListState extends State<BuildChatList> {
                             var item = groupListController.groupList.value[index];
                             return HomeChatCard(
                                 onPictureTap: () {
-                                  print("hjfghjdfg ${item.groupImage}");
                                   if (item.groupImage != null && item.groupImage != "undefined") {
-                                    doNavigator(
-                                        route:
-                                            FullScreenImageViewer(imageUrl: item.groupImage ?? ""),
-                                        context: context);
+                                    Get.to(
+                                        () => FullScreenImageViewer(
+                                              imageUrl: item.groupImage ?? "",
+                                              lableText: item.groupName ?? "",
+                                            ),
+                                        transition: Transition
+                                            .circularReveal, // Optional: Customize the animation
+                                        duration: Duration(milliseconds: 700));
                                   }
                                 },
                                 messageCount: item.unreadCount,

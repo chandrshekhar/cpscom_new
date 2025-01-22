@@ -120,11 +120,20 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               onTap: () {
                                 // Show the popup dialog to display the image
                                 if (loginController.userModel.value.image != null) {
-                                  doNavigator(
-                                      route: FullScreenImageViewer(
-                                        imageUrl: loginController.userModel.value.image.toString(),
-                                      ),
-                                      context: context);
+                                  Get.to(
+                                      () => FullScreenImageViewer(
+                                            imageUrl:
+                                                loginController.userModel.value.image.toString(),
+                                            lableText: loginController.userModel.value.name ?? "",
+                                          ),
+                                      transition: Transition
+                                          .circularReveal, // Optional: Customize the animation
+                                      duration: Duration(milliseconds: 700));
+                                  // doNavigator(
+                                  //     route: FullScreenImageViewer(
+                                  //       imageUrl: loginController.userModel.value.image.toString(),
+                                  //     ),
+                                  //     context: context);
                                 }
                               },
                               child: ClipRRect(

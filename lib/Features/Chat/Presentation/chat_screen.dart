@@ -114,10 +114,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   InkWell(
                     onTap: () {
-                      doNavigator(
-                          route: FullScreenImageViewer(
-                              imageUrl: chatController.groupModel.value.groupImage ?? ""),
-                          context: context);
+                      if (chatController.groupModel.value.groupImage != null) {
+                        Get.to(
+                            () => FullScreenImageViewer(
+                                  imageUrl: chatController.groupModel.value.groupImage.toString(),
+                                  lableText: chatController.groupModel.value.groupName ?? "",
+                                ),
+                            transition:
+                                Transition.circularReveal, // Optional: Customize the animation
+                            duration: const Duration(milliseconds: 700));
+                      }
+                      // doNavigator(
+                      //     route: FullScreenImageViewer(
+                      //         imageUrl: chatController.groupModel.value.groupImage ?? ""),
+                      //     context: context);
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
@@ -305,8 +315,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     fileName: item.fileName ?? "",
                                                     message: item.message ?? "",
                                                     messageType: item.messageType.toString(),
-                                                    sentTime: DateFormat('dd/MM/yyyy hh:mm a')
-                                                        .format(DateTime.parse(item.timestamp ?? "")
+                                                    sentTime: DateFormat('MM/dd/yyyy HH:mm').format(
+                                                        DateTime.parse(item.timestamp ?? "")
                                                             .toLocal()),
                                                     groupCreatedBy: "",
                                                     read: "value",
@@ -403,11 +413,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   },
                                                   message: item.message ?? "",
                                                   messageType: item.messageType ?? "",
-                                                  sentTime: DateFormat('dd/MM/yyyy hh:mm a').format(
+                                                  sentTime: DateFormat('MM/dd/yyyy HH:mm').format(
                                                       DateTime.parse(item.timestamp ?? "")
                                                           .toLocal()),
                                                   sentByName: item.senderName ?? "",
-                                                  sentByImageUrl: item. senderId?? "",
+                                                  sentByImageUrl: item.senderDataAll?.image ?? "",
                                                   groupCreatedBy: "Pandey",
                                                 ),
                                               ),

@@ -136,16 +136,20 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                                 var data = memberListController.memberList[index];
                                 return Obx(() => Row(
                                       children: [
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 20,
                                         ),
                                         InkWell(
                                           onTap: () {
                                             if (data.image != null && data.image!.isNotEmpty) {
-                                              doNavigator(
-                                                  route: FullScreenImageViewer(
-                                                      imageUrl: data.image ?? ""),
-                                                  context: context);
+                                              Get.to(
+                                                  () => FullScreenImageViewer(
+                                                        lableText: data.name ?? "",
+                                                        imageUrl: data.image ?? "",
+                                                      ),
+                                                  transition: Transition
+                                                      .circularReveal, // Optional: Customize the animation
+                                                  duration: const Duration(milliseconds: 700));
                                             }
                                           },
                                           child: ClipRRect(

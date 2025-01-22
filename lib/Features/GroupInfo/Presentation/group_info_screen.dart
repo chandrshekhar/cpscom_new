@@ -80,10 +80,18 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                         onTap: () {
                           if (chatController.groupModel.value.groupImage != null &&
                               chatController.groupModel.value.groupImage!.isNotEmpty) {
-                            doNavigator(
-                                route: FullScreenImageViewer(
-                                    imageUrl: chatController.groupModel.value.groupImage ?? ""),
-                                context: context);
+                            // doNavigator(
+                            //     route: FullScreenImageViewer(
+                            //         imageUrl: chatController.groupModel.value.groupImage ?? ""),
+                            //     context: context);
+                            Get.to(
+                                () => FullScreenImageViewer(
+                                      imageUrl: chatController.groupModel.value.groupImage ?? "",
+                                      lableText: chatController.groupModel.value.groupName ?? "",
+                                    ),
+                                transition:
+                                    Transition.circularReveal, // Optional: Customize the animation
+                                duration: const Duration(milliseconds: 700));
                           }
                         },
                         child: ClipRRect(

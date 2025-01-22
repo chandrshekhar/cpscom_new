@@ -34,28 +34,29 @@ class ChatModel {
   int? iV;
   dynamic id;
   ReplyOf? replyOf;
+  SenderDataAll? senderDataAll;
   // List<CurrentUsers>? currentUsers;
 
-  ChatModel({
-    this.sId,
-    this.groupId,
-    this.senderId,
-    this.allRecipients,
-    this.senderName,
-    this.message,
-    this.messageType,
-    this.fileName,
-    this.forwarded,
-    this.deliveredTo,
-    this.readBy,
-    this.deletedBy,
-    this.timestamp,
-    this.createdAt,
-    this.updatedAt,
-    this.iV,
-    this.id,
-    this.replyOf,
-  });
+  ChatModel(
+      {this.sId,
+      this.groupId,
+      this.senderId,
+      this.allRecipients,
+      this.senderName,
+      this.message,
+      this.messageType,
+      this.fileName,
+      this.forwarded,
+      this.deliveredTo,
+      this.readBy,
+      this.deletedBy,
+      this.timestamp,
+      this.createdAt,
+      this.updatedAt,
+      this.iV,
+      this.id,
+      this.replyOf,
+      this.senderDataAll});
 
   ChatModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -67,7 +68,6 @@ class ChatModel {
     forwarded = json['forwarded'];
     fileName = json['fileName'];
     allRecipients = json['allRecipients'];
-
     deletedBy = json['deletedBy'] == null ? null : json['deletedBy'] as List<dynamic>?;
     if (json['deliveredTo'] != null) {
       deliveredTo = <ChatDeliveredTo>[];
@@ -83,6 +83,8 @@ class ChatModel {
     }
 
     replyOf = json['replyOf'] != null ? ReplyOf.fromJson(json['replyOf']) : null;
+    senderDataAll =
+        json['senderDataAll'] != null ? SenderDataAll.fromJson(json['senderDataAll']) : null;
 
     timestamp = json['timestamp'];
     createdAt = json['createdAt'];
@@ -151,5 +153,40 @@ class ReplyOf {
     sender = json['sender'];
     msg = json['msg'];
     msgType = json['msgType'];
+  }
+}
+
+class SenderDataAll {
+  String? sId;
+  String? name;
+  String? image;
+  String? userName;
+  String? email;
+  String? phone;
+  String? userType;
+  String? accountStatus;
+  String? createdAt;
+
+  SenderDataAll(
+      {this.sId,
+      this.name,
+      this.image,
+      this.userName,
+      this.email,
+      this.phone,
+      this.userType,
+      this.accountStatus,
+      this.createdAt});
+
+  SenderDataAll.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    name = json['name'];
+    image = json['image'] == null ? null : json['image'] as String?;
+    userName = json['userName'] == null ? null : json['userName'] as String?;
+    email = json['email'] == null ? null : json['email'] as String?;
+    phone = json['phone'] == null ? null : json['phone'] as String?;
+    userType = json['userType'] == null ? null : json['userType'] as String?;
+    accountStatus = json['accountStatus'] == null ? null : json['accountStatus'] as String?;
+    createdAt = json['createdAt'];
   }
 }

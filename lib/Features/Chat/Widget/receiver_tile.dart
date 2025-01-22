@@ -12,6 +12,8 @@ import 'package:linkable/linkable.dart';
 import 'package:swipe_to/swipe_to.dart';
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
+import '../../../Utils/check_emojii.dart';
+import '../../../Widgets/image_popup.dart';
 import 'show_image_widget.dart';
 
 class ReceiverTile extends StatefulWidget {
@@ -82,28 +84,42 @@ class _ReceiverTileState extends State<ReceiverTile> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 3),
-                        child: CachedNetworkImage(
-                            width: 30,
-                            height: 30,
-                            fit: BoxFit.cover,
-                            imageUrl: widget.sentByImageUrl,
-                            placeholder: (context, url) => const CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: AppColors.bg,
-                                ),
-                            errorWidget: (context, url, error) => CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: AppColors.bg,
-                                  child: Text(
-                                    widget.sentByName.substring(0, 1).toString().toUpperCase(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(fontWeight: FontWeight.w600),
+                      InkWell(
+                        onTap: () {
+                          if (widget.sentByImageUrl.isNotEmpty) {
+                            Get.to(
+                                () => FullScreenImageViewer(
+                                      lableText: widget.sentByName,
+                                      imageUrl: widget.sentByImageUrl,
+                                    ),
+                                transition:
+                                    Transition.circularReveal, // Optional: Customize the animation
+                                duration: const Duration(milliseconds: 700));
+                          }
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 3),
+                          child: CachedNetworkImage(
+                              width: 30,
+                              height: 30,
+                              fit: BoxFit.cover,
+                              imageUrl: widget.sentByImageUrl,
+                              placeholder: (context, url) => const CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: AppColors.bg,
                                   ),
-                                )),
+                              errorWidget: (context, url, error) => CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: AppColors.bg,
+                                    child: Text(
+                                      widget.sentByName.substring(0, 1).toString().toUpperCase(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(fontWeight: FontWeight.w600),
+                                    ),
+                                  )),
+                        ),
                       ),
                       const SizedBox(
                         width: 10,
@@ -179,7 +195,12 @@ class _ReceiverTileState extends State<ReceiverTile> {
                                                 text: widget.message,
                                                 linkColor: Colors.blue,
                                               )
-                                            : Text(widget.message)
+                                            : Text(
+                                                widget.message,
+                                                style: TextStyle(
+                                                    fontSize:
+                                                        isOnlyEmoji(widget.message) ? 40 : 15),
+                                              )
                                         : widget.messageType == 'doc'
                                             ? InkWell(
                                                 onTap: () async {
