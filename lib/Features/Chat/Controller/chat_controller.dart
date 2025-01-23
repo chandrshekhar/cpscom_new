@@ -57,7 +57,7 @@ class ChatController extends GetxController {
   var titleController = TextEditingController().obs;
   RxList<ChatModel> chatList = <ChatModel>[].obs;
   RxString groupId = "".obs;
-
+  RxInt limit = 20.obs;
   RxBool isChatLoading = false.obs;
 
   void addNameInMsgText({String? mentionname}) {
@@ -73,11 +73,11 @@ class ChatController extends GetxController {
         "id": groupId,
         "timestamp": timeStamps.value,
         "offset": 0,
-        "limit": 1000
+        "limit": limit.value
       };
       var res = await _chatRepo.getChatListApi(reqModel: reqModel);
       if (res.data!.success == true) {
-        chatList.addAll(res.data!.chat!);
+        chatList.value = res.data!.chat!;
         chatList.refresh();
         isChatLoading(false);
       } else {

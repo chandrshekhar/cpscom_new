@@ -15,8 +15,10 @@ import 'package:cpscom_admin/Widgets/image_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../Widgets/custom_smartrefresher_fotter.dart';
 import '../../Home/Controller/socket_controller.dart';
 import '../Widget/send_message_widget.dart';
 import '../Widget/show_member_widget.dart';
@@ -52,10 +54,13 @@ class _ChatScreenState extends State<ChatScreen> {
     return localTime;
   }
 
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      chatController.limit.value = 20;
       chatController.getGroupDetailsById(
           groupId: widget.groupId, timeStamp: chatController.timeStamps.value);
       chatController.msgController.value.clear();
@@ -249,26 +254,133 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: CircularProgressIndicator.adaptive(),
                           )
                         : chatController.chatList.isNotEmpty
-                            ? ListView.builder(
-                                itemCount: chatController.chatList.length,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                controller: _scrollController,
-                                shrinkWrap: true,
-                                reverse: true,
-                                padding: const EdgeInsets.only(
-                                    // left: 5,
-                                    bottom: AppSizes.kDefaultPadding * 2),
-                                itemBuilder: (context, index) {
-                                  var item = chatController.chatList.reversed.toList()[index];
+                            ? SmartRefresher(
+                                controller: _refreshController,
+                                enablePullDown: false,
+                                enablePullUp: true,
+                                onRefresh: () async {
+                                  // groupListController.limit.value = 20;
+                                  // groupListController.getGroupList(isLoadingShow: true);
+                                  _refreshController.refreshCompleted();
+                                },
+                                onLoading: () async {
+                                  chatController.limit.value += 20;
+                                  chatController.getAllChatByGroupId(
+                                      groupId: widget.groupId, isShowLoading: false);
+                                  _refreshController.loadComplete();
+                                },
+                                footer: const CustomFooterWidget(),
+                                child: ListView.builder(
+                                    itemCount: chatController.chatList.length,
+                                    physics: const AlwaysScrollableScrollPhysics(),
+                                    controller: _scrollController,
+                                    shrinkWrap: true,
+                                    reverse: true,
+                                    padding: const EdgeInsets.only(
+                                        // left: 5,
+                                        bottom: AppSizes.kDefaultPadding * 2),
+                                    itemBuilder: (context, index) {
+                                      var item = chatController.chatList.reversed.toList()[index];
 
-                                  return item.senderId.toString() ==
-                                          LocalStorage().getUserId().toString()
-                                      ? InkWell(
-                                          onTap: () {
-                                            chatController.selectedIndex.value = index;
-                                            log("Delivery count is ${item.deliveredTo!.length}");
-                                          },
-                                          child: item.messageType == "created" ||
+                                      return item.senderId.toString() ==
+                                              LocalStorage().getUserId().toString()
+                                          ? InkWell(
+                                              onTap: () {
+                                                chatController.selectedIndex.value = index;
+                                                log("Delivery count is ${item.deliveredTo!.length}");
+                                              },
+                                              child: item.messageType == "created" ||
+                                                      item.messageType == "removed" ||
+                                                      item.messageType == "added"
+                                                  ? Padding(
+                                                      padding: const EdgeInsets.only(
+                                                          left: 20, right: 20, bottom: 20),
+                                                      child: Center(
+                                                        child: InkWell(
+                                                          onTap: () {
+                                                            log("index is : $index");
+                                                            log("chat length is : ${chatController.chatList.toList().length}");
+                                                          },
+                                                          child: Text(
+                                                            item.message ?? "",
+                                                            textAlign: TextAlign.center,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : InkWell(
+                                                      onLongPress: () {
+                                                        _showBottomSheet(
+                                                            from: "sender",
+                                                            context,
+                                                            item.sId.toString(), handleReply: () {
+                                                          backFromPrevious(context: context);
+                                                          chatController.isRelayFunction(
+                                                              isRep: true,
+                                                              msgId: item.id,
+                                                              msgType: item.messageType,
+                                                              msg: item.message,
+                                                              senderName: item.senderName);
+                                                        });
+                                                      },
+                                                      child: SenderTile(
+                                                        isDelivered: item.allRecipients?.length ==
+                                                                item.deliveredTo?.length
+                                                            ? true.obs
+                                                            : false.obs,
+                                                        isSeen: item.allRecipients?.length ==
+                                                                item.readBy?.length
+                                                            ? true.obs
+                                                            : false.obs,
+                                                        index: index,
+                                                        fileName: item.fileName ?? "",
+                                                        message: item.message ?? "",
+                                                        messageType: item.messageType.toString(),
+                                                        sentTime: DateFormat('MM/dd/yyyy HH:mm')
+                                                            .format(
+                                                                DateTime.parse(item.timestamp ?? "")
+                                                                    .toLocal()),
+                                                        groupCreatedBy: "",
+                                                        read: "value",
+                                                        onLeftSwipe: () {
+                                                          chatController.isRelayFunction(
+                                                              isRep: true,
+                                                              msgId: item.sId,
+                                                              msgType: item.messageType,
+                                                              msg: item.message,
+                                                              senderName: item.senderName);
+                                                          log(chatController.replyOf.toString());
+                                                        },
+                                                        replyOf: item.replyOf,
+                                                        // child: item.allRecipients!
+                                                        //                 .length ==
+                                                        //             item.deliveredTo!
+                                                        //                 .length &&
+                                                        //         item.readBy!.length <
+                                                        //             item.allRecipients!
+                                                        //                 .length
+                                                        //     ? Icon(
+                                                        //         Icons.done_all_rounded,
+                                                        //         size: 16,
+                                                        //         color: item.allRecipients!
+                                                        //                         .length ==
+                                                        //                     item.deliveredTo!
+                                                        //                         .length &&
+                                                        //                 item.allRecipients!
+                                                        //                         .length ==
+                                                        //                     item.readBy!
+                                                        //                         .length
+                                                        //             ? AppColors.primary
+                                                        //             : AppColors.grey,
+                                                        //       )
+                                                        //     : const Icon(
+                                                        //         Icons.check,
+                                                        //         size: 16,
+                                                        //         color: AppColors.grey,
+                                                        //       )),
+                                                      ),
+                                                    ))
+                                          : item.messageType == "created" ||
                                                   item.messageType == "removed" ||
                                                   item.messageType == "added"
                                               ? Padding(
@@ -290,7 +402,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                               : InkWell(
                                                   onLongPress: () {
                                                     _showBottomSheet(
-                                                        from: "sender",
+                                                        from: "reciver",
                                                         context,
                                                         item.sId.toString(), handleReply: () {
                                                       backFromPrevious(context: context);
@@ -302,129 +414,42 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           senderName: item.senderName);
                                                     });
                                                   },
-                                                  child: SenderTile(
-                                                    isDelivered: item.allRecipients?.length ==
-                                                            item.deliveredTo?.length
-                                                        ? true.obs
-                                                        : false.obs,
-                                                    isSeen: item.allRecipients?.length ==
-                                                            item.readBy?.length
-                                                        ? true.obs
-                                                        : false.obs,
-                                                    index: index,
-                                                    fileName: item.fileName ?? "",
-                                                    message: item.message ?? "",
-                                                    messageType: item.messageType.toString(),
-                                                    sentTime: DateFormat('MM/dd/yyyy HH:mm').format(
-                                                        DateTime.parse(item.timestamp ?? "")
-                                                            .toLocal()),
-                                                    groupCreatedBy: "",
-                                                    read: "value",
-                                                    onLeftSwipe: () {
-                                                      chatController.isRelayFunction(
-                                                          isRep: true,
-                                                          msgId: item.sId,
-                                                          msgType: item.messageType,
-                                                          msg: item.message,
-                                                          senderName: item.senderName);
-                                                      log(chatController.replyOf.toString());
-                                                    },
-                                                    replyOf: item.replyOf,
-                                                    // child: item.allRecipients!
-                                                    //                 .length ==
-                                                    //             item.deliveredTo!
-                                                    //                 .length &&
-                                                    //         item.readBy!.length <
-                                                    //             item.allRecipients!
-                                                    //                 .length
-                                                    //     ? Icon(
-                                                    //         Icons.done_all_rounded,
-                                                    //         size: 16,
-                                                    //         color: item.allRecipients!
-                                                    //                         .length ==
-                                                    //                     item.deliveredTo!
-                                                    //                         .length &&
-                                                    //                 item.allRecipients!
-                                                    //                         .length ==
-                                                    //                     item.readBy!
-                                                    //                         .length
-                                                    //             ? AppColors.primary
-                                                    //             : AppColors.grey,
-                                                    //       )
-                                                    //     : const Icon(
-                                                    //         Icons.check,
-                                                    //         size: 16,
-                                                    //         color: AppColors.grey,
-                                                    //       )),
-                                                  ),
-                                                ))
-                                      : item.messageType == "created" ||
-                                              item.messageType == "removed" ||
-                                              item.messageType == "added"
-                                          ? Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20, right: 20, bottom: 20),
-                                              child: Center(
-                                                child: InkWell(
                                                   onTap: () {
-                                                    log("index is : $index");
-                                                    log("chat length is : ${chatController.chatList.toList().length}");
+                                                    chatController.selectedIndex.value = index;
                                                   },
-                                                  child: Text(
-                                                    item.message ?? "",
-                                                    textAlign: TextAlign.center,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(top: 15),
+                                                    child: ReceiverTile(
+                                                      index: index,
+                                                      replyOf: item.replyOf,
+                                                      fileName: item.fileName ?? "",
+                                                      chatController: chatController,
+                                                      onSwipedMessage: () {
+                                                        chatController.isRelayFunction(
+                                                            isRep: true,
+                                                            msgId: item.id,
+                                                            msgType: item.messageType,
+                                                            msg: item.message,
+                                                            senderName: item.senderName);
+                                                        // replyToMessage(chatMap);
+                                                      },
+                                                      message: item.message ?? "",
+                                                      messageType: item.messageType ?? "",
+                                                      sentTime: DateFormat('MM/dd/yyyy HH:mm')
+                                                          .format(
+                                                              DateTime.parse(item.timestamp ?? "")
+                                                                  .toLocal()),
+                                                      sentByName: item.senderName ?? "",
+                                                      sentByImageUrl:
+                                                          item.senderDataAll?.image ?? "",
+                                                      groupCreatedBy: "Pandey",
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                            )
-                                          : InkWell(
-                                              onLongPress: () {
-                                                _showBottomSheet(
-                                                    from: "reciver",
-                                                    context,
-                                                    item.sId.toString(), handleReply: () {
-                                                  backFromPrevious(context: context);
-                                                  chatController.isRelayFunction(
-                                                      isRep: true,
-                                                      msgId: item.id,
-                                                      msgType: item.messageType,
-                                                      msg: item.message,
-                                                      senderName: item.senderName);
-                                                });
-                                              },
-                                              onTap: () {
-                                                chatController.selectedIndex.value = index;
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(top: 15),
-                                                child: ReceiverTile(
-                                                  index: index,
-                                                  replyOf: item.replyOf,
-                                                  fileName: item.fileName ?? "",
-                                                  chatController: chatController,
-                                                  onSwipedMessage: () {
-                                                    chatController.isRelayFunction(
-                                                        isRep: true,
-                                                        msgId: item.id,
-                                                        msgType: item.messageType,
-                                                        msg: item.message,
-                                                        senderName: item.senderName);
-                                                    // replyToMessage(chatMap);
-                                                  },
-                                                  message: item.message ?? "",
-                                                  messageType: item.messageType ?? "",
-                                                  sentTime: DateFormat('MM/dd/yyyy HH:mm').format(
-                                                      DateTime.parse(item.timestamp ?? "")
-                                                          .toLocal()),
-                                                  sentByName: item.senderName ?? "",
-                                                  sentByImageUrl: item.senderDataAll?.image ?? "",
-                                                  groupCreatedBy: "Pandey",
-                                                ),
-                                              ),
-                                            );
-                                  //             chatMap['isDelivered'])
-                                  //         :
-                                })
+                                                );
+                                      //             chatMap['isDelivered'])
+                                      //         :
+                                    }),
+                              )
                             : const SizedBox.shrink(),
                   )),
                 ],

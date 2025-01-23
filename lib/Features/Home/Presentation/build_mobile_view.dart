@@ -9,7 +9,8 @@ import '../../../Widgets/custom_floating_action_button.dart';
 import '../../AddMembers/Presentation/add_members_screen.dart';
 
 class BuildMobileView extends StatefulWidget {
-  const BuildMobileView({Key? key}) : super(key: key);
+  final bool isDeleteNavigation;
+  const BuildMobileView({Key? key, required this.isDeleteNavigation}) : super(key: key);
 
   @override
   State<BuildMobileView> createState() => _BuildMobileViewState();
@@ -32,6 +33,7 @@ class _BuildMobileViewState extends State<BuildMobileView> {
             body: SafeArea(
               bottom: false,
               child: Obx(() => BuildChatList(
+                isDeleteNavigation: widget.isDeleteNavigation,
                   isAdmin: userController.userModel.value.userType != null &&
                           userController.userModel.value.userType!.isNotEmpty
                       ? userController.userModel.value.userType!

@@ -7,7 +7,7 @@ class  GroupListController extends GetxController {
   final _groupListRepo = GroupRepo();
   RxList<GroupModel> groupList = <GroupModel>[].obs;
   RxBool isGroupLiastLoading = false.obs;
-  RxInt limit = 10.obs;
+  RxInt limit = 20.obs;
   RxString searchText = "".obs;
   Future<void> getGroupList({bool isLoadingShow = true}) async {
     try {

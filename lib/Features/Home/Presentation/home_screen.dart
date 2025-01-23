@@ -26,7 +26,8 @@ import '../../Chat/Presentation/chat_screen.dart';
 import '../../Login/Controller/login_controller.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final bool isDeleteNavigation;
+  const HomeScreen({Key? key, required this.isDeleteNavigation}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -47,14 +48,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const BuildMobileView();
+    return BuildMobileView(
+      isDeleteNavigation: widget.isDeleteNavigation,
+    );
   }
 }
 
 class BuildChatList extends StatefulWidget {
   final bool isAdmin;
+  final bool isDeleteNavigation;
 
-  const BuildChatList({Key? key, required this.isAdmin}) : super(key: key);
+  const BuildChatList({Key? key, required this.isAdmin, required this.isDeleteNavigation})
+      : super(key: key);
 
   @override
   State<BuildChatList> createState() => _BuildChatListState();
@@ -69,16 +74,19 @@ class _BuildChatListState extends State<BuildChatList> {
 
   @override
   void initState() {
-    groupListController.limit.value = 2000;
+    groupListController.limit.value = 20;
     callAfterDelay();
-    socketController.socketConnection();
+    if (widget.isDeleteNavigation == false) {
+      socketController.socketConnection();
+    }
     super.initState();
   }
 
   callAfterDelay() async {
     await Future.delayed(const Duration(milliseconds: 200), () {
       loginController.getUserProfile();
-      groupListController.getGroupList();
+      groupListController.getGroupList(
+          isLoadingShow: widget.isDeleteNavigation == true ? false : true);
       socketController.reconnectSocket();
     });
   }
@@ -154,12 +162,12 @@ class _BuildChatListState extends State<BuildChatList> {
                         enablePullDown: true,
                         enablePullUp: true,
                         onRefresh: () async {
-                          groupListController.limit.value = 2000;
+                          groupListController.limit.value = 20;
                           groupListController.getGroupList(isLoadingShow: true);
                           _refreshController.refreshCompleted();
                         },
                         onLoading: () async {
-                          groupListController.limit.value += 2;
+                          groupListController.limit.value += 20;
                           groupListController.getGroupList(isLoadingShow: false);
                           _refreshController.loadComplete();
                         },

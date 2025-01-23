@@ -12,6 +12,7 @@ import '../../../Utils/storage_service.dart';
 import '../../AddMembers/Controller/group_create_controller.dart';
 import '../../Chat/Model/chat_list_model.dart';
 import '../Model/group_list_model.dart';
+import '../Presentation/home_screen.dart';
 
 class SocketController extends GetxController {
   IO.Socket? socket;
@@ -243,9 +244,12 @@ class SocketController extends GetxController {
       socket?.on("delete-Group", (data) {
         log("Update group socket data ${data.toString()}");
         groupListController.getGroupList(isLoadingShow: false);
-
         if (chatController.groupId.value == data['data']['_id']) {
-          backFromPrevious(context: Get.context!);
+          doNavigateWithReplacement(
+              route: HomeScreen(
+                isDeleteNavigation: true,
+              ),
+              context: Get.context!);
         } else {
           null;
         }
@@ -333,7 +337,11 @@ class SocketController extends GetxController {
   void hideTextArea(List<dynamic> currentUser, String groupIdFromSocket) {
     if (chatController.groupId.value == groupIdFromSocket &&
         !(currentUser.contains(LocalStorage().getUserId()))) {
-      backFromPrevious(context: Get.context!);
+      doNavigateWithReplacement(
+          route: HomeScreen(
+            isDeleteNavigation: true,
+          ),
+          context: Get.context!);
     } else {
       null;
     }

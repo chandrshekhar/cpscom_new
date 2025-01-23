@@ -43,7 +43,7 @@ class LoginController extends GetxController {
         localStorage.setToken(token: res.data?.data?.token.toString());
         localStorage.setUserId(userId: res.data?.data?.user?.sId.toString());
         isLoginLaoding(false);
-        doNavigateWithReplacement(route: const HomeScreen(), context: context);
+        doNavigateWithReplacement(route: const HomeScreen(isDeleteNavigation: false,), context: context);
       } else {
         TostWidget().errorToast(title: "Error", message: res.data?.error);
         isLoginLaoding(false);

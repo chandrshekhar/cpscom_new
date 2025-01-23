@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
           context,
           MaterialPageRoute(
               builder: (context) => token.isNotEmpty
-                  ? const HomeScreen()
+                  ? const HomeScreen(isDeleteNavigation: false,)
                   : const WelcomeScreen()));
     });
 

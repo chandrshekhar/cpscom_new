@@ -6,7 +6,8 @@ import '../../MyProfile/Presentation/my_profile_screen.dart';
 import 'home_screen.dart';
 
 class BuildTabletView extends StatefulWidget {
-  const BuildTabletView({Key? key}) : super(key: key);
+  final bool isDeleteNavigation;
+  const BuildTabletView({Key? key, required this.isDeleteNavigation}) : super(key: key);
 
   @override
   State<BuildTabletView> createState() => _BuildTabletViewState();
@@ -65,7 +66,7 @@ class _BuildTabletViewState extends State<BuildTabletView> {
                     ],
                   ),
                 ),
-                Expanded(child: BuildChatList(isAdmin: isAdmin ?? false))
+                Expanded(child: BuildChatList(isAdmin: isAdmin ?? false, isDeleteNavigation: widget.isDeleteNavigation,))
               ],
             ),
           ),

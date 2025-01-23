@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class CustomFooterWidget extends StatelessWidget {
-  const CustomFooterWidget({super.key,});
+  const CustomFooterWidget({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
