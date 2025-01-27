@@ -146,6 +146,7 @@ class _ReceiverTileState extends State<ReceiverTile> {
                           ),
                           widget.replyOf != null
                               ? SenderMsgReplyWidget(
+                                  messageType: widget.messageType,
                                   replyMsg: widget.replyOf?.msg ?? "",
                                   senderName: widget.replyOf?.sender ?? "",
                                 )

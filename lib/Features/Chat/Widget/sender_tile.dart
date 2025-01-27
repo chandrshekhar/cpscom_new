@@ -95,6 +95,7 @@ class _SenderTileState extends State<SenderTile> {
                 ? SenderMsgReplyWidget(
                     replyMsg: widget.replyOf?.msg ?? "",
                     senderName: widget.replyOf?.sender ?? "",
+                    messageType: widget.messageType,
                   )
                 : const SizedBox(),
             ChatBubble(

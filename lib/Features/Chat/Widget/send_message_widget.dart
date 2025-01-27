@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/app_images.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
@@ -51,12 +52,10 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.kDefaultPadding),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.kDefaultPadding),
                   decoration: BoxDecoration(
                     color: AppColors.shimmer,
-                    borderRadius:
-                        BorderRadius.circular(AppSizes.cardCornerRadius),
+                    borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius),
                   ),
                   child: Row(
                     children: [
@@ -65,17 +64,15 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                         children: [
                           chatController.isReply.value == true
                               ? Container(
-                                  height: 56,
+                                  height: 100,
                                   constraints: BoxConstraints(
                                     maxWidth: MediaQuery.of(context).size.width,
                                   ),
                                   decoration: const BoxDecoration(
                                       color: AppColors.bg,
                                       borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(
-                                              AppSizes.cardCornerRadius),
-                                          bottomRight: Radius.circular(
-                                              AppSizes.cardCornerRadius))),
+                                          topRight: Radius.circular(AppSizes.cardCornerRadius),
+                                          bottomRight: Radius.circular(AppSizes.cardCornerRadius))),
                                   child: Row(
                                     children: [
                                       const SizedBox(
@@ -93,55 +90,49 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Flexible(
                                                 flex: 1,
                                                 child: Text(
-                                                  chatController
-                                                      .replyOf['sender'],
+                                                  chatController.replyOf['sender'],
                                                   maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                  overflow: TextOverflow.ellipsis,
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodyMedium!
                                                       .copyWith(
-                                                          color:
-                                                              AppColors.primary,
-                                                          fontWeight:
-                                                              FontWeight.bold),
+                                                          color: AppColors.primary,
+                                                          fontWeight: FontWeight.bold),
                                                 ),
                                               ),
                                               const SizedBox(
-                                                height:
-                                                    AppSizes.kDefaultPadding /
-                                                        8,
+                                                height: AppSizes.kDefaultPadding / 8,
                                               ),
-                                              Flexible(
-                                                flex: 1,
-                                                child: Text(
-                                                  chatController.replyOf['msg'],
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium!
-                                                      .copyWith(
-                                                          color: AppColors
-                                                              .darkGrey),
-                                                ),
-                                              ),
+                                              chatController.replyOf['msgType'] == "image"
+                                                  ? CachedNetworkImage(
+                                                      imageUrl: chatController.replyOf['msg'],
+                                                      height: 40,
+                                                    )
+                                                  : Flexible(
+                                                      flex: 1,
+                                                      child: Text(
+                                                        chatController.replyOf['msg'],
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyMedium!
+                                                            .copyWith(color: AppColors.darkGrey),
+                                                      ),
+                                                    ),
                                             ],
                                           ),
                                         ),
                                       ),
                                       IconButton(
                                           onPressed: () {
-                                            chatController.isRelayFunction(
-                                                isRep: false);
+                                            chatController.isRelayFunction(isRep: false);
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -185,21 +176,18 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                 height: 150,
                                 child: ListView.builder(
                                     shrinkWrap: true,
-                                    padding: const EdgeInsets.all(
-                                        AppSizes.kDefaultPadding),
+                                    padding: const EdgeInsets.all(AppSizes.kDefaultPadding),
                                     itemCount: chatPickerList.length,
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context, index) {
                                       return GestureDetector(
                                         onTap: () {
-                                          var ownId =
-                                              LocalStorage().getUserId();
+                                          var ownId = LocalStorage().getUserId();
 
                                           List<String> userIds = chatController
                                               .groupModel.value.currentUsers!
                                               .map((user) => user.sId!)
-                                              .where(
-                                                  (userId) => userId != ownId)
+                                              .where((userId) => userId != ownId)
                                               .toList();
 
                                           switch (index) {
@@ -210,61 +198,48 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                                   context: context);
                                               break;
                                             case 1:
-                                              chatController
-                                                  .pickMultipleImagesForSendSms(
-                                                      groupId: widget.groupId,
-                                                      receiverId: userIds,
-                                                      context: context);
+                                              chatController.pickMultipleImagesForSendSms(
+                                                  groupId: widget.groupId,
+                                                  receiverId: userIds,
+                                                  context: context);
                                               break;
                                             case 2:
-                                              chatController
-                                                  .pickImageFromCameraSendSms(
-                                                      imageSource:
-                                                          ImageSource.camera,
-                                                      groupId: widget.groupId,
-                                                      receiverId: userIds,
-                                                      context: context);
+                                              chatController.pickImageFromCameraSendSms(
+                                                  imageSource: ImageSource.camera,
+                                                  groupId: widget.groupId,
+                                                  receiverId: userIds,
+                                                  context: context);
 
                                               break;
                                             case 3:
-                                              chatController
-                                                  .pickVideoFromCameraAndSendMsg(
-                                                      groupId: widget.groupId,
-                                                      receiverId: userIds);
+                                              chatController.pickVideoFromCameraAndSendMsg(
+                                                  groupId: widget.groupId, receiverId: userIds);
                                           }
                                           Navigator.pop(context);
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.only(
-                                              left:
-                                                  AppSizes.kDefaultPadding * 2),
+                                              left: AppSizes.kDefaultPadding * 2),
                                           child: Column(
                                             children: [
                                               Container(
                                                 width: 60,
                                                 height: 60,
-                                                padding: const EdgeInsets.all(
-                                                    AppSizes.kDefaultPadding),
+                                                padding:
+                                                    const EdgeInsets.all(AppSizes.kDefaultPadding),
                                                 decoration: BoxDecoration(
                                                     border: Border.all(
-                                                        width: 1,
-                                                        color: AppColors
-                                                            .lightGrey),
+                                                        width: 1, color: AppColors.lightGrey),
                                                     color: AppColors.white,
                                                     shape: BoxShape.circle),
-                                                child:
-                                                    chatPickerList[index].icon,
+                                                child: chatPickerList[index].icon,
                                               ),
                                               const SizedBox(
-                                                height:
-                                                    AppSizes.kDefaultPadding /
-                                                        2,
+                                                height: AppSizes.kDefaultPadding / 2,
                                               ),
                                               Text(
                                                 '${chatPickerList[index].title}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium,
+                                                style: Theme.of(context).textTheme.bodyMedium,
                                               ),
                                             ],
                                           ),
@@ -289,20 +264,17 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
               GestureDetector(
                 onTap: () async {
                   if (widget.msgController.text.isNotEmpty) {
-                    chatController.msgText.value =
-                        widget.msgController.text.toString();
+                    chatController.msgText.value = widget.msgController.text.toString();
                     widget.msgController.clear();
                     var ownId = LocalStorage().getUserId();
-                    List<String>? userIds = chatController
-                        .groupModel.value.currentUsers!
+                    List<String>? userIds = chatController.groupModel.value.currentUsers!
                         .map((user) => user.sId!)
                         .where((userId) => userId != ownId)
                         .toList();
 
                     await chatController.sendMsg(
-                        replyOf: chatController.isReply.value == true
-                            ? chatController.replyOf
-                            : null,
+                        replyOf:
+                            chatController.isReply.value == true ? chatController.replyOf : null,
                         msg: chatController.msgText.value,
                         reciverId: userIds,
                         groupId: widget.groupId,
@@ -317,8 +289,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                   height: 36,
                   padding: const EdgeInsets.all(AppSizes.kDefaultPadding / 2),
                   decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppColors.buttonGradientColor),
+                      shape: BoxShape.circle, gradient: AppColors.buttonGradientColor),
                   child: const Image(
                     image: AssetImage(AppImages.sendIcon),
                     width: 20,

@@ -1,12 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/app_colors.dart';
 import 'package:cpscom_admin/Commons/app_sizes.dart';
 import 'package:flutter/material.dart';
 
 class SenderMsgReplyWidget extends StatelessWidget {
   const SenderMsgReplyWidget(
-      {super.key, required this.replyMsg, required this.senderName});
+      {super.key, required this.replyMsg, required this.senderName, required this.messageType});
 
-  final String replyMsg;
+  final String replyMsg, messageType;
   final String senderName;
 
   @override
@@ -46,26 +47,35 @@ class SenderMsgReplyWidget extends StatelessWidget {
                       senderName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(
                     height: AppSizes.kDefaultPadding / 8,
                   ),
-                  Flexible(
-                    flex: 1,
-                    child: Text(
-                      replyMsg,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: AppColors.darkGrey),
-                    ),
-                  ),
+                  messageType == "image"
+                      ? CachedNetworkImage(
+                          imageUrl: replyMsg,
+                          fit: BoxFit.contain,
+                          placeholder: (context, url) => const CircularProgressIndicator.adaptive(),
+                          errorWidget: (context, url, error) =>
+                              const CircularProgressIndicator.adaptive(),
+                        )
+                      : Flexible(
+                          flex: 1,
+                          child: Text(
+                            replyMsg,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: AppColors.darkGrey),
+                          ),
+                        ),
                 ],
               ),
             ),

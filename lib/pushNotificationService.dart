@@ -284,6 +284,7 @@ class PushNotificationService {
               presentAlert: true,
               presentBadge: false,
               presentSound: true,
+              
             ),
           ),
         );
