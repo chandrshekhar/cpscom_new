@@ -181,7 +181,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context, index) {
                                       return GestureDetector(
-                                        onTap: () {
+                                        onTap: () async {
                                           var ownId = LocalStorage().getUserId();
 
                                           List<String> userIds = chatController
@@ -193,27 +193,34 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                                           switch (index) {
                                             case 0:
                                               chatController.pickFile(
+                                                  replyOff: chatController.replyOf.value,
                                                   groupId: widget.groupId,
                                                   receiverId: userIds,
                                                   context: context);
+
                                               break;
                                             case 1:
                                               chatController.pickMultipleImagesForSendSms(
                                                   groupId: widget.groupId,
                                                   receiverId: userIds,
+                                                  replyOff: chatController.replyOf.value,
                                                   context: context);
+
                                               break;
                                             case 2:
                                               chatController.pickImageFromCameraSendSms(
                                                   imageSource: ImageSource.camera,
                                                   groupId: widget.groupId,
                                                   receiverId: userIds,
+                                                  replyoff: chatController.replyOf.value,
                                                   context: context);
 
                                               break;
                                             case 3:
                                               chatController.pickVideoFromCameraAndSendMsg(
-                                                  groupId: widget.groupId, receiverId: userIds);
+                                                  replyOff: chatController.replyOf.value,
+                                                  groupId: widget.groupId,
+                                                  receiverId: userIds);
                                           }
                                           Navigator.pop(context);
                                         },
@@ -271,7 +278,6 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                         .map((user) => user.sId!)
                         .where((userId) => userId != ownId)
                         .toList();
-
                     await chatController.sendMsg(
                         replyOf:
                             chatController.isReply.value == true ? chatController.replyOf : null,

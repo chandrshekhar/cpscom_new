@@ -239,6 +239,9 @@ class ChatController extends GetxController {
       log("req---> $reqModeSocket");
       socketController.socket!.emit("message", reqModeSocket);
       msgText.value = "";
+      isRelayFunction(
+        isRep: false,
+      );
       isSendSmsLoading(false);
     } catch (e) {}
   }
@@ -246,6 +249,7 @@ class ChatController extends GetxController {
   Future<void> pickImageFromCameraSendSms(
       {required ImageSource imageSource,
       required String groupId,
+      Map<String, dynamic>? replyoff,
       required List<String> receiverId,
       required BuildContext context}) async {
     try {
@@ -256,6 +260,7 @@ class ChatController extends GetxController {
         await sendMsg(
             msg: "text",
             groupId: groupId,
+            replyOf: isReply.value == true ? replyoff : null,
             file: groupImages,
             msgType: "image",
             reciverId: receiverId);
@@ -270,6 +275,7 @@ class ChatController extends GetxController {
   Future<void> pickMultipleImagesForSendSms({
     required String groupId,
     required List<String> receiverId,
+    required Map<String, dynamic>? replyOff,
     required BuildContext context,
   }) async {
     try {
@@ -287,12 +293,14 @@ class ChatController extends GetxController {
           for (var image in selectedImages) {
             await sendMsg(
               msg: "text",
+              replyOf: isReply.value == true ? replyOff : null,
               groupId: groupId,
               file: image,
               msgType: "image",
               reciverId: receiverId,
             );
           }
+
           selectedImages.clear();
         });
       }
@@ -304,7 +312,9 @@ class ChatController extends GetxController {
   Rx<File?> videoFile = Rx<File?>(null);
   // record video
   Future pickVideoFromCameraAndSendMsg(
-      {required String groupId, required List<String> receiverId}) async {
+      {required String groupId,
+      required List<String> receiverId,
+      required Map<String, dynamic> replyOff}) async {
     try {
       final video = await ImagePicker()
           .pickVideo(source: ImageSource.camera, maxDuration: const Duration(seconds: 30));
@@ -317,6 +327,7 @@ class ChatController extends GetxController {
           await sendMsg(
               msg: "text",
               groupId: groupId,
+              replyOf: isReply.value == true ? replyOff : null,
               file: videoFile.value,
               msgType: "video",
               reciverId: receiverId);
@@ -332,6 +343,7 @@ class ChatController extends GetxController {
   Future<void> pickFile(
       {required String groupId,
       required List<String> receiverId,
+      required Map<String, dynamic> replyOff,
       required BuildContext context}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
@@ -348,12 +360,22 @@ class ChatController extends GetxController {
       if (extension == "pdf" || extension == "doc" || extension == "docx") {
         docsModelBottomSheet(Get.context!, files, () async {
           await sendMsg(
-              msg: "text", groupId: groupId, file: files, msgType: "doc", reciverId: receiverId);
+              msg: "text",
+              groupId: groupId,
+              file: files,
+              msgType: "doc",
+              reciverId: receiverId,
+              replyOf: isReply.value == true ? replyOff : null);
         });
       } else {
         videoBottomSheet(Get.context!, files, () async {
           await sendMsg(
-              msg: "text", groupId: groupId, file: files, msgType: "video", reciverId: receiverId);
+              msg: "text",
+              groupId: groupId,
+              file: files,
+              msgType: "video",
+              reciverId: receiverId,
+              replyOf: isReply.value == true ? replyOff : null);
         });
       }
     } else {

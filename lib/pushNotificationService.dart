@@ -270,7 +270,6 @@ class PushNotificationService {
           message.notification?.title,
           // message.notification?.body,
           bodyMessage(message.data['msgType'].toString(), message.notification?.body ?? ""),
-
           NotificationDetails(
             android: AndroidNotificationDetails(
               channel.id,
@@ -284,7 +283,6 @@ class PushNotificationService {
               presentAlert: true,
               presentBadge: false,
               presentSound: true,
-              
             ),
           ),
         );

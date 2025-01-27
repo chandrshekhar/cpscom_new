@@ -1,10 +1,12 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_reply_widget.dart';
+import 'package:cpscom_admin/Utils/generate_thumbnail.dart';
 import 'package:cpscom_admin/Widgets/video_player.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +97,7 @@ class _SenderTileState extends State<SenderTile> {
                 ? SenderMsgReplyWidget(
                     replyMsg: widget.replyOf?.msg ?? "",
                     senderName: widget.replyOf?.sender ?? "",
-                    messageType: widget.messageType,
+                    messageType: widget.replyOf?.msgType ?? "",
                   )
                 : const SizedBox(),
             ChatBubble(
@@ -118,11 +120,13 @@ class _SenderTileState extends State<SenderTile> {
                             borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius),
                             child: CachedNetworkImage(
                               imageUrl: widget.message,
+                              height: 200,
+                              width: 250,
                               fit: BoxFit.cover,
                               placeholder: (context, url) =>
-                                  const CircularProgressIndicator.adaptive(),
+                                  const Center(child: CircularProgressIndicator.adaptive()),
                               errorWidget: (context, url, error) =>
-                                  const CircularProgressIndicator.adaptive(),
+                                  const Center(child: CircularProgressIndicator.adaptive()),
                             ),
                           ),
                         )
@@ -183,29 +187,60 @@ class _SenderTileState extends State<SenderTile> {
                                   ? GestureDetector(
                                       onTap: () {
                                         Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => VideoMessage(
-                                                videoUrl: widget.message,
-                                              ),
-                                            ));
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => VideoMessage(
+                                              videoUrl: widget.message,
+                                            ),
+                                          ),
+                                        );
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
                                         constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context).size.width * 0.35,
-                                            maxHeight: MediaQuery.of(context).size.width * 0.20),
+                                          maxWidth: MediaQuery.of(context).size.width * 0.8,
+                                          maxHeight: MediaQuery.of(context).size.width * 0.5,
+                                        ),
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(AppSizes.cardCornerRadius),
-                                          child: CachedNetworkImage(
-                                            imageUrl:
-                                                widget.message.isNotEmpty ? widget.message : '',
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                const CircularProgressIndicator.adaptive(),
-                                            errorWidget: (context, url, error) =>
-                                                const Icon(Icons.play_arrow),
+                                          child: Stack(
+                                            alignment: Alignment.center, // Center the play icon
+                                            children: [
+                                              FutureBuilder<String?>(
+                                                future: generateThumbnail(widget.message),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.connectionState ==
+                                                      ConnectionState.waiting) {
+                                                    return const Center(
+                                                      child: CircularProgressIndicator(),
+                                                    );
+                                                  } else if (snapshot.hasError ||
+                                                      snapshot.data == null) {
+                                                    return const Center(
+                                                      child: Icon(
+                                                        Icons.broken_image,
+                                                        size: 40,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    return Image.file(
+                                                      File(snapshot.data!),
+                                                      fit: BoxFit.cover,
+                                                      height: 200,
+                                                      width: 250,
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                              // Video play icon overlay
+                                              const Icon(
+                                                Icons.play_circle_fill,
+                                                color: Colors.white,
+                                                size: 50,
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),

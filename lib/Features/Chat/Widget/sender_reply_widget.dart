@@ -13,7 +13,7 @@ class SenderMsgReplyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 100,
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width / 2,
       ),
@@ -59,6 +59,7 @@ class SenderMsgReplyWidget extends StatelessWidget {
                   messageType == "image"
                       ? CachedNetworkImage(
                           imageUrl: replyMsg,
+                          height: 40,
                           fit: BoxFit.contain,
                           placeholder: (context, url) => const CircularProgressIndicator.adaptive(),
                           errorWidget: (context, url, error) =>

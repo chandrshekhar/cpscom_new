@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/route.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
@@ -13,6 +15,7 @@ import 'package:swipe_to/swipe_to.dart';
 import '../../../Commons/app_colors.dart';
 import '../../../Commons/app_sizes.dart';
 import '../../../Utils/check_emojii.dart';
+import '../../../Utils/generate_thumbnail.dart';
 import '../../../Widgets/image_popup.dart';
 import 'show_image_widget.dart';
 
@@ -146,7 +149,7 @@ class _ReceiverTileState extends State<ReceiverTile> {
                           ),
                           widget.replyOf != null
                               ? SenderMsgReplyWidget(
-                                  messageType: widget.messageType,
+                                  messageType: widget.replyOf?.msgType ?? "",
                                   replyMsg: widget.replyOf?.msg ?? "",
                                   senderName: widget.replyOf?.sender ?? "",
                                 )
@@ -181,11 +184,13 @@ class _ReceiverTileState extends State<ReceiverTile> {
                                               BorderRadius.circular(AppSizes.cardCornerRadius),
                                           child: CachedNetworkImage(
                                             imageUrl: widget.message,
+                                            height: 200,
+                                            width: 250,
                                             fit: BoxFit.contain,
-                                            placeholder: (context, url) =>
-                                                const CircularProgressIndicator.adaptive(),
-                                            errorWidget: (context, url, error) =>
-                                                const CircularProgressIndicator.adaptive(),
+                                            placeholder: (context, url) => const Center(
+                                                child: CircularProgressIndicator.adaptive()),
+                                            errorWidget: (context, url, error) => const Center(
+                                                child: CircularProgressIndicator.adaptive()),
                                           ),
                                         ),
                                       )
@@ -251,35 +256,65 @@ class _ReceiverTileState extends State<ReceiverTile> {
                                                 ? GestureDetector(
                                                     onTap: () {
                                                       Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) => VideoMessage(
-                                                              videoUrl: widget.message,
-                                                            ),
-                                                          ));
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => VideoMessage(
+                                                            videoUrl: widget.message,
+                                                          ),
+                                                        ),
+                                                      );
                                                     },
                                                     child: Container(
                                                       alignment: Alignment.center,
                                                       constraints: BoxConstraints(
-                                                          maxWidth:
-                                                              MediaQuery.of(context).size.width *
-                                                                  0.35,
-                                                          maxHeight:
-                                                              MediaQuery.of(context).size.width *
-                                                                  0.20),
+                                                        maxWidth:
+                                                            MediaQuery.of(context).size.width * 0.8,
+                                                        maxHeight:
+                                                            MediaQuery.of(context).size.width * 0.5,
+                                                      ),
                                                       child: ClipRRect(
                                                         borderRadius: BorderRadius.circular(
                                                             AppSizes.cardCornerRadius),
-                                                        child: CachedNetworkImage(
-                                                          imageUrl: widget.message.isNotEmpty
-                                                              ? widget.message
-                                                              : '',
-                                                          fit: BoxFit.cover,
-                                                          placeholder: (context, url) =>
-                                                              const CircularProgressIndicator
-                                                                  .adaptive(),
-                                                          errorWidget: (context, url, error) =>
-                                                              const Icon(Icons.play_arrow),
+                                                        child: Stack(
+                                                          alignment: Alignment
+                                                              .center, // Center the play icon
+                                                          children: [
+                                                            FutureBuilder<String?>(
+                                                              future:
+                                                                  generateThumbnail(widget.message),
+                                                              builder: (context, snapshot) {
+                                                                if (snapshot.connectionState ==
+                                                                    ConnectionState.waiting) {
+                                                                  return const Center(
+                                                                    child:
+                                                                        CircularProgressIndicator(),
+                                                                  );
+                                                                } else if (snapshot.hasError ||
+                                                                    snapshot.data == null) {
+                                                                  return const Center(
+                                                                    child: Icon(
+                                                                      Icons.broken_image,
+                                                                      size: 40,
+                                                                      color: Colors.grey,
+                                                                    ),
+                                                                  );
+                                                                } else {
+                                                                  return Image.file(
+                                                                    File(snapshot.data!),
+                                                                    fit: BoxFit.cover,
+                                                                    height: 200,
+                                                                    width: 250,
+                                                                  );
+                                                                }
+                                                              },
+                                                            ),
+                                                            // Video play icon overlay
+                                                            const Icon(
+                                                              Icons.play_circle_fill,
+                                                              color: Colors.white,
+                                                              size: 50,
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ),
