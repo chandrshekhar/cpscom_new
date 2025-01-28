@@ -57,8 +57,8 @@ class PushNotificationService {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(channel);
-final String title = message.data['title'] ?? 'Default Title';
-  final String body = message.data['body'] ?? 'Default Body';
+final String title = message.data['title'] ?? '';
+  final String body = message.data['body'] ?? '';
       if (Platform.isAndroid) {
         flutterLocalNotificationsPlugin.show(
           message.notification.hashCode,
