@@ -30,7 +30,7 @@ class SenderTile extends StatefulWidget {
   RxBool isSeen = false.obs;
   RxBool isDelivered = false.obs;
   String? fileName;
-  void Function()? onLeftSwipe;
+  void Function(DragUpdateDetails d)? onLeftSwipe;
   final ReplyOf? replyOf;
   final int index;
 

@@ -26,7 +26,7 @@ class ReceiverTile extends StatefulWidget {
   final String sentByName;
   final String sentByImageUrl;
   final String groupCreatedBy;
-  final void Function()? onSwipedMessage;
+  final void Function(DragUpdateDetails d)? onSwipedMessage;
   ChatController chatController;
   final String fileName;
   ReplyOf? replyOf;

@@ -1,14 +1,15 @@
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Presentation/chat_screen.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
 import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-
 
 class PushNotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -22,7 +23,8 @@ class PushNotificationService {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       int ind = -1;
       for (int i = 0; i < groupListController.groupList.length; i++) {
-        if (groupListController.groupList[i].sId.toString() == message.data['grp']) {
+        if (groupListController.groupList[i].sId.toString() ==
+            message.data['grp']) {
           ind = i;
           groupListController.groupList[i].unreadCount = 0;
           groupListController.groupList.refresh();
@@ -30,7 +32,9 @@ class PushNotificationService {
       }
       chatController.timeStamps.value = DateTime.now().millisecondsSinceEpoch;
       chatController.groupId.value = message.data['grp'];
-      log("App was opened by a notification: ${message.data}");
+      if (kDebugMode) {
+        log("App was opened by a notification: ${message.data}");
+      }
       doNavigator(
         route: ChatScreen(
           groupId: message.data['grp'],
@@ -39,21 +43,27 @@ class PushNotificationService {
         context: Get.context!,
       );
     });
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
-      if (message != null) {
-        log("App launched from terminated state by notification: ${message.data}");
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (kDebugMode) {
+        if (message != null) {
+          log("App launched from terminated state by notification: ${message.data}");
+        }
       }
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      log("Foreground notification: ${message.notification}");
-      log("Message data: ${message.data}");
-
+      if (kDebugMode) {
+        log("Foreground notification: ${message.notification}");
+        log("Message data: ${message.data}");
+      }
       AndroidNotificationChannel channel = androidNotificationChannel();
       await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(channel);
-final String title = message.data['title'] ?? '';
-  final String body = message.data['body'] ?? '';
+      final String title = message.data['title'] ?? '';
+      final String body = message.data['body'] ?? '';
       if (Platform.isAndroid) {
         flutterLocalNotificationsPlugin.show(
           message.notification.hashCode,
@@ -75,13 +85,13 @@ final String title = message.data['title'] ?? '';
             ),
           ),
         );
-      } 
-        
+      }
     });
   }
 
   Future<void> enableIOSNotifications() async {
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: false,
       sound: true,
@@ -92,16 +102,19 @@ final String title = message.data['title'] ?? '';
     AndroidNotificationChannel channel = androidNotificationChannel();
 
     await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iOSSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-    final initSettings = InitializationSettings(android: androidSettings, iOS: iOSSettings);
+    const initSettings =
+        InitializationSettings(android: androidSettings, iOS: iOSSettings);
 
     await flutterLocalNotificationsPlugin.initialize(initSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) {
@@ -134,7 +147,4 @@ final String title = message.data['title'] ?? '';
         return body;
     }
   }
-
- 
 }
-
