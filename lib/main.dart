@@ -13,19 +13,12 @@ import 'package:get_storage/get_storage.dart';
 import 'Commons/theme.dart';
 import 'Features/Splash/Presentation/splash_screen.dart';
 import 'Utils/app_preference.dart';
-import 'firebase_options.dart';
 
 late final FirebaseApp firebaseApp;
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  if (kDebugMode) {
-    log("Handling a background message messageID: ${message.messageId}");
-    log("Handling a background message data: ${message.data.toString()}");
-    log("Handling a background message notification: ${message.notification!.title}");
-  }
+  debugPrint("Handling a background message: ${message.messageId}");
 }
 
 void requestPermissions() async {
@@ -57,11 +50,9 @@ Future<void> main() async {
 
 firebaseConfig() async {
   requestPermissions();
+  // Register background handler
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await PushNotificationService().setupInteractedMessage();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  firebaseApp = await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
   // RemoteMessage? initialMessage =
   //     await FirebaseMessaging.instance.getInitialMessage();
@@ -70,7 +61,6 @@ firebaseConfig() async {
   // setFirebaseToken(fcmToken);
   AppPreference().saveFirebaseToken(token: fcmToken ?? "");
   await FirebaseMessaging.instance.requestPermission();
-
   log("FCM->$fcmToken");
 }
 

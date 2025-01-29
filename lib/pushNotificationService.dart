@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Presentation/chat_screen.dart';
 import 'package:cpscom_admin/Features/Home/Controller/group_list_controller.dart';
@@ -7,9 +8,7 @@ import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
+
 
 class PushNotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -17,11 +16,9 @@ class PushNotificationService {
   final chatController = Get.put(ChatController());
   final socketController = Get.put(SocketController());
   final groupListController = Get.put(GroupListController());
-
   Future<void> setupInteractedMessage() async {
     await enableIOSNotifications();
     await registerNotificationListeners();
-
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       int ind = -1;
       for (int i = 0; i < groupListController.groupList.length; i++) {
@@ -42,13 +39,11 @@ class PushNotificationService {
         context: Get.context!,
       );
     });
-
     FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         log("App launched from terminated state by notification: ${message.data}");
       }
     });
-
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       log("Foreground notification: ${message.notification}");
       log("Message data: ${message.data}");
@@ -73,31 +68,22 @@ final String title = message.data['title'] ?? '';
               importance: Importance.high,
               playSound: true,
             ),
-          ),
-        );
-      } else if (Platform.isIOS) {
-        final attachment = await _downloadAndAttachImage(message.data['imageUrl']);
-        flutterLocalNotificationsPlugin.show(
-          message.notification.hashCode,
-          message.notification?.title,
-          bodyMessage(message.data['msgType'].toString(), body),
-          NotificationDetails(
-            iOS: DarwinNotificationDetails(
-              attachments: attachment != null ? [attachment] : null,
+            iOS: const DarwinNotificationDetails(
               presentAlert: true,
-              presentBadge: true,
+              presentBadge: false,
               presentSound: true,
             ),
           ),
         );
-      }
+      } 
+        
     });
   }
 
   Future<void> enableIOSNotifications() async {
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
-      badge: true,
+      badge: false,
       sound: true,
     );
   }
@@ -149,22 +135,6 @@ final String title = message.data['title'] ?? '';
     }
   }
 
-  Future<DarwinNotificationAttachment?> _downloadAndAttachImage(String? imageUrl) async {
-    if (imageUrl == null || imageUrl.isEmpty) return null;
-
-    try {
-      final response = await http.get(Uri.parse(imageUrl));
-      if (response.statusCode == 200) {
-        final directory = await getApplicationDocumentsDirectory();
-        final filePath = '${directory.path}/image.jpg';
-        final file = File(filePath);
-        await file.writeAsBytes(response.bodyBytes);
-        return DarwinNotificationAttachment(filePath);
-      }
-    } catch (e) {
-      log("Error downloading image for notification: $e");
-    }
-    return null;
-  }
+ 
 }
 
