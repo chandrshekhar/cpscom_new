@@ -42,18 +42,18 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
   void initState() {
     super.initState();
     memberListController.limit.value = 20;
-    widget.groupId!.isNotEmpty
-        ? WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            memberListController.searchText.value = "";
-            memberListController.memberId.clear();
-            memberListController.getMemberList();
-            chatController.getGroupDetailsById(groupId: widget.groupId!);
-            for (var element in chatController.groupModel.value.currentUsers!) {
-              memberListController.memberId.add(element.sId.toString());
-            }
-            memberListController.memberId.refresh();
-          })
-        : null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      memberListController.searchText.value = "";
+      memberListController.memberId.clear();
+      memberListController.getMemberList();
+      for (var element in chatController.groupModel.value.currentUsers!) {
+        memberListController.memberId.add(element.sId.toString());
+      }
+      memberListController.memberId.refresh();
+      if (widget.groupId != null) {
+        chatController.getGroupDetailsById(groupId: widget.groupId!);
+      }
+    });
     widget.groupId!.isNotEmpty ? null : memberListController.dataClearAfterAdd();
   }
 
