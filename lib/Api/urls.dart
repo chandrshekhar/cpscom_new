@@ -71,5 +71,6 @@ class EndPoints {
   static const sendMessage = "/groups/addnewmsg";
   static const reportGroup = "/groups/report";
   static const messageReportApi = '/groups/report-message';
+  static const chatInfo = '/groups/info-message';
   static const logoutApi = "/users/logout";
 }

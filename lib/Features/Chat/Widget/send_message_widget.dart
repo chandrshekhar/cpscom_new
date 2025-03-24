@@ -18,14 +18,15 @@ class SendMessageWidget extends StatefulWidget {
   final TextEditingController msgController;
   final ScrollController scrollController;
   final String groupId;
+  final FocusNode? focusNode;
   // final bool isRemoved;
 
-  const SendMessageWidget({
-    super.key,
-    required this.msgController,
-    required this.scrollController,
-    required this.groupId,
-  });
+  const SendMessageWidget(
+      {super.key,
+      required this.msgController,
+      required this.scrollController,
+      required this.groupId,
+      this.focusNode});
 
   @override
   State<SendMessageWidget> createState() => _SendMessageWidgetState();
@@ -149,6 +150,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget> {
                               : const SizedBox(),
                           CustomTextField(
                             controller: widget.msgController,
+                            focusNode: widget.focusNode,
                             hintText: 'Type a message',
                             maxLines: 4,
                             isReplying: chatController.isReply.value,

@@ -55,7 +55,6 @@ class _ReceiverTileState extends State<ReceiverTile> {
   final chatController = Get.put(ChatController());
   @override
   Widget build(BuildContext context) {
-    print("hdgsfhdsfgdhs ${widget.sentByImageUrl}");
     return SwipeTo(
       onRightSwipe: widget.onSwipedMessage,
       child: Container(

@@ -8,6 +8,7 @@ import 'package:cpscom_admin/Api/urls.dart';
 import 'package:dio/dio.dart';
 
 import '../../../Utils/storage_service.dart';
+import '../Model/chat_info_model.dart';
 import '../Model/chat_list_model.dart';
 
 class ChatRepo {
@@ -81,6 +82,16 @@ class ChatRepo {
     } else {
       return ApiResponse(statusCode: res.statusCode, data: res.data);
     }
+  }
+
+  //MESSAGE REPORT API SERVICE
+  Future<ApiResponse<ChatInfoModel>> chatInfo({required Map<String, dynamic> reqModel}) async {
+    final res = await _apiClient.postRequest(
+        endPoint: EndPoints.chatInfo, fromJosn: (data) => data, reqModel: reqModel);
+    return ApiResponse(
+        errorMessage: res.errorMessage,
+        statusCode: res.statusCode,
+        data: ChatInfoModel.fromJson(res.data ?? {}));
   }
 
 //   Future<Map> messageReport({required Map<String, dynamic> reqModel}) async {

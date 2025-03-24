@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Commons/commons.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/report_controller.dart';
+import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/receiver_tile.dart';
 import 'package:cpscom_admin/Features/Chat/Widget/sender_tile.dart';
 import 'package:cpscom_admin/Features/GroupInfo/Presentation/group_info_screen.dart';
@@ -22,14 +23,14 @@ import '../../../Widgets/custom_smartrefresher_fotter.dart';
 import '../../Home/Controller/socket_controller.dart';
 import '../Widget/send_message_widget.dart';
 import '../Widget/show_member_widget.dart';
+import 'chat_info_list.dart';
 
 class ChatScreen extends StatefulWidget {
   bool? isAdmin;
   final String groupId;
   int? index;
 
-  ChatScreen({Key? key, this.isAdmin, required this.groupId, this.index})
-      : super(key: key);
+  ChatScreen({Key? key, this.isAdmin, required this.groupId, this.index}) : super(key: key);
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -42,7 +43,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final socketController = Get.put(SocketController());
   final reportController = Get.put(ReportController());
   final loginController = Get.put(LoginController());
-  FocusNode focusNode = FocusNode();
 
   String getLocaLTimeXone(String utcTime) {
     String timeZone = Intl.getCurrentLocale();
@@ -55,12 +55,12 @@ class _ChatScreenState extends State<ChatScreen> {
     return localTime;
   }
 
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       chatController.limit.value = 20;
       chatController.getGroupDetailsById(
@@ -69,9 +69,8 @@ class _ChatScreenState extends State<ChatScreen> {
       chatController.isMemberSuggestion.value = false;
       chatController.chatList.clear();
       chatController.getAllChatByGroupId(groupId: widget.groupId).then((value) {
-        List<String> reciverId = chatController.groupModel.value.currentUsers!
-            .map((user) => user.sId!)
-            .toList();
+        List<String> reciverId =
+            chatController.groupModel.value.currentUsers!.map((user) => user.sId!).toList();
         socketController.socket?.emit("read", {
           "groupId": widget.groupId,
           "userId": LocalStorage().getUserId().toString(),
@@ -82,6 +81,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
       chatController.groupId.value = widget.groupId;
     });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -105,8 +110,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   InkWell(
                     onTap: () async {
                       chatController.groupId.value = "";
-                      groupListController.groupList[widget.index!].unreadCount =
-                          0;
+                      groupListController.groupList[widget.index!].unreadCount = 0;
                       groupListController.groupList.refresh();
                       Navigator.pop(context);
                       // await groupListController.getGroupList(isLoadingShow: false);
@@ -126,15 +130,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (chatController.groupModel.value.groupImage != null) {
                         Get.to(
                             () => FullScreenImageViewer(
-                                  imageUrl: chatController
-                                      .groupModel.value.groupImage
-                                      .toString(),
-                                  lableText: chatController
-                                          .groupModel.value.groupName ??
-                                      "",
+                                  imageUrl: chatController.groupModel.value.groupImage.toString(),
+                                  lableText: chatController.groupModel.value.groupName ?? "",
                                 ),
-                            transition: Transition
-                                .circularReveal, // Optional: Customize the animation
+                            transition:
+                                Transition.circularReveal, // Optional: Customize the animation
                             duration: const Duration(milliseconds: 700));
                       }
                       // doNavigator(
@@ -143,15 +143,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       //     context: context);
                     },
                     child: ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(AppSizes.cardCornerRadius * 10),
+                      borderRadius: BorderRadius.circular(AppSizes.cardCornerRadius * 10),
                       child: Obx(() => CachedNetworkImage(
                             width: 30,
                             height: 30,
                             fit: BoxFit.cover,
-                            imageUrl:
-                                chatController.groupModel.value.groupImage ??
-                                    "",
+                            imageUrl: chatController.groupModel.value.groupImage ?? "",
                             placeholder: (context, url) => Shimmer.fromColors(
                               baseColor: Colors.grey[300]!,
                               highlightColor: Colors.grey[100]!,
@@ -163,8 +160,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               radius: 16,
                               backgroundColor: AppColors.bg,
                               child: Text(
-                                chatController.groupModel.value.groupName !=
-                                        null
+                                chatController.groupModel.value.groupName != null
                                     ? chatController.groupModel.value.groupName!
                                         .substring(0, 1)
                                         .toUpperCase()
@@ -209,6 +205,11 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             actions: [
+              // InkWell(
+              //     onTap: () {
+
+              //     },
+              //     child: Icon(Icons.abc)),
               PopupMenuButton(
                 position: PopupMenuPosition.under,
                 icon: const Icon(Icons.more_vert),
@@ -236,16 +237,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   switch (value) {
                     case 1:
                       context.push(GroupInfoScreen(
-                          groupId: widget.groupId.toString(),
-                          isAdmin: widget.isAdmin));
+                          groupId: widget.groupId.toString(), isAdmin: widget.isAdmin));
                       break;
                     case 2:
                       _showReportDialog(
                           isLoading: reportController.isGroupReportLoading,
                           title: "Report Group",
                           context: context,
-                          textEditingController:
-                              reportController.groupReportController.value,
+                          textEditingController: reportController.groupReportController.value,
                           onTap: () async {
                             await reportController.groupReport(
                                 groupId: widget.groupId, context: context);
@@ -280,15 +279,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                 onLoading: () async {
                                   chatController.limit.value += 20;
                                   chatController.getAllChatByGroupId(
-                                      groupId: widget.groupId,
-                                      isShowLoading: false);
+                                      groupId: widget.groupId, isShowLoading: false);
                                   _refreshController.loadComplete();
                                 },
                                 footer: const CustomFooterWidget(),
                                 child: ListView.builder(
                                     itemCount: chatController.chatList.length,
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
+                                    physics: const AlwaysScrollableScrollPhysics(),
                                     controller: _scrollController,
                                     shrinkWrap: true,
                                     reverse: true,
@@ -296,32 +293,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                         // left: 5,
                                         bottom: AppSizes.kDefaultPadding * 2),
                                     itemBuilder: (context, index) {
-                                      var item = chatController
-                                          .chatList.reversed
-                                          .toList()[index];
+                                      var item = chatController.chatList.reversed.toList()[index];
 
                                       return item.senderId.toString() ==
-                                              LocalStorage()
-                                                  .getUserId()
-                                                  .toString()
+                                              LocalStorage().getUserId().toString()
                                           ? InkWell(
                                               onTap: () {
-                                                chatController.selectedIndex
-                                                    .value = index;
+                                                chatController.selectedIndex.value = index;
                                                 log("Delivery count is ${item.deliveredTo!.length}");
                                               },
-                                              child: item.messageType ==
-                                                          "created" ||
-                                                      item.messageType ==
-                                                          "removed" ||
-                                                      item.messageType ==
-                                                          "added"
+                                              child: item.messageType == "created" ||
+                                                      item.messageType == "removed" ||
+                                                      item.messageType == "added"
                                                   ? Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 20,
-                                                              right: 20,
-                                                              bottom: 20),
+                                                      padding: const EdgeInsets.only(
+                                                          left: 20, right: 20, bottom: 20),
                                                       child: Center(
                                                         child: InkWell(
                                                           onTap: () {
@@ -330,81 +316,61 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           },
                                                           child: Text(
                                                             item.message ?? "",
-                                                            textAlign: TextAlign
-                                                                .center,
+                                                            textAlign: TextAlign.center,
                                                           ),
                                                         ),
                                                       ),
                                                     )
                                                   : InkWell(
                                                       onLongPress: () {
+                                                        FocusScopeNode currentFocus =
+                                                            FocusScope.of(context);
+                                                        if ((!currentFocus.hasPrimaryFocus &&
+                                                            currentFocus.focusedChild != null)) {
+                                                          FocusManager.instance.primaryFocus
+                                                              ?.unfocus();
+                                                        }
                                                         _showBottomSheet(
                                                             from: "sender",
                                                             context,
-                                                            item.sId.toString(),
-                                                            handleReply: () {
-                                                          backFromPrevious(
-                                                              context: context);
-                                                          chatController
-                                                              .isRelayFunction(
-                                                                  isRep: true,
-                                                                  msgId:
-                                                                      item.id,
-                                                                  msgType: item
-                                                                      .messageType,
-                                                                  msg: item
-                                                                      .message,
-                                                                  senderName: item
-                                                                      .senderName);
+                                                            chatdata: item,
+                                                            item.sId.toString(), handleReply: () {
+                                                          backFromPrevious(context: context);
+                                                          chatController.isRelayFunction(
+                                                              isRep: true,
+                                                              msgId: item.id,
+                                                              msgType: item.messageType,
+                                                              msg: item.message,
+                                                              senderName: item.senderName);
                                                         });
                                                       },
                                                       child: SenderTile(
-                                                        isDelivered: item
-                                                                    .allRecipients
-                                                                    ?.length ==
-                                                                item.deliveredTo
-                                                                    ?.length
+                                                        isDelivered: item.allRecipients?.length ==
+                                                                item.deliveredTo?.length
                                                             ? true.obs
                                                             : false.obs,
-                                                        isSeen: item.allRecipients
-                                                                    ?.length ==
-                                                                item.readBy
-                                                                    ?.length
+                                                        isSeen: item.allRecipients?.length ==
+                                                                item.readBy?.length
                                                             ? true.obs
                                                             : false.obs,
                                                         index: index,
-                                                        fileName:
-                                                            item.fileName ?? "",
-                                                        message:
-                                                            item.message ?? "",
-                                                        messageType: item
-                                                            .messageType
-                                                            .toString(),
-                                                        sentTime: DateFormat(
-                                                                'MM/dd/yyyy HH:mm')
-                                                            .format(DateTime.parse(
-                                                                    item.timestamp ??
-                                                                        "")
-                                                                .toLocal()),
+                                                        fileName: item.fileName ?? "",
+                                                        message: item.message ?? "",
+                                                        messageType: item.messageType.toString(),
+                                                        sentTime: DateFormat('MM/dd/yyyy HH:mm')
+                                                            .format(
+                                                                DateTime.parse(item.timestamp ?? "")
+                                                                    .toLocal()),
                                                         groupCreatedBy: "",
                                                         read: "value",
-                                                        onLeftSwipe:
-                                                            (DragUpdateDetails
-                                                                d) {
-                                                          chatController
-                                                              .isRelayFunction(
-                                                                  isRep: true,
-                                                                  msgId:
-                                                                      item.sId,
-                                                                  msgType: item
-                                                                      .messageType,
-                                                                  msg: item
-                                                                      .message,
-                                                                  senderName: item
-                                                                      .senderName);
-                                                          log(chatController
-                                                              .replyOf
-                                                              .toString());
+                                                        onLeftSwipe: (DragUpdateDetails d) {
+                                                          chatController.isRelayFunction(
+                                                              isRep: true,
+                                                              msgId: item.sId,
+                                                              msgType: item.messageType,
+                                                              msg: item.message,
+                                                              senderName: item.senderName);
+                                                          log(chatController.replyOf.toString());
                                                         },
                                                         replyOf: item.replyOf,
                                                         // child: item.allRecipients!
@@ -436,15 +402,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                                       ),
                                                     ))
                                           : item.messageType == "created" ||
-                                                  item.messageType ==
-                                                      "removed" ||
+                                                  item.messageType == "removed" ||
                                                   item.messageType == "added"
                                               ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 20,
-                                                          right: 20,
-                                                          bottom: 20),
+                                                  padding: const EdgeInsets.only(
+                                                      left: 20, right: 20, bottom: 20),
                                                   child: Center(
                                                     child: InkWell(
                                                       onTap: () {
@@ -453,79 +415,61 @@ class _ChatScreenState extends State<ChatScreen> {
                                                       },
                                                       child: Text(
                                                         item.message ?? "",
-                                                        textAlign:
-                                                            TextAlign.center,
+                                                        textAlign: TextAlign.center,
                                                       ),
                                                     ),
                                                   ),
                                                 )
                                               : InkWell(
                                                   onLongPress: () {
+                                                    FocusScopeNode currentFocus =
+                                                        FocusScope.of(context);
+                                                    if ((!currentFocus.hasPrimaryFocus &&
+                                                        currentFocus.focusedChild != null)) {
+                                                      FocusManager.instance.primaryFocus?.unfocus();
+                                                    }
                                                     _showBottomSheet(
                                                         from: "reciver",
+                                                        chatdata: item,
                                                         context,
-                                                        item.sId.toString(),
-                                                        handleReply: () {
-                                                      backFromPrevious(
-                                                          context: context);
-                                                      chatController
-                                                          .isRelayFunction(
-                                                              isRep: true,
-                                                              msgId: item.id,
-                                                              msgType: item
-                                                                  .messageType,
-                                                              msg: item.message,
-                                                              senderName: item
-                                                                  .senderName);
+                                                        item.sId.toString(), handleReply: () {
+                                                      backFromPrevious(context: context);
+                                                      chatController.isRelayFunction(
+                                                          isRep: true,
+                                                          msgId: item.id,
+                                                          msgType: item.messageType,
+                                                          msg: item.message,
+                                                          senderName: item.senderName);
                                                     });
                                                   },
                                                   onTap: () {
-                                                    chatController.selectedIndex
-                                                        .value = index;
+                                                    chatController.selectedIndex.value = index;
                                                   },
                                                   child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 15),
+                                                    padding: const EdgeInsets.only(top: 15),
                                                     child: ReceiverTile(
                                                       index: index,
                                                       replyOf: item.replyOf,
-                                                      fileName:
-                                                          item.fileName ?? "",
-                                                      chatController:
-                                                          chatController,
-                                                      onSwipedMessage:
-                                                          (DragUpdateDetails
-                                                              d) {
-                                                        chatController
-                                                            .isRelayFunction(
-                                                                isRep: true,
-                                                                msgId: item.id,
-                                                                msgType: item
-                                                                    .messageType,
-                                                                msg: item
-                                                                    .message,
-                                                                senderName: item
-                                                                    .senderName);
+                                                      fileName: item.fileName ?? "",
+                                                      chatController: chatController,
+                                                      onSwipedMessage: (DragUpdateDetails d) {
+                                                        chatController.isRelayFunction(
+                                                            isRep: true,
+                                                            msgId: item.id,
+                                                            msgType: item.messageType,
+                                                            msg: item.message,
+                                                            senderName: item.senderName);
                                                         // replyToMessage(chatMap);
                                                       },
-                                                      message:
-                                                          item.message ?? "",
-                                                      messageType:
-                                                          item.messageType ??
-                                                              "",
-                                                      sentTime: DateFormat(
-                                                              'MM/dd/yyyy HH:mm')
-                                                          .format(DateTime.parse(
-                                                                  item.timestamp ??
-                                                                      "")
-                                                              .toLocal()),
-                                                      sentByName:
-                                                          item.senderName ?? "",
-                                                      sentByImageUrl: item
-                                                              .senderDataAll
-                                                              ?.image ??
-                                                          "",
+                                                      message: item.message ?? "",
+                                                      messageType: item.messageType ?? "",
+                                                      sentTime: DateFormat('MM/dd/yyyy HH:mm')
+                                                          .format(
+                                                              DateTime.parse(item.timestamp ?? "")
+                                                                  .toLocal()),
+                                                      sentByName: item.senderName ?? "",
+                                                      sentByImageUrl:
+                                                          item.senderDataAll?.image ?? "",
                                                       groupCreatedBy: "Pandey",
                                                     ),
                                                   ),
@@ -575,8 +519,8 @@ class _ChatScreenState extends State<ChatScreen> {
           content: TextField(
             controller: textEditingController,
             maxLines: 3,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), hintText: "Enter your issue"),
+            decoration:
+                const InputDecoration(border: OutlineInputBorder(), hintText: "Enter your issue"),
           ),
           actions: <Widget>[
             TextButton(
@@ -599,10 +543,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _showPopupMenu(BuildContext context, String msgId,
-      {VoidCallback? handleReply}) async {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
+  void _showPopupMenu(BuildContext context, String msgId, {VoidCallback? handleReply}) async {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
         const Offset(90, 500),
@@ -650,10 +592,8 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _showPopupMenuSender(BuildContext context, String msgId,
-      {VoidCallback? handleReply}) async {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
+  void _showPopupMenuSender(BuildContext context, String msgId, {VoidCallback? handleReply}) async {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
         const Offset(90, 500),
@@ -668,6 +608,10 @@ class _ChatScreenState extends State<ChatScreen> {
         const PopupMenuItem(
           value: 1,
           child: Text('Reply'),
+        ),
+        const PopupMenuItem(
+          value: 2,
+          child: Text('Info'),
         ),
       ],
     );
@@ -686,7 +630,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void _showBottomSheet(BuildContext context, String msgId,
       {VoidCallback? handleReply,
       required String from,
-      VoidCallback? deleteMessage}) {
+      VoidCallback? deleteMessage,
+      required ChatModel chatdata}) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -705,6 +650,22 @@ class _ChatScreenState extends State<ChatScreen> {
                     style: TextStyle(fontSize: 16),
                   ),
                   onTap: handleReply),
+              from == "sender"
+                  ? ListTile(
+                      leading: const Icon(Icons.info, color: Colors.orange),
+                      title: const Text(
+                        'Info',
+                        style: TextStyle(fontSize: 16, color: Colors.orange),
+                      ),
+                      onTap: () {
+                        backFromPrevious(context: context);
+                        doNavigator(
+                            route: ChatInfoListScreen(
+                              chatModel: chatdata,
+                            ),
+                            context: context);
+                      })
+                  : SizedBox(),
               from == "reciver"
                   ? ListTile(
                       leading: const Icon(Icons.report, color: Colors.red),
@@ -716,8 +677,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         backFromPrevious(context: context);
                         _showReportDialog(
                           context: context,
-                          textEditingController:
-                              reportController.messageReportController.value,
+                          textEditingController: reportController.messageReportController.value,
                           onTap: () {
                             reportController.messageReport(
                               messageId: msgId,
@@ -730,7 +690,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         );
                       },
                     )
-                  : const SizedBox()
+                  : const SizedBox(),
             ],
           ),
         );
