@@ -1,5 +1,3 @@
-import 'package:cpscom_admin/Features/Home/Model/group_list_model.dart';
-
 class ChatInfoModel {
   bool? success;
   String? message;
@@ -20,7 +18,7 @@ class Data {
   String? messageType;
   String? createdAt;
   List<ReadUserData>? readUserData;
-  List<DeliveredTo>? deliveredToData;
+  List<DeliverTo>? deliveredToData;
 
   Data(
       {this.sId,
@@ -42,9 +40,9 @@ class Data {
       });
     }
     if (json['deliveredToData'] != null) {
-      deliveredToData = <DeliveredTo>[];
+      deliveredToData = <DeliverTo>[];
       json['deliveredToData'].forEach((v) {
-        deliveredToData!.add(new DeliveredTo.fromJson(v));
+        deliveredToData!.add(new DeliverTo.fromJson(v));
       });
     }
   }
@@ -66,15 +64,15 @@ class ReadUserData {
   }
 }
 
-class DeleveredTo {
+class DeliverTo {
   String? sId;
   String? name;
   String? timestamp;
   String? image;
 
-  DeleveredTo({this.sId, this.name, this.timestamp, this.image});
+  DeliverTo({this.sId, this.name, this.timestamp, this.image});
 
-  DeleveredTo.fromJson(Map<String, dynamic> json) {
+  DeliverTo.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     name = json['name'];
     timestamp = json['timestamp'];

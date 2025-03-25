@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cpscom_admin/Features/Chat/Repo/chat_repo.dart';
 import 'package:get/get.dart';
 
@@ -9,11 +11,12 @@ class ChatInfoController extends GetxController {
   RxString errorMessage = "".obs;
   Rx<ChatInfoModel?> chatInfoModel = Rx<ChatInfoModel?>(null);
 
-  chatInfo(String msgId) async {
+  chatInfo({required String msgId, bool isRefresh = true}) async {
     errorMessage.value = "";
     Map<String, dynamic> reqModel = {"msgId": msgId};
+    log("fghsdfg ${reqModel}");
     try {
-      isLoading(true);
+    isRefresh?  isLoading(true) : null;
       final res = await chatRepo.chatInfo(reqModel: reqModel);
       if (res.errorMessage != null) {
         errorMessage.value = res.errorMessage ?? "";

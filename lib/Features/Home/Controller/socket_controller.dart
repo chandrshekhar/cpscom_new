@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../../Utils/storage_service.dart';
 import '../../AddMembers/Controller/group_create_controller.dart';
+import '../../Chat/Controller/chat_info_controller.dart';
 import '../../Chat/Model/chat_list_model.dart';
 import '../Model/group_list_model.dart';
 import '../Presentation/home_screen.dart';
@@ -23,6 +24,7 @@ class SocketController extends GetxController {
   final memberListController = Get.put(MemeberlistController());
   RxBool isConnected = true.obs; // Observable for connection state
   final connectivity = Connectivity(); // Connectivity instance
+  RxString msgId = "".obs;
 
   socketConnection() {
     try {
@@ -67,6 +69,7 @@ class SocketController extends GetxController {
       //Message received
       socket?.on('message', (data) {
         log("All smsshgfjhsgfjshfgjhg ${data['data']}");
+        log("messagefdsf ${data['data']["_id"]}");
         if ((data['data']['messageType'] == "removed") ||
             (data['data']['messageType'] == "added")) {
           groupListController.getGroupList(isLoadingShow: false);
@@ -137,6 +140,8 @@ class SocketController extends GetxController {
             log("Main chat data ${element.readBy!.length}");
           }
           chatController.chatList.refresh();
+          String messageId = data['data']['_id'];
+          log("dgfhfgdhs ${messageId}");
           socket?.emit("read", {
             "msgId": data['data']['_id'],
             "userId": LocalStorage().getUserId().toString(),
@@ -148,6 +153,9 @@ class SocketController extends GetxController {
 
       //Deliver message listing
       socket?.on("deliver", (data) {
+        final chatInfo = Get.put(ChatInfoController());
+        chatInfo.chatInfo(msgId: msgId.value, isRefresh: false);
+        log("dhfgdhfgdhs ${data['msgId']}");
         log("yteyrubfnmdfb ${data['deliveredTo']}");
         if (data['deliverData'] == null) {
           log("if pront");
@@ -184,18 +192,19 @@ class SocketController extends GetxController {
 
       //Seen message listing
       socket?.on("read", (data) {
+        final chatInfo = Get.put(ChatInfoController());
         log("jhghhg  $data");
+        chatInfo.chatInfo(msgId: msgId.value, isRefresh: false);
         if (data['msgId'] != null) {
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].sId == data['msgId'].toString()) {
               chatController.chatList[i].readBy =
                   (data['readData'] as List).map((e) => ChatReadBy.fromJson(e)).toList();
               chatController.chatList.refresh();
+              chatInfo.chatInfo(msgId: data['msgId'].toString(), isRefresh: false);
             }
           }
         } else {
-          log("elffese pront");
-
           for (int i = 0; i < chatController.chatList.length; i++) {
             if (chatController.chatList[i].readBy?.length !=
                 chatController.groupModel.value.currentUsers?.length) {

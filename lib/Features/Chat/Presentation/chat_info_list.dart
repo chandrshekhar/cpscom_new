@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cpscom_admin/Features/Chat/Controller/chat_info_controller.dart';
 import 'package:cpscom_admin/Features/Chat/Model/chat_list_model.dart';
+import 'package:cpscom_admin/Features/Home/Controller/socket_controller.dart';
 import 'package:cpscom_admin/Utils/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,11 +23,13 @@ class ChatInfoListScreen extends StatefulWidget {
 
 class _ChatInfoListScreenState extends State<ChatInfoListScreen> {
   final chatInfoController = Get.put(ChatInfoController());
+  final socketController = Get.put(SocketController());
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      chatInfoController.chatInfo(widget.chatModel.sId);
+      socketController.msgId.value= widget.chatModel.sId;
+      chatInfoController.chatInfo(msgId: widget.chatModel.sId);
     });
   }
 
@@ -78,7 +81,9 @@ class _ChatInfoListScreenState extends State<ChatInfoListScreen> {
                     ? const CircularProgressIndicator()
                     : Column(
                         children: [
-                          chatInfoController.chatInfoModel.value!.data!.readUserData!.isNotEmpty
+                          chatInfoController.chatInfoModel.value != null &&
+                                  chatInfoController
+                                      .chatInfoModel.value!.data!.readUserData!.isNotEmpty
                               ? Container(
                                   margin: EdgeInsets.only(
                                     left: 20,
@@ -122,7 +127,9 @@ class _ChatInfoListScreenState extends State<ChatInfoListScreen> {
                                   ),
                                 )
                               : SizedBox(),
-                          chatInfoController.chatInfoModel.value!.data!.deliveredToData!.isNotEmpty
+                          chatInfoController.chatInfoModel.value != null &&
+                                  chatInfoController
+                                      .chatInfoModel.value!.data!.deliveredToData!.isNotEmpty
                               ? Container(
                                   margin: const EdgeInsets.only(
                                     left: 20,
@@ -154,7 +161,7 @@ class _ChatInfoListScreenState extends State<ChatInfoListScreen> {
                                             chatInfoController.chatInfoModel.value!.data!
                                                 .deliveredToData!.length, (index) {
                                           var item = chatInfoController
-                                              .chatInfoModel.value!.data!.readUserData![index];
+                                              .chatInfoModel.value!.data!.deliveredToData![index];
                                           return ReadByDeliveryByCardWidget(
                                             date: item.timestamp ?? "",
                                             imageUrl: item.image ?? "",
